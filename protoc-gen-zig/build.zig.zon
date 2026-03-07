@@ -1,0 +1,10 @@
+.{
+    .name = .protoc_gen_zig,
+    .fingerprint = 0xa18e217ac5411155,
+    .version = "0.0.0",
+    .minimum_zig_version = "0.15.0",
+    .dependencies = .{
+        .protobuf = .{ .path = "../protobuf" },
+    },
+    .paths = .{"."},
+}
