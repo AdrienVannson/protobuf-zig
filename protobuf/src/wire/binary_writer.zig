@@ -132,6 +132,62 @@ pub const BinaryWriter = struct {
         const owned = try self.allocator.dupe(u8, value);
         try self.write(owned);
     }
+
+    pub fn uint32(self: *BinaryWriter, value: u32) !void {
+        try self.varint(value);
+    }
+
+    pub fn int32(self: *BinaryWriter, value: i32) !void {
+        try self.varint(@bitCast(@as(i64, value)));
+    }
+
+    pub fn int64(self: *BinaryWriter, value: i64) !void {
+        try self.varint(@bitCast(value));
+    }
+
+    pub fn bool_(self: *BinaryWriter, value: bool) !void {
+        try self.varint(if (value) 1 else 0);
+    }
+
+    pub fn sint32(self: *BinaryWriter, value: i32) !void {
+        const zz = @as(u32, @bitCast((value << 1) ^ (value >> 31)));
+        try self.varint(zz);
+    }
+
+    pub fn sint64(self: *BinaryWriter, value: i64) !void {
+        const zz = @as(u64, @bitCast((value << 1) ^ (value >> 63)));
+        try self.varint(zz);
+    }
+
+    pub fn fixed32(self: *BinaryWriter, value: u32) !void {
+        var buf: [4]u8 = undefined;
+        std.mem.writeInt(u32, &buf, value, .little);
+        const owned = try self.allocator.dupe(u8, &buf);
+        try self.write(owned);
+    }
+
+    pub fn sfixed32(self: *BinaryWriter, value: i32) !void {
+        try self.fixed32(@bitCast(value));
+    }
+
+    pub fn float_(self: *BinaryWriter, value: f32) !void {
+        try self.fixed32(@bitCast(value));
+    }
+
+    pub fn fixed64(self: *BinaryWriter, value: u64) !void {
+        var buf: [8]u8 = undefined;
+        std.mem.writeInt(u64, &buf, value, .little);
+        const owned = try self.allocator.dupe(u8, &buf);
+        try self.write(owned);
+    }
+
+    pub fn sfixed64(self: *BinaryWriter, value: i64) !void {
+        try self.fixed64(@bitCast(value));
+    }
+
+    pub fn double(self: *BinaryWriter, value: f64) !void {
+        try self.fixed64(@bitCast(value));
+    }
 };
 
 // ---------------------------------------------------------------------------
@@ -400,4 +456,116 @@ test "finish with unclosed fork returns error" {
     try testing.expectError(error.UnclosedFork, w.finish());
     // Clean up the unclosed fork so deinit works cleanly.
     try w.join();
+}
+
+test "uint32 300" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.uint32(300);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{ 0xac, 0x02 }, out);
+}
+
+test "int32 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.int32(-1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+    }, out);
+}
+
+test "int64 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.int64(-1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+    }, out);
+}
+
+test "bool_ true" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.bool_(true);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{0x01}, out);
+}
+
+test "sint32 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.sint32(-1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{0x01}, out);
+}
+
+test "sint64 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.sint64(-1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{0x01}, out);
+}
+
+test "fixed32 1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.fixed32(1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{ 0x01, 0x00, 0x00, 0x00 }, out);
+}
+
+test "sfixed32 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.sfixed32(-1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{ 0xff, 0xff, 0xff, 0xff }, out);
+}
+
+test "float_ 1.0" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.float_(1.0);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{ 0x00, 0x00, 0x80, 0x3f }, out);
+}
+
+test "fixed64 1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.fixed64(1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, out);
+}
+
+test "sfixed64 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.sfixed64(-1);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }, out);
+}
+
+test "double 1.0" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.double(1.0);
+    const out = try w.finish();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, &.{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f }, out);
 }
