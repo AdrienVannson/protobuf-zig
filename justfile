@@ -1,3 +1,5 @@
+protobuf_version := "33.2"
+
 all: build test
 
 build:
@@ -11,3 +13,11 @@ test:
 clean:
     rm -rf protobuf/.zig-cache protobuf/zig-out
     rm -rf protoc-gen-zig/.zig-cache protoc-gen-zig/zig-out
+
+# Run protoc (downloads if needed)
+protoc *args:
+    PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh protoc {{args}}
+
+# Run conformance test runner (downloads if needed)
+conformance-runner *args:
+    PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh conformance-runner {{args}}
