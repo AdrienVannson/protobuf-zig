@@ -28,7 +28,7 @@ fn encodeVarint(value: u64, buf: *[10]u8) []const u8 {
 /// number of bytes serialized.
 ///
 /// All chunks stored in the list are allocator-owned. Call deinit() to free
-/// them. finish() returns an owned []u8 that the caller must free separately.
+/// them. Call finish(writer) to flush all chunks to a std.io writer.
 pub const BinaryWriter = struct {
     allocator: std.mem.Allocator,
     chunks: std.ArrayList([]u8),
@@ -99,18 +99,13 @@ pub const BinaryWriter = struct {
         self.size = entry.parent_size + length_owned.len + sub_size;
     }
 
-    /// Return the serialized bytes as an owned slice. The caller must free it.
+    /// Write the serialized bytes to writer, calling writeAll for each chunk.
     /// Returns error.UnclosedFork if any fork() calls have not been joined.
-    pub fn finish(self: *BinaryWriter) ![]u8 {
+    pub fn finish(self: *BinaryWriter, writer: anytype) !void {
         if (self.stack.items.len != 0) return error.UnclosedFork;
-
-        const result = try self.allocator.alloc(u8, self.size);
-        var offset: usize = 0;
         for (self.chunks.items) |chunk| {
-            @memcpy(result[offset..][0..chunk.len], chunk);
-            offset += chunk.len;
+            try writer.writeAll(chunk);
         }
-        return result;
     }
 
     /// Write an unsigned integer as a varint.
@@ -202,56 +197,62 @@ test "varint zero" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.varint(0);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x00}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x00}, buf.items);
 }
 
 test "varint one" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.varint(1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x01}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x01}, buf.items);
 }
 
 test "varint 127" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.varint(127);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x7f}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x7f}, buf.items);
 }
 
 test "varint 128" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.varint(128);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x80, 0x01 }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x80, 0x01 }, buf.items);
 }
 
 test "varint 150" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.varint(150);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x96, 0x01 }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x96, 0x01 }, buf.items);
 }
 
 test "varint max u64" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.varint(std.math.maxInt(u64));
-    const out = try w.finish();
-    defer testing.allocator.free(out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
     try testing.expectEqualSlices(u8, &.{
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    }, out);
+    }, buf.items);
 }
 
 test "varint multiple" {
@@ -260,9 +261,10 @@ test "varint multiple" {
     try w.varint(1);
     try w.varint(150);
     try w.varint(0);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x01, 0x96, 0x01, 0x00 }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x01, 0x96, 0x01, 0x00 }, buf.items);
 }
 
 // tag
@@ -271,18 +273,20 @@ test "tag field 1 varint" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.tag(1, .varint);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x08}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x08}, buf.items);
 }
 
 test "tag field 2 length_delimited" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.tag(2, .length_delimited);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x12}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x12}, buf.items);
 }
 
 test "tag large field number" {
@@ -291,11 +295,12 @@ test "tag large field number" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.tag(536870911, .varint);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
     // (536870911 << 3) = 4294967288 = 0xFFFFFFF8
     // varint: f8 ff ff ff 0f
-    try testing.expectEqualSlices(u8, &.{ 0xf8, 0xff, 0xff, 0xff, 0x0f }, out);
+    try testing.expectEqualSlices(u8, &.{ 0xf8, 0xff, 0xff, 0xff, 0x0f }, buf.items);
 }
 
 // bytes
@@ -304,18 +309,20 @@ test "bytes empty" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.bytes(&.{});
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x00}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x00}, buf.items);
 }
 
 test "bytes simple" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.bytes("hello");
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x05, 'h', 'e', 'l', 'l', 'o' }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x05, 'h', 'e', 'l', 'l', 'o' }, buf.items);
 }
 
 // fork / join
@@ -325,9 +332,10 @@ test "fork join empty sub-message" {
     defer w.deinit();
     try w.fork();
     try w.join();
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x00}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x00}, buf.items);
 }
 
 test "fork join simple sub-message" {
@@ -337,9 +345,10 @@ test "fork join simple sub-message" {
     try w.varint(42);
     try w.join();
     // varint(42) = 0x2a (1 byte), so length prefix is 0x01
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x01, 0x2a }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x01, 0x2a }, buf.items);
 }
 
 test "fork join matches bytes encoding" {
@@ -351,16 +360,18 @@ test "fork join matches bytes encoding" {
     const owned = try testing.allocator.dupe(u8, payload);
     try fw.write(owned);
     try fw.join();
-    const fork_out = try fw.finish();
-    defer testing.allocator.free(fork_out);
+    var fw_buf = std.ArrayList(u8){};
+    defer fw_buf.deinit(testing.allocator);
+    try fw.finish(fw_buf.writer(testing.allocator));
 
     var bw = BinaryWriter.init(testing.allocator);
     defer bw.deinit();
     try bw.bytes(payload);
-    const bytes_out = try bw.finish();
-    defer testing.allocator.free(bytes_out);
+    var bw_buf = std.ArrayList(u8){};
+    defer bw_buf.deinit(testing.allocator);
+    try bw.finish(bw_buf.writer(testing.allocator));
 
-    try testing.expectEqualSlices(u8, bytes_out, fork_out);
+    try testing.expectEqualSlices(u8, bw_buf.items, fw_buf.items);
 }
 
 test "fork join with tag" {
@@ -372,9 +383,10 @@ test "fork join with tag" {
     try w.fork();
     try w.varint(12);
     try w.join();
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x0a, 0x01, 0x0c }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x0a, 0x01, 0x0c }, buf.items);
 }
 
 test "fork join nested" {
@@ -388,12 +400,13 @@ test "fork join nested" {
     try w.varint(7);
     try w.join();
     try w.join();
-    const out = try w.finish();
-    defer testing.allocator.free(out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
     // inner content: varint(7) = 0x07 (1 byte)
     // inner field:   tag(1,LD)=0x0a, length=0x01, value=0x07  → 3 bytes
     // outer field:   tag(1,LD)=0x0a, length=0x03, 3 bytes
-    try testing.expectEqualSlices(u8, &.{ 0x0a, 0x03, 0x0a, 0x01, 0x07 }, out);
+    try testing.expectEqualSlices(u8, &.{ 0x0a, 0x03, 0x0a, 0x01, 0x07 }, buf.items);
 }
 
 test "fork join wide nesting" {
@@ -405,21 +418,22 @@ test "fork join wide nesting" {
         try w.varint(@intCast(i * 10));
         try w.join();
     }
-    const out = try w.finish();
-    defer testing.allocator.free(out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
 
     // Verify each field manually: tag(n, LD), length=1, varint(n*10)
     var offset: usize = 0;
     for (0..5) |i| {
         const expected_tag: u8 = @intCast(((i + 1) << 3) | 2);
-        try testing.expectEqual(expected_tag, out[offset]);
+        try testing.expectEqual(expected_tag, buf.items[offset]);
         offset += 1;
-        try testing.expectEqual(@as(u8, 1), out[offset]); // length = 1
+        try testing.expectEqual(@as(u8, 1), buf.items[offset]); // length = 1
         offset += 1;
-        try testing.expectEqual(@as(u8, @intCast(i * 10)), out[offset]);
+        try testing.expectEqual(@as(u8, @intCast(i * 10)), buf.items[offset]);
         offset += 1;
     }
-    try testing.expectEqual(out.len, offset);
+    try testing.expectEqual(buf.items.len, offset);
 }
 
 // finish
@@ -427,9 +441,10 @@ test "fork join wide nesting" {
 test "finish empty writer" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{}, buf.items);
 }
 
 test "finish complete message" {
@@ -438,9 +453,10 @@ test "finish complete message" {
     defer w.deinit();
     try w.tag(1, .varint);
     try w.varint(12);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x08, 0x0c }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x08, 0x0c }, buf.items);
 }
 
 test "join without fork returns error" {
@@ -453,7 +469,7 @@ test "finish with unclosed fork returns error" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.fork();
-    try testing.expectError(error.UnclosedFork, w.finish());
+    try testing.expectError(error.UnclosedFork, w.finish(std.io.null_writer));
     // Clean up the unclosed fork so deinit works cleanly.
     try w.join();
 }
@@ -462,110 +478,122 @@ test "uint32 300" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.uint32(300);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0xac, 0x02 }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0xac, 0x02 }, buf.items);
 }
 
 test "int32 -1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.int32(-1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
     try testing.expectEqualSlices(u8, &.{
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    }, out);
+    }, buf.items);
 }
 
 test "int64 -1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.int64(-1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
     try testing.expectEqualSlices(u8, &.{
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    }, out);
+    }, buf.items);
 }
 
 test "bool_ true" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.bool_(true);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x01}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x01}, buf.items);
 }
 
 test "sint32 -1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.sint32(-1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x01}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x01}, buf.items);
 }
 
 test "sint64 -1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.sint64(-1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{0x01}, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{0x01}, buf.items);
 }
 
 test "fixed32 1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.fixed32(1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x01, 0x00, 0x00, 0x00 }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x01, 0x00, 0x00, 0x00 }, buf.items);
 }
 
 test "sfixed32 -1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.sfixed32(-1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0xff, 0xff, 0xff, 0xff }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0xff, 0xff, 0xff, 0xff }, buf.items);
 }
 
 test "float_ 1.0" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.float_(1.0);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x00, 0x00, 0x80, 0x3f }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x00, 0x00, 0x80, 0x3f }, buf.items);
 }
 
 test "fixed64 1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.fixed64(1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, buf.items);
 }
 
 test "sfixed64 -1" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.sfixed64(-1);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }, buf.items);
 }
 
 test "double 1.0" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.double(1.0);
-    const out = try w.finish();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, &.{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f }, out);
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(testing.allocator);
+    try w.finish(buf.writer(testing.allocator));
+    try testing.expectEqualSlices(u8, &.{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f }, buf.items);
 }
