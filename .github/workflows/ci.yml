@@ -25,5 +25,14 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v3
 
-      - name: Run all
-        run: just all
+      - name: Setup
+        run: just setup
+
+      - name: Build
+        run: just build
+
+      - name: Generate
+        run: just generate && git diff --exit-code
+
+      - name: Test
+        run: just test
