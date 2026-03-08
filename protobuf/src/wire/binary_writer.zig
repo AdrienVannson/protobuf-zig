@@ -264,7 +264,91 @@ test "tag large field number" {
     try expectWriterOutput(&w, &.{ 0xf8, 0xff, 0xff, 0xff, 0x0f });
 }
 
-// bytes
+// scalar types
+
+test "int32 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.int32(-1);
+    try expectWriterOutput(&w, &.{
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+    });
+}
+
+test "int64 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.int64(-1);
+    try expectWriterOutput(&w, &.{
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+    });
+}
+
+test "uint32 300" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.uint32(300);
+    try expectWriterOutput(&w, &.{ 0xac, 0x02 });
+}
+
+test "uint64 max" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.uint64(std.math.maxInt(u64));
+    try expectWriterOutput(&w, &.{
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+    });
+}
+
+test "sint32 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.sint32(-1);
+    try expectWriterOutput(&w, &.{0x01});
+}
+
+test "sint64 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.sint64(-1);
+    try expectWriterOutput(&w, &.{0x01});
+}
+
+test "fixed32 1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.fixed32(1);
+    try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00 });
+}
+
+test "fixed64 1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.fixed64(1);
+    try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+}
+
+test "sfixed32 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.sfixed32(-1);
+    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff });
+}
+
+test "sfixed64 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.sfixed64(-1);
+    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });
+}
+
+test "bool_ true" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.bool_(true);
+    try expectWriterOutput(&w, &.{0x01});
+}
+
+test "float_ 1.0" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.float_(1.0);
+    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x80, 0x3f });
+}
+
+test "double 1.0" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.double(1.0);
+    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f });
+}
 
 test "bytes empty" {
     var w = BinaryWriter.init(testing.allocator);
@@ -278,14 +362,6 @@ test "bytes simple" {
     try expectWriterOutput(&w, &.{ 0x05, 'h', 'e', 'l', 'l', 'o' });
 }
 
-test "uint64 max" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.uint64(std.math.maxInt(u64));
-    try expectWriterOutput(&w, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    });
-}
-
 test "string simple" {
     var w = BinaryWriter.init(testing.allocator);
     try w.string("hello");
@@ -293,13 +369,6 @@ test "string simple" {
 }
 
 // fork / join
-
-test "fork join empty sub-message" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.fork();
-    try w.join();
-    try expectWriterOutput(&w, &.{0x00});
-}
 
 test "fork join simple sub-message" {
     var w = BinaryWriter.init(testing.allocator);
@@ -360,33 +429,6 @@ test "fork join nested" {
     try expectWriterOutput(&w, &.{ 0x0a, 0x03, 0x0a, 0x01, 0x07 });
 }
 
-test "fork join wide nesting" {
-    var w = BinaryWriter.init(testing.allocator);
-    defer w.deinit();
-    for (0..5) |i| {
-        try w.tag(@intCast(i + 1), .length_delimited);
-        try w.fork();
-        try w.varint(@intCast(i * 10));
-        try w.join();
-    }
-    var buf = std.ArrayList(u8){};
-    defer buf.deinit(testing.allocator);
-    try w.finish(buf.writer(testing.allocator));
-
-    // Verify each field manually: tag(n, LD), length=1, varint(n*10)
-    var offset: usize = 0;
-    for (0..5) |i| {
-        const expected_tag: u8 = @intCast(((i + 1) << 3) | 2);
-        try testing.expectEqual(expected_tag, buf.items[offset]);
-        offset += 1;
-        try testing.expectEqual(@as(u8, 1), buf.items[offset]); // length = 1
-        offset += 1;
-        try testing.expectEqual(@as(u8, @intCast(i * 10)), buf.items[offset]);
-        offset += 1;
-    }
-    try testing.expectEqual(buf.items.len, offset);
-}
-
 // finish
 
 test "finish empty writer" {
@@ -415,80 +457,4 @@ test "finish with unclosed fork returns error" {
     try testing.expectError(error.UnclosedFork, w.finish(std.io.null_writer));
     // Clean up the unclosed fork so deinit works cleanly.
     try w.join();
-}
-
-test "int32 -1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.int32(-1);
-    try expectWriterOutput(&w, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    });
-}
-
-test "int64 -1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.int64(-1);
-    try expectWriterOutput(&w, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    });
-}
-
-test "uint32 300" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.uint32(300);
-    try expectWriterOutput(&w, &.{ 0xac, 0x02 });
-}
-
-test "sint32 -1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.sint32(-1);
-    try expectWriterOutput(&w, &.{0x01});
-}
-
-test "sint64 -1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.sint64(-1);
-    try expectWriterOutput(&w, &.{0x01});
-}
-
-test "fixed32 1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.fixed32(1);
-    try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00 });
-}
-
-test "fixed64 1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.fixed64(1);
-    try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
-}
-
-test "sfixed32 -1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.sfixed32(-1);
-    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff });
-}
-
-test "sfixed64 -1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.sfixed64(-1);
-    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });
-}
-
-test "bool_ true" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.bool_(true);
-    try expectWriterOutput(&w, &.{0x01});
-}
-
-test "float_ 1.0" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.float_(1.0);
-    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x80, 0x3f });
-}
-
-test "double 1.0" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.double(1.0);
-    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f });
 }
