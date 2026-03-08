@@ -88,16 +88,15 @@ pub const BinaryWriter = struct {
     pub fn join(self: *BinaryWriter) !void {
         if (self.stack.items.len == 0) return error.JoinWithoutFork;
         const entry = self.stack.pop().?;
-        const sub_size = self.size;
 
         var buf: [10]u8 = undefined;
-        const length_slice = encodeVarint(sub_size, &buf);
+        const length_slice = encodeVarint(self.size, &buf);
         const length_owned = try self.allocator.dupe(u8, length_slice);
 
         self.allocator.free(self.chunks.items[entry.placeholder_idx]);
         self.chunks.items[entry.placeholder_idx] = length_owned;
 
-        self.size = entry.parent_size + length_owned.len + sub_size;
+        self.size += entry.parent_size + length_owned.len;
     }
 
     /// Write the serialized bytes to writer, calling writeAll for each chunk.
