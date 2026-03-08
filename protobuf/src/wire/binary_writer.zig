@@ -1,6 +1,7 @@
 const std = @import("std");
 const tag = @import("tag.zig");
-pub const WireType = tag.WireType;
+
+const WireType = tag.WireType;
 
 /// Encodes a u64 as a base-128 varint into buf and returns the used slice.
 fn encodeVarint(value: u64, buf: *[10]u8) []const u8 {
