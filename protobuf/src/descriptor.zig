@@ -90,8 +90,8 @@ pub const DescEnum = struct {
     file: *const DescFile,
     /// Enclosing message, or null if this is a top-level enum.
     parent: ?*const DescMessage,
-    /// Whether this is an open enum (accepts unknown numeric values).
-    open: bool,
+    /// Whether this is a closed enum (accepts unknown numeric values).
+    closed: bool,
     /// All declared values in source order.
     values: []const DescEnumValue,
     /// Map from numeric value to the index of the first DescEnumValue with that number.
