@@ -27,7 +27,6 @@ pub const FieldPresence = enum {
     legacy_required,
 };
 
-
 /// Default value for a scalar field.
 pub const DefaultValue = union(enum) {
     string: []const u8,
@@ -265,4 +264,3 @@ pub const DescExtension = struct {
     /// Kind and kind-specific data for this extension.
     kind: DescExtensionKind,
 };
-
