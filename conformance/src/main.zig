@@ -1,7 +1,7 @@
 const std = @import("std");
 // Paths match zig-protobuf's package-based output (not file-based).
-const conformance_pb = @import("generated/conformance.pb.zig");
-const proto3_pb = @import("generated/protobuf_test_messages/proto3.pb.zig");
+const conformance_pb = @import("generated_old_lib/conformance.pb.zig");
+const proto3_pb = @import("generated_old_lib/protobuf_test_messages/proto3.pb.zig");
 
 const ConformanceRequest = conformance_pb.ConformanceRequest;
 const ConformanceResponse = conformance_pb.ConformanceResponse;

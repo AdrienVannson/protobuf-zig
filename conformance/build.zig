@@ -18,7 +18,7 @@ pub fn build(b: *std.Build) void {
     );
 
     const gen_step = protobuf.RunProtocStep.create(protobuf_dep.builder, target, .{
-        .destination_directory = b.path("src/generated"),
+        .destination_directory = b.path("src/generated_old_lib"),
         // test_messages_proto2.proto uses group fields, unsupported by
         // zig-protobuf's generator. Only generate conformance + proto3.
         .source_files = &.{
@@ -34,7 +34,7 @@ pub fn build(b: *std.Build) void {
     // variant per numeric value.
     const dedup_step = DeduplicateEnumsStep.create(
         b,
-        b.pathFromRoot("src/generated/protobuf_test_messages/proto3.pb.zig"),
+        b.pathFromRoot("src/generated_old_lib/protobuf_test_messages/proto3.pb.zig"),
     );
     dedup_step.step.dependOn(&gen_step.step);
 
