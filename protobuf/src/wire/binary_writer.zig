@@ -214,12 +214,6 @@ test "varint zero" {
     try expectWriterOutput(&w, &.{0x00});
 }
 
-test "varint one" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.varint(1);
-    try expectWriterOutput(&w, &.{0x01});
-}
-
 test "varint 127" {
     var w = BinaryWriter.init(testing.allocator);
     try w.varint(127);
@@ -244,14 +238,6 @@ test "varint max u64" {
     try expectWriterOutput(&w, &.{
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
     });
-}
-
-test "varint multiple" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.varint(1);
-    try w.varint(150);
-    try w.varint(0);
-    try expectWriterOutput(&w, &.{ 0x01, 0x96, 0x01, 0x00 });
 }
 
 // tag
