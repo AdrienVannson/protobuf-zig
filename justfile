@@ -1,6 +1,6 @@
 protobuf_version := "33.2"
 
-all: setup build test conformance
+all: setup build generate test conformance
 
 build:
     cd protobuf && zig build
@@ -13,6 +13,17 @@ test:
 clean:
     rm -rf protobuf/.zig-cache protobuf/zig-out
     rm -rf protoc-gen-zig/.zig-cache protoc-gen-zig/zig-out
+    rm -rf testdata/generated
+
+# Run protoc-gen-zig on the test proto file
+generate:
+    cd protoc-gen-zig && zig build
+    mkdir -p testdata/generated
+    just protoc \
+        --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
+        --zig_out=./testdata/generated \
+        --proto_path=./testdata \
+        example.proto
 
 # Download protoc, conformance runner, and conformance protos
 setup version=protobuf_version:

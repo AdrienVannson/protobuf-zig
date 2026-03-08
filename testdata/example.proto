@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package example;
+
+message Foo {
+  string name = 1;
+  int32 id = 2;
+}
+
+message Bar {
+  Foo foo = 1;
+  repeated string tags = 2;
+}
