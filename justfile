@@ -1,10 +1,15 @@
 protobuf_version := "33.2"
 
-all: setup build generate test conformance
+all: setup build generate test conformance code-quality
 
 build:
     cd protobuf && zig build
     cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}}
+
+code-quality:
+    zig fmt --check protobuf/
+    zig fmt --check protoc-gen-zig/
+    zig fmt --check conformance/
 
 test:
     cd protobuf && zig build test
