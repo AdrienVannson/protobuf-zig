@@ -5,7 +5,7 @@ set -eo pipefail
 DIR="$(CDPATH= cd "$(dirname "${0}")/.." && pwd)"
 cd "${DIR}"
 
-: "${PROTOBUF_VERSION:=33.2}"
+: "${PROTOBUF_VERSION:?PROTOBUF_VERSION must be set}"
 
 CACHE_DIR="${DIR}/.cache/upstream-protobuf"
 

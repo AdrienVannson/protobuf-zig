@@ -1,18 +1,58 @@
 const std = @import("std");
-const protobuf = @import("protobuf");
-
-pub fn add(x: i64, y: i64) i64 {
-    return x + y;
-}
-
-pub fn hello() void {
-    std.debug.print("Hello from protoc-gen-zig!\n", .{});
-}
+const plugin = @import("generated/google/protobuf/compiler.pb.zig");
+const descriptor = @import("generated/google/protobuf.pb.zig");
 
 pub fn main() !void {
-    hello();
-}
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const alloc = gpa.allocator();
 
-test "add" {
-    try std.testing.expectEqual(@as(i64, 3), add(1, 2));
+    // Read entire stdin (CodeGeneratorRequest bytes)
+    const input = try std.fs.File.stdin().readToEndAlloc(alloc, 100 * 1024 * 1024);
+    defer alloc.free(input);
+
+    // Decode request
+    var reader: std.Io.Reader = .fixed(input);
+    var request = try plugin.CodeGeneratorRequest.decode(&reader, alloc);
+    defer request.deinit(alloc);
+
+    // Build map: file name → FileDescriptorProto
+    var file_map = std.StringHashMap(*const descriptor.FileDescriptorProto).init(alloc);
+    defer file_map.deinit();
+    for (request.proto_file.items) |*f| {
+        if (f.name) |name| try file_map.put(name, f);
+    }
+
+    // Build response
+    var response: plugin.CodeGeneratorResponse = .{};
+    defer response.deinit(alloc);
+
+    for (request.file_to_generate.items) |file_name| {
+        const file_desc = file_map.get(file_name) orelse continue;
+
+        // Build content: one comment per top-level message
+        var content: std.ArrayListUnmanaged(u8) = .{};
+        defer content.deinit(alloc);
+        for (file_desc.message_type.items) |msg| {
+            if (msg.name) |name| {
+                try content.writer(alloc).print("// Message: {s}\n", .{name});
+            }
+        }
+
+        // Output name: strip .proto, append .zig
+        const base = file_name[0 .. file_name.len - ".proto".len];
+        const out_name = try std.mem.concat(alloc, u8, &.{ base, ".zig" });
+
+        const out_file: plugin.CodeGeneratorResponse.File = .{
+            .name = out_name,
+            .content = try content.toOwnedSlice(alloc),
+        };
+        try response.file.append(alloc, out_file);
+    }
+
+    // Encode response and write to stdout
+    var w: std.Io.Writer.Allocating = .init(alloc);
+    defer w.deinit();
+    try response.encode(&w.writer, alloc);
+    try std.fs.File.stdout().writeAll(w.written());
 }
