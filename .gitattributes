@@ -1,1 +1,2 @@
 conformance/src/generated_old_lib/**/*.pb.zig linguist-generated=true
+protoc-gen-zig/src/generated/**/*.pb.zig linguist-generated=true
