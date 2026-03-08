@@ -33,4 +33,7 @@ pub fn build(b: *std.Build) void {
     exe.step.dependOn(&gen_step.step);
 
     b.installArtifact(exe);
+
+    const test_step = b.step("test", "Run unit tests");
+    _ = test_step;
 }
