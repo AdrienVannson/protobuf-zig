@@ -1,6 +1,6 @@
 protobuf_version := "33.2"
 
-all: setup build test
+all: setup build test conformance
 
 build:
     cd protobuf && zig build
@@ -25,3 +25,8 @@ protoc *args:
 # Run conformance test runner (downloads if needed)
 conformance-runner *args:
     PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh conformance-runner {{args}}
+
+# Run protobuf conformance tests (not part of 'test')
+conformance:
+    cd conformance && zig build -Doptimize=ReleaseFast
+    just conformance-runner --enforce_recommended --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
