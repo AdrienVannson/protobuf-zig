@@ -9,6 +9,7 @@ build:
 code-quality:
     zig fmt --check protobuf/
     zig fmt --check protoc-gen-zig/
+    zig fmt --check conformance/
 
 test:
     cd protobuf && zig build test
