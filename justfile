@@ -29,4 +29,4 @@ conformance-runner *args:
 # Run protobuf conformance tests (not part of 'test')
 conformance: setup
     cd conformance && zig build -Doptimize=ReleaseFast
-    just conformance-runner --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
+    just conformance-runner --enforce_recommended --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
