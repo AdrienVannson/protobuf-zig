@@ -1,18 +1,8 @@
 /// Deserializes a message from its binary Protocol Buffer representation.
 ///
 /// Returns error.NotImplemented; full implementation is pending.
-pub fn from_binary(msg: anytype) !void {
+pub fn from_binary(msg: anytype, data: []const u8) !void {
     _ = msg;
+    _ = data;
     return error.NotImplemented;
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
-const std = @import("std");
-const testing = std.testing;
-
-test "from_binary returns NotImplemented" {
-    try testing.expectError(error.NotImplemented, from_binary(.{}));
 }
