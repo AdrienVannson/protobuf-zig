@@ -2,7 +2,7 @@ const std = @import("std");
 
 /// Scalar types supported by Protocol Buffers.
 /// Values match the FieldDescriptorProto.Type numbering from descriptor.proto.
-pub const ScalarType = enum(u5) {
+pub const ScalarType = enum(i32) {
     int32 = 5,
     int64 = 3,
     uint32 = 13,
@@ -22,7 +22,7 @@ pub const ScalarType = enum(u5) {
 
 /// Field presence semantics.
 /// Values match the FeatureSet.FieldPresence numbering from descriptor.proto.
-pub const FieldPresence = enum(u2) {
+pub const FieldPresence = enum(i32) {
     explicit = 1,
     implicit = 2,
     legacy_required = 3,
