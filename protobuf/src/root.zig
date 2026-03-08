@@ -6,8 +6,6 @@ pub const BinaryWriter = binary_writer.BinaryWriter;
 pub const WireType = tag.WireType;
 pub const ScalarType = descriptor.ScalarType;
 pub const FieldPresence = descriptor.FieldPresence;
-pub const MethodKind = descriptor.MethodKind;
-pub const IdempotencyLevel = descriptor.IdempotencyLevel;
 pub const DefaultValue = descriptor.DefaultValue;
 pub const DescMember = descriptor.DescMember;
 pub const DescElementType = descriptor.DescElementType;
@@ -21,8 +19,6 @@ pub const DescFieldKind = descriptor.DescFieldKind;
 pub const DescField = descriptor.DescField;
 pub const DescExtensionKind = descriptor.DescExtensionKind;
 pub const DescExtension = descriptor.DescExtension;
-pub const DescService = descriptor.DescService;
-pub const DescMethod = descriptor.DescMethod;
 
 test {
     _ = @import("wire/binary_writer.zig");

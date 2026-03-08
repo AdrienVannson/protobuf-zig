@@ -27,20 +27,6 @@ pub const FieldPresence = enum {
     legacy_required,
 };
 
-/// RPC method streaming kind.
-pub const MethodKind = enum {
-    unary,
-    server_streaming,
-    client_streaming,
-    bidi_streaming,
-};
-
-/// Idempotency level for an RPC method.
-pub const IdempotencyLevel = enum {
-    idempotency_unknown,
-    no_side_effects,
-    idempotent,
-};
 
 /// Default value for a scalar field.
 pub const DefaultValue = union(enum) {
@@ -90,8 +76,6 @@ pub const DescFile = struct {
     messages: []const DescMessage,
     /// Top-level extensions declared in this file.
     extensions: []const DescExtension,
-    /// Services declared in this file.
-    services: []const DescService,
     /// Whether this file is marked deprecated.
     deprecated: bool,
 };
@@ -282,38 +266,3 @@ pub const DescExtension = struct {
     kind: DescExtensionKind,
 };
 
-/// Describes a service declaration.
-pub const DescService = struct {
-    /// Fully-qualified name without a leading dot.
-    type_name: []const u8,
-    /// Simple name as declared in source.
-    name: []const u8,
-    /// File in which this service is declared.
-    file: *const DescFile,
-    /// RPC methods in declaration order.
-    methods: []const DescMethod,
-    /// Map from method local_name to index in methods.
-    method: std.StringHashMapUnmanaged(usize),
-    /// Whether this service is marked deprecated.
-    deprecated: bool,
-};
-
-/// Describes an RPC method declaration.
-pub const DescMethod = struct {
-    /// Name as declared in source.
-    name: []const u8,
-    /// Name safe for use in generated code.
-    local_name: []const u8,
-    /// Enclosing service.
-    parent: *const DescService,
-    /// Streaming classification of this method.
-    method_kind: MethodKind,
-    /// Request message type.
-    input: *const DescMessage,
-    /// Response message type.
-    output: *const DescMessage,
-    /// Idempotency level declared on this method.
-    idempotency: IdempotencyLevel,
-    /// Whether this method is marked deprecated.
-    deprecated: bool,
-};
