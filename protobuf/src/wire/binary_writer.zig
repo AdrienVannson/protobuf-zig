@@ -266,70 +266,68 @@ test "tag large field number" {
 
 // scalar types
 
-test "int32 -1" {
+test "int32 -123" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.int32(-1);
+    try w.int32(-123);
     try expectWriterOutput(&w, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+        0x85, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
     });
 }
 
-test "int64 -1" {
+test "int64 -9876543210" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.int64(-1);
+    try w.int64(-9876543210);
     try expectWriterOutput(&w, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+        0x96, 0xd2, 0xbf, 0x9a, 0xdb, 0xff, 0xff, 0xff, 0xff, 0x01,
     });
 }
 
-test "uint32 300" {
+test "uint32 123" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.uint32(300);
-    try expectWriterOutput(&w, &.{ 0xac, 0x02 });
+    try w.uint32(123);
+    try expectWriterOutput(&w, &.{0x7b});
 }
 
-test "uint64 max" {
+test "uint64 9876543210" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.uint64(std.math.maxInt(u64));
-    try expectWriterOutput(&w, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    });
+    try w.uint64(9876543210);
+    try expectWriterOutput(&w, &.{ 0xea, 0xad, 0xc0, 0xe5, 0x24 });
 }
 
-test "sint32 -1" {
+test "sint32 -123" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.sint32(-1);
-    try expectWriterOutput(&w, &.{0x01});
+    try w.sint32(-123);
+    try expectWriterOutput(&w, &.{ 0xf5, 0x01 });
 }
 
-test "sint64 -1" {
+test "sint64 -9876543210" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.sint64(-1);
-    try expectWriterOutput(&w, &.{0x01});
+    try w.sint64(-9876543210);
+    try expectWriterOutput(&w, &.{ 0xd3, 0xdb, 0x80, 0xcb, 0x49 });
 }
 
-test "fixed32 1" {
+test "fixed32 123" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.fixed32(1);
-    try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00 });
+    try w.fixed32(123);
+    try expectWriterOutput(&w, &.{ 0x7b, 0x00, 0x00, 0x00 });
 }
 
-test "fixed64 1" {
+test "fixed64 9876543210" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.fixed64(1);
-    try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+    try w.fixed64(9876543210);
+    try expectWriterOutput(&w, &.{ 0xea, 0x16, 0xb0, 0x4c, 0x02, 0x00, 0x00, 0x00 });
 }
 
-test "sfixed32 -1" {
+test "sfixed32 -123" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.sfixed32(-1);
-    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff });
+    try w.sfixed32(-123);
+    try expectWriterOutput(&w, &.{ 0x85, 0xff, 0xff, 0xff });
 }
 
-test "sfixed64 -1" {
+test "sfixed64 -9876543210" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.sfixed64(-1);
-    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });
+    try w.sfixed64(-9876543210);
+    try expectWriterOutput(&w, &.{ 0x16, 0xe9, 0x4f, 0xb3, 0xfd, 0xff, 0xff, 0xff });
 }
 
 test "bool_ true" {
@@ -338,16 +336,16 @@ test "bool_ true" {
     try expectWriterOutput(&w, &.{0x01});
 }
 
-test "float_ 1.0" {
+test "float_ 123.0" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.float_(1.0);
-    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x80, 0x3f });
+    try w.float_(123.0);
+    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0xf6, 0x42 });
 }
 
-test "double 1.0" {
+test "double 9876543210.0" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.double(1.0);
-    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f });
+    try w.double(9876543210.0);
+    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x50, 0xb7, 0x80, 0x65, 0x02, 0x42 });
 }
 
 test "bytes empty" {
