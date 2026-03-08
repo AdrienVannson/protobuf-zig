@@ -121,17 +121,6 @@ pub const BinaryWriter = struct {
         try self.varint((@as(u64, number) << 3) | @intFromEnum(wire_type));
     }
 
-    /// Write a length-delimited byte sequence.
-    pub fn bytes(self: *BinaryWriter, value: []const u8) !void {
-        try self.varint(value.len);
-        const owned = try self.allocator.dupe(u8, value);
-        try self.write(owned);
-    }
-
-    pub fn uint32(self: *BinaryWriter, value: u32) !void {
-        try self.varint(value);
-    }
-
     pub fn int32(self: *BinaryWriter, value: i32) !void {
         try self.varint(@bitCast(@as(i64, value)));
     }
@@ -140,8 +129,8 @@ pub const BinaryWriter = struct {
         try self.varint(@bitCast(value));
     }
 
-    pub fn bool_(self: *BinaryWriter, value: bool) !void {
-        try self.varint(if (value) 1 else 0);
+    pub fn uint32(self: *BinaryWriter, value: u32) !void {
+        try self.varint(value);
     }
 
     pub fn sint32(self: *BinaryWriter, value: i32) !void {
@@ -161,14 +150,6 @@ pub const BinaryWriter = struct {
         try self.write(owned);
     }
 
-    pub fn sfixed32(self: *BinaryWriter, value: i32) !void {
-        try self.fixed32(@bitCast(value));
-    }
-
-    pub fn float_(self: *BinaryWriter, value: f32) !void {
-        try self.fixed32(@bitCast(value));
-    }
-
     pub fn fixed64(self: *BinaryWriter, value: u64) !void {
         var buf: [8]u8 = undefined;
         std.mem.writeInt(u64, &buf, value, .little);
@@ -176,12 +157,30 @@ pub const BinaryWriter = struct {
         try self.write(owned);
     }
 
+    pub fn sfixed32(self: *BinaryWriter, value: i32) !void {
+        try self.fixed32(@bitCast(value));
+    }
+
     pub fn sfixed64(self: *BinaryWriter, value: i64) !void {
         try self.fixed64(@bitCast(value));
     }
 
+    pub fn bool_(self: *BinaryWriter, value: bool) !void {
+        try self.varint(if (value) 1 else 0);
+    }
+
+    pub fn float_(self: *BinaryWriter, value: f32) !void {
+        try self.fixed32(@bitCast(value));
+    }
+
     pub fn double(self: *BinaryWriter, value: f64) !void {
         try self.fixed64(@bitCast(value));
+    }
+
+    pub fn bytes(self: *BinaryWriter, value: []const u8) !void {
+        try self.varint(value.len);
+        const owned = try self.allocator.dupe(u8, value);
+        try self.write(owned);
     }
 };
 
@@ -410,12 +409,6 @@ test "finish with unclosed fork returns error" {
     try w.join();
 }
 
-test "uint32 300" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.uint32(300);
-    try expectWriterOutput(&w, &.{ 0xac, 0x02 });
-}
-
 test "int32 -1" {
     var w = BinaryWriter.init(testing.allocator);
     try w.int32(-1);
@@ -432,10 +425,10 @@ test "int64 -1" {
     });
 }
 
-test "bool_ true" {
+test "uint32 300" {
     var w = BinaryWriter.init(testing.allocator);
-    try w.bool_(true);
-    try expectWriterOutput(&w, &.{0x01});
+    try w.uint32(300);
+    try expectWriterOutput(&w, &.{ 0xac, 0x02 });
 }
 
 test "sint32 -1" {
@@ -456,28 +449,34 @@ test "fixed32 1" {
     try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00 });
 }
 
-test "sfixed32 -1" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.sfixed32(-1);
-    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff });
-}
-
-test "float_ 1.0" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.float_(1.0);
-    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x80, 0x3f });
-}
-
 test "fixed64 1" {
     var w = BinaryWriter.init(testing.allocator);
     try w.fixed64(1);
     try expectWriterOutput(&w, &.{ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
 }
 
+test "sfixed32 -1" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.sfixed32(-1);
+    try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff });
+}
+
 test "sfixed64 -1" {
     var w = BinaryWriter.init(testing.allocator);
     try w.sfixed64(-1);
     try expectWriterOutput(&w, &.{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });
+}
+
+test "bool_ true" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.bool_(true);
+    try expectWriterOutput(&w, &.{0x01});
+}
+
+test "float_ 1.0" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.float_(1.0);
+    try expectWriterOutput(&w, &.{ 0x00, 0x00, 0x80, 0x3f });
 }
 
 test "double 1.0" {
