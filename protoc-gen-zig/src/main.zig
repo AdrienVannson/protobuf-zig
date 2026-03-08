@@ -11,7 +11,6 @@ pub fn hello() void {
 
 pub fn main() !void {
     hello();
-    protobuf.hello();
 }
 
 test "add" {

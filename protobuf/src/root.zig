@@ -1,13 +1,10 @@
-const std = @import("std");
+const binary_writer = @import("wire/binary_writer.zig");
+const tag = @import("wire/tag.zig");
 
-pub fn add(x: i64, y: i64) i64 {
-    return x + y;
-}
+pub const BinaryWriter = binary_writer.BinaryWriter;
+pub const WireType = tag.WireType;
 
-pub fn hello() void {
-    std.debug.print("Hello from protobuf!\n", .{});
-}
-
-test "add" {
-    try std.testing.expectEqual(@as(i64, 5), add(2, 3));
+test {
+    _ = @import("wire/binary_writer.zig");
+    _ = @import("wire/tag.zig");
 }
