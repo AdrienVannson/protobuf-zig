@@ -1,0 +1,36 @@
+Required.Proto3.ProtobufInput.IllegalZeroFieldNum_Case_0 # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.IllegalZeroFieldNum_Case_1 # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.IllegalZeroFieldNum_Case_2 # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.IllegalZeroFieldNum_Case_3 # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.BOOL.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.ENUM.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.INT32.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.UINT32.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
+Required.Proto3.ProtobufInput.UnknownVarint.ProtobufOutput # Output was not equivalent to reference message: Expect: \250\037\001, but got: 
+Required.Proto3.ProtobufInput.UnmatchedEndGroupNestedLen # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.UnmatchedEndGroupUnknown # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.UnmatchedStartGroupNestedLen # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.UnmatchedStartGroupUnknown # Should have failed to parse, but didn't.
+Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.INT32.PackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.BOOL[2].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.BOOL[3].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.BOOL[4].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.BOOL[5].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.BOOL[6].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[4].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[5].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.INT32[6].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.INT32[7].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.INT32[8].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.INT32[9].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.UINT32[3].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.UINT32[8].ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataScalar.UINT32[9].ProtobufOutput # Failed to parse input or produce output.

@@ -1,9 +1,7 @@
 const std = @import("std");
 // Paths match zig-protobuf's package-based output (not file-based).
 const conformance_pb = @import("generated/conformance.pb.zig");
-// test_messages_proto3.proto uses allow_alias enums and
-// test_messages_proto2.proto uses group fields; both are unsupported by
-// zig-protobuf's generator. Payload decode/encode is skipped at runtime.
+const proto3_pb = @import("generated/protobuf_test_messages/proto3.pb.zig");
 
 const ConformanceRequest = conformance_pb.ConformanceRequest;
 const ConformanceResponse = conformance_pb.ConformanceResponse;
@@ -63,8 +61,32 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !Confor
         return .{ .result = .{ .protobuf_payload = w.written() } };
     }
 
-    // zig-protobuf's generator does not support allow_alias enums (proto3 test
-    // messages) or group fields (proto2 test messages), so all payload tests
-    // are skipped until upstream support is added.
+    // Dispatch proto3 binary roundtrip.
+    if (std.mem.eql(u8, request.message_type, "protobuf_test_messages.proto3.TestAllTypesProto3")) {
+        // Only handle binary protobuf output; skip JSON, text, etc.
+        if (request.requested_output_format != .PROTOBUF) {
+            return .{ .result = .{ .skipped = "non-binary output format not supported" } };
+        }
+        const payload = if (request.payload) |p| switch (p) {
+            .protobuf_payload => |b| b,
+            else => return .{ .result = .{ .skipped = "non-binary payload not supported" } },
+        } else return .{ .result = .{ .skipped = "no payload" } };
+        return roundTrip(proto3_pb.TestAllTypesProto3, payload, alloc);
+    }
+
+    // proto2 test messages use group fields, unsupported by zig-protobuf's generator.
     return .{ .result = .{ .skipped = "payload decode not yet supported" } };
+}
+
+fn roundTrip(comptime T: type, payload: []const u8, alloc: std.mem.Allocator) !ConformanceResponse {
+    var reader: std.Io.Reader = .fixed(payload);
+    var msg = T.decode(&reader, alloc) catch |err| {
+        return .{ .result = .{ .parse_error = @errorName(err) } };
+    };
+    defer msg.deinit(alloc);
+    var w: std.Io.Writer.Allocating = .init(alloc);
+    msg.encode(&w.writer, alloc) catch |err| {
+        return .{ .result = .{ .serialize_error = @errorName(err) } };
+    };
+    return .{ .result = .{ .protobuf_payload = w.written() } };
 }
