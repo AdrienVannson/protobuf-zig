@@ -1,22 +1,23 @@
 const std = @import("std");
 
 /// Scalar types supported by Protocol Buffers.
-pub const ScalarType = enum {
-    double,
-    float,
-    int64,
-    uint64,
-    int32,
-    fixed64,
-    fixed32,
-    bool,
-    string,
-    bytes,
-    uint32,
-    sfixed32,
-    sfixed64,
-    sint32,
-    sint64,
+/// Values match the FieldDescriptorProto.Type numbering from descriptor.proto.
+pub const ScalarType = enum(u5) {
+    int32 = 5,
+    int64 = 3,
+    uint32 = 13,
+    uint64 = 4,
+    sint32 = 17,
+    sint64 = 18,
+    fixed32 = 7,
+    fixed64 = 6,
+    sfixed32 = 15,
+    sfixed64 = 16,
+    bool = 8,
+    float = 2,
+    double = 1,
+    string = 9,
+    bytes = 12,
 };
 
 /// Field presence semantics.
