@@ -21,10 +21,11 @@ pub const ScalarType = enum(u5) {
 };
 
 /// Field presence semantics.
-pub const FieldPresence = enum {
-    explicit,
-    implicit,
-    legacy_required,
+/// Values match the FeatureSet.FieldPresence numbering from descriptor.proto.
+pub const FieldPresence = enum(u2) {
+    explicit = 1,
+    implicit = 2,
+    legacy_required = 3,
 };
 
 /// Default value for a scalar field.
