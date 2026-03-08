@@ -37,7 +37,7 @@ pub fn main() !void {
         var request = try ConformanceRequest.decode(&req_reader, alloc);
 
         // Build response.
-        const response = try handleRequest(&request, alloc);
+        const response = handleRequest(&request, alloc);
 
         // Encode ConformanceResponse.
         var w: std.Io.Writer.Allocating = .init(alloc);
@@ -52,15 +52,7 @@ pub fn main() !void {
     }
 }
 
-fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !ConformanceResponse {
-    // First request: FailureSet negotiation — return empty FailureSet.
-    if (std.mem.eql(u8, request.message_type, "conformance.FailureSet")) {
-        var failure_set: FailureSet = .{};
-        var w: std.Io.Writer.Allocating = .init(alloc);
-        try failure_set.encode(&w.writer, alloc);
-        return .{ .result = .{ .protobuf_payload = w.written() } };
-    }
-
+fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) ConformanceResponse {
     // Dispatch proto3 binary roundtrip.
     if (std.mem.eql(u8, request.message_type, "protobuf_test_messages.proto3.TestAllTypesProto3")) {
         // Only handle binary protobuf output; skip JSON, text, etc.
@@ -78,7 +70,7 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !Confor
     return .{ .result = .{ .skipped = "payload decode not yet supported" } };
 }
 
-fn roundTrip(comptime T: type, payload: []const u8, alloc: std.mem.Allocator) !ConformanceResponse {
+fn roundTrip(comptime T: type, payload: []const u8, alloc: std.mem.Allocator) ConformanceResponse {
     var reader: std.Io.Reader = .fixed(payload);
     var msg = T.decode(&reader, alloc) catch |err| {
         return .{ .result = .{ .parse_error = @errorName(err) } };
