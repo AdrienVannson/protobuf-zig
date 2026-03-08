@@ -8,7 +8,15 @@ pub fn build(b: *std.Build) void {
     const protobuf_dep = b.dependency("protobuf", .{ .target = target, .optimize = optimize });
     const protobuf_mod = protobuf_dep.module("protobuf");
 
-    const protoc_include = b.pathFromRoot("../.cache/upstream-protobuf/33.2/protoc/include");
+    const protobuf_version = b.option(
+        []const u8,
+        "protobuf_version",
+        "Upstream protobuf version (e.g. 33.2)",
+    ) orelse @panic("missing -Dprotobuf_version");
+
+    const protoc_include = b.pathFromRoot(
+        b.fmt("../.cache/upstream-protobuf/{s}/protoc/include", .{protobuf_version}),
+    );
 
     const gen_step = protobuf.RunProtocStep.create(protobuf_dep.builder, target, .{
         .destination_directory = b.path("src/generated"),

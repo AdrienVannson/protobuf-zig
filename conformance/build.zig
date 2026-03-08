@@ -11,10 +11,16 @@ pub fn build(b: *std.Build) void {
     });
     const protobuf_mod = protobuf_dep.module("protobuf");
 
+    const protobuf_version = b.option(
+        []const u8,
+        "protobuf_version",
+        "Upstream protobuf version (e.g. 33.2)",
+    ) orelse @panic("missing -Dprotobuf_version");
+
     // Absolute path to the conformance proto include directory in our cache.
     // b.pathFromRoot resolves ".." properly via fs.path.resolve.
     const cache_include = b.pathFromRoot(
-        "../.cache/upstream-protobuf/33.2/conformance/package/include",
+        b.fmt("../.cache/upstream-protobuf/{s}/conformance/package/include", .{protobuf_version}),
     );
 
     const gen_step = protobuf.RunProtocStep.create(protobuf_dep.builder, target, .{
