@@ -133,6 +133,10 @@ pub const BinaryWriter = struct {
         try self.varint(value);
     }
 
+    pub fn uint64(self: *BinaryWriter, value: u64) !void {
+        try self.varint(value);
+    }
+
     pub fn sint32(self: *BinaryWriter, value: i32) !void {
         const zz = @as(u32, @bitCast((value << 1) ^ (value >> 31)));
         try self.varint(zz);
@@ -181,6 +185,10 @@ pub const BinaryWriter = struct {
         try self.varint(value.len);
         const owned = try self.allocator.dupe(u8, value);
         try self.write(owned);
+    }
+
+    pub fn string(self: *BinaryWriter, value: []const u8) !void {
+        try self.bytes(value);
     }
 };
 
@@ -281,6 +289,20 @@ test "bytes empty" {
 test "bytes simple" {
     var w = BinaryWriter.init(testing.allocator);
     try w.bytes("hello");
+    try expectWriterOutput(&w, &.{ 0x05, 'h', 'e', 'l', 'l', 'o' });
+}
+
+test "uint64 max" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.uint64(std.math.maxInt(u64));
+    try expectWriterOutput(&w, &.{
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+    });
+}
+
+test "string simple" {
+    var w = BinaryWriter.init(testing.allocator);
+    try w.string("hello");
     try expectWriterOutput(&w, &.{ 0x05, 'h', 'e', 'l', 'l', 'o' });
 }
 
