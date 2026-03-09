@@ -8,7 +8,7 @@ pub const FieldPresence = descriptor.FieldPresence;
 /// Drops full descriptor pointers since actual Zig types are resolved at comptime.
 pub const FieldMetadataElementType = union(enum) {
     scalar: ScalarType,
-    message: void,
+    message: *const MessageMetadata,
     enum_type: void,
 };
 
@@ -21,6 +21,7 @@ pub const FieldMetadataKind = union(enum) {
     },
     message_field: struct {
         delimited_encoding: bool = false,
+        message_metadata: *const MessageMetadata,
     },
     enum_field: struct {
         default_value: i32 = 0,
