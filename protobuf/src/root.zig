@@ -29,6 +29,7 @@ test {
     _ = @import("wire/binary_writer.zig");
     _ = @import("wire/tag.zig");
     _ = @import("descriptor.zig");
+    _ = @import("field.zig");
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
     _ = @import("test/fake_message_foo.zig");

@@ -1,5 +1,5 @@
 const std = @import("std");
-const descriptor = @import("../descriptor.zig");
+const field = @import("../field.zig");
 
 pub const FakeMessageFoo = struct {
     explicit_field: ?i32 = null,
@@ -12,16 +12,16 @@ pub const FakeMessageFoo = struct {
     float_field: ?f32 = null,
     repeated_float_field: std.ArrayListUnmanaged(f32) = .{},
 
-    pub const _desc = &[_]descriptor.DescField{
-        .{ .name = "explicit_field", .number = 1, .json_name = "explicitField", .deprecated = false, .presence = .explicit, .kind = .{ .scalar = .{ .oneof = null, .scalar = .int32, .default_value = null } } },
-        .{ .name = "implicit_field", .number = 2, .json_name = "implicitField", .deprecated = false, .presence = .implicit, .kind = .{ .scalar = .{ .oneof = null, .scalar = .int32, .default_value = null } } },
-        .{ .name = "legacy_required_field", .number = 3, .json_name = "legacyRequiredField", .deprecated = false, .presence = .legacy_required, .kind = .{ .scalar = .{ .oneof = null, .scalar = .string, .default_value = null } } },
-        .{ .name = "repeated_field", .number = 4, .json_name = "repeatedField", .deprecated = false, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string }, .is_packed = false, .delimited_encoding = false } } },
-        .{ .name = "message_field", .number = 5, .json_name = "messageField", .deprecated = false, .presence = .explicit, .kind = .{ .message_field = .{ .oneof = null, .message = null, .delimited_encoding = false } } },
-        .{ .name = "field_with_default", .number = 6, .json_name = "fieldWithDefault", .deprecated = false, .presence = .explicit, .kind = .{ .scalar = .{ .oneof = null, .scalar = .int32, .default_value = .{ .integer = 42 } } } },
-        .{ .name = "color_field", .number = 10, .json_name = "colorField", .deprecated = false, .presence = .explicit, .kind = .{ .enum_field = .{ .oneof = null, .enum_type = null, .default_value = null } } },
-        .{ .name = "float_field", .number = 11, .json_name = "floatField", .deprecated = false, .presence = .explicit, .kind = .{ .scalar = .{ .oneof = null, .scalar = .float, .default_value = null } } },
-        .{ .name = "repeated_float_field", .number = 12, .json_name = "repeatedFloatField", .deprecated = false, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true, .delimited_encoding = false } } },
+    pub const _desc = &[_]field.FieldMetadata{
+        .{ .number = 1, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .int32 } } },
+        .{ .number = 2, .presence = .implicit, .kind = .{ .scalar = .{ .scalar = .int32 } } },
+        .{ .number = 3, .presence = .legacy_required, .kind = .{ .scalar = .{ .scalar = .string } } },
+        .{ .number = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string }, .is_packed = false, .delimited_encoding = false } } },
+        .{ .number = 5, .presence = .explicit, .kind = .{ .message_field = .{ .delimited_encoding = false } } },
+        .{ .number = 6, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .int32, .default_value = .{ .integer = 42 } } } },
+        .{ .number = 10, .presence = .explicit, .kind = .{ .enum_field = .{ .default_value = null } } },
+        .{ .number = 11, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .float } } },
+        .{ .number = 12, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true, .delimited_encoding = false } } },
     };
 
     pub fn deinit(self: *FakeMessageFoo, allocator: std.mem.Allocator) void {
@@ -37,8 +37,8 @@ pub const FakeMessageFoo = struct {
     pub const Bar = struct {
         value: ?[]const u8 = null,
 
-        pub const _desc = &[_]descriptor.DescField{
-            .{ .name = "value", .number = 1, .json_name = "value", .deprecated = false, .presence = .explicit, .kind = .{ .scalar = .{ .oneof = null, .scalar = .string, .default_value = null } } },
+        pub const _desc = &[_]field.FieldMetadata{
+            .{ .number = 1, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .string } } },
         };
 
         pub fn deinit(self: *Bar, allocator: std.mem.Allocator) void {
