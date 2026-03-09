@@ -95,7 +95,7 @@ pub const DescEnum = struct {
     closed: bool,
     /// All declared values in source order.
     values: []const DescEnumValue,
-    /// Map from numeric value to index in values slice.
+    /// Map from numeric value to the index of the first DescEnumValue with that number.
     value: std.AutoHashMapUnmanaged(i32, usize),
     /// Shared prefix stripped from value names in generated code, if any.
     shared_prefix: ?[]const u8,
@@ -127,7 +127,7 @@ pub const DescMessage = struct {
     parent: ?*const DescMessage,
     /// All fields including those inside oneof groups, in field-number order.
     fields: []const DescField,
-    /// Map from field name to index in fields slice.
+    /// Map from field local_name to index in fields.
     field: std.StringHashMapUnmanaged(usize),
     /// Oneof groups, excluding synthetic proto3 optional oneofs.
     oneofs: []const DescOneof,
