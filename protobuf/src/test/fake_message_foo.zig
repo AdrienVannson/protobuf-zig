@@ -3,7 +3,7 @@ const field = @import("../field.zig");
 
 pub const FakeMessageFoo = struct {
     explicit_field: ?i32 = null,
-    implicit_field: ?i32 = null,
+    implicit_field: i32 = 0,
     legacy_required_field: ?[]const u8 = null,
     repeated_field: std.ArrayListUnmanaged([]const u8) = .{},
     message_field: ?*Bar = null,
