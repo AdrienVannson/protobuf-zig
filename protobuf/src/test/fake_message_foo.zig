@@ -1,5 +1,5 @@
 const std = @import("std");
-const field = @import("../field.zig");
+const metadata = @import("../metadata.zig");
 
 pub const FakeMessageFoo = struct {
     explicit_field: ?i32 = null,
@@ -12,7 +12,7 @@ pub const FakeMessageFoo = struct {
     float_field: ?f32 = null,
     repeated_float_field: std.ArrayListUnmanaged(f32) = .{},
 
-    pub const _desc = &[_]field.FieldMetadata{
+    pub const _desc = metadata.MessageMetadata{ .fields = &[_]metadata.FieldMetadata{
         .{ .number = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // explicit_field
         .{ .number = 2, .presence = .implicit, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // implicit_field
         .{ .number = 3, .presence = .legacy_required, .kind = .{ .scalar = .{ .scalar = .string } } }, // legacy_required_field
@@ -22,7 +22,7 @@ pub const FakeMessageFoo = struct {
         .{ .number = 10, .kind = .{ .enum_field = .{} } }, // color_field
         .{ .number = 11, .kind = .{ .scalar = .{ .scalar = .float } } }, // float_field
         .{ .number = 12, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true } } }, // repeated_float_field
-    };
+    } };
 
     pub fn deinit(self: *FakeMessageFoo, allocator: std.mem.Allocator) void {
         for (self.repeated_field.items) |s| allocator.free(s);
@@ -37,9 +37,9 @@ pub const FakeMessageFoo = struct {
     pub const Bar = struct {
         value: ?[]const u8 = null,
 
-        pub const _desc = &[_]field.FieldMetadata{
+        pub const _desc = metadata.MessageMetadata{ .fields = &[_]metadata.FieldMetadata{
             .{ .number = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // value
-        };
+        } };
 
         pub fn deinit(self: *Bar, allocator: std.mem.Allocator) void {
             if (self.value) |v| allocator.free(v);
