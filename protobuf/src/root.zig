@@ -31,4 +31,5 @@ test {
     _ = @import("descriptor.zig");
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
+    _ = @import("test/fake_message_foo.zig");
 }

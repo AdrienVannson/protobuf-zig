@@ -1,5 +1,3 @@
-const std = @import("std");
-
 /// Scalar types supported by Protocol Buffers.
 /// Values match the FieldDescriptorProto.Type numbering from descriptor.proto.
 pub const ScalarType = enum(i32) {
@@ -87,16 +85,14 @@ pub const DescEnum = struct {
     fully_qualified_proto_name: []const u8,
     /// Name used in generated code.
     local_name: []const u8,
-    /// File in which this enum is declared.
-    file: *const DescFile,
+    /// File in which this enum is declared, or null if not yet linked.
+    file: ?*const DescFile = null,
     /// Enclosing message, or null if this is a top-level enum.
     parent: ?*const DescMessage,
     /// Whether this is a closed enum (accepts unknown numeric values).
     closed: bool,
     /// All declared values in source order.
     values: []const DescEnumValue,
-    /// Map from numeric value to the index of the first DescEnumValue with that number.
-    value: std.AutoHashMapUnmanaged(i32, usize),
     /// Shared prefix stripped from value names in generated code, if any.
     shared_prefix: ?[]const u8,
     /// Whether this enum is marked deprecated.
@@ -121,14 +117,12 @@ pub const DescMessage = struct {
     fully_qualified_proto_name: []const u8,
     /// Name used in generated code.
     local_name: []const u8,
-    /// File in which this message is declared.
-    file: *const DescFile,
+    /// File in which this message is declared, or null if not yet linked.
+    file: ?*const DescFile = null,
     /// Enclosing message, or null if this is a top-level message.
     parent: ?*const DescMessage,
     /// All fields including those inside oneof groups, in field-number order.
     fields: []const DescField,
-    /// Map from field local_name to index in fields.
-    field: std.StringHashMapUnmanaged(usize),
     /// Oneof groups, excluding synthetic proto3 optional oneofs.
     oneofs: []const DescOneof,
     /// Fields and oneof groups in source declaration order.
@@ -170,8 +164,8 @@ pub const DescFieldKind = union(enum) {
     message_field: struct {
         /// Oneof group this field belongs to, or null.
         oneof: ?*const DescOneof,
-        /// The referenced message type.
-        message: *const DescMessage,
+        /// The referenced message type, or null if not yet linked.
+        message: ?*const DescMessage = null,
         /// True when using proto2 group (delimited) encoding instead of length-prefixed.
         delimited_encoding: bool,
     },
@@ -179,8 +173,8 @@ pub const DescFieldKind = union(enum) {
     enum_field: struct {
         /// Oneof group this field belongs to, or null.
         oneof: ?*const DescOneof,
-        /// The referenced enum type.
-        enum_type: *const DescEnum,
+        /// The referenced enum type, or null if not yet linked.
+        enum_type: ?*const DescEnum = null,
         /// Declared default value as an enum number, if any.
         default_value: ?i32,
     },
@@ -208,8 +202,6 @@ pub const DescField = struct {
     name: []const u8,
     /// Name used in generated code.
     local_name: []const u8,
-    /// Enclosing message.
-    parent: *const DescMessage,
     /// Field number.
     number: i32,
     /// JSON name (camelCase by default, overridable in source).
