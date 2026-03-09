@@ -20,15 +20,15 @@ pub const FieldMetadataKind = union(enum) {
         default_value: ?DefaultValue,
     },
     message_field: struct {
-        delimited_encoding: bool,
+        delimited_encoding: bool = false,
     },
     enum_field: struct {
-        default_value: ?i32,
+        default_value: i32 = 0,
     },
     list: struct {
         element: FieldMetadataElementType,
-        is_packed: bool,
-        delimited_encoding: bool,
+        is_packed: bool = false,
+        delimited_encoding: bool = false,
     },
     map: struct {
         key: ScalarType,
@@ -39,6 +39,6 @@ pub const FieldMetadataKind = union(enum) {
 /// Lean field descriptor carrying only what encoding/decoding needs.
 pub const FieldMetadata = struct {
     number: i32,
-    presence: FieldPresence,
+    presence: FieldPresence = .explicit,
     kind: FieldMetadataKind,
 };

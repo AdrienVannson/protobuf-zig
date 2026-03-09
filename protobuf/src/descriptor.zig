@@ -176,7 +176,7 @@ pub const DescFieldKind = union(enum) {
         /// The referenced enum type, or null if not yet linked.
         enum_type: ?*const DescEnum = null,
         /// Declared default value as an enum number, if any.
-        default_value: ?i32,
+        default_value: i32 = 0,
     },
     /// A repeated field.
     list: struct {
@@ -229,7 +229,7 @@ pub const DescExtensionKind = union(enum) {
     /// An enum-typed extension.
     enum_ext: struct {
         enum_type: *const DescEnum,
-        default_value: ?i32,
+        default_value: i32 = 0,
     },
     /// A repeated extension.
     list: struct {

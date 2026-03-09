@@ -13,15 +13,15 @@ pub const FakeMessageFoo = struct {
     repeated_float_field: std.ArrayListUnmanaged(f32) = .{},
 
     pub const _desc = &[_]field.FieldMetadata{
-        .{ .number = 1, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .int32 } } },
+        .{ .number = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } },
         .{ .number = 2, .presence = .implicit, .kind = .{ .scalar = .{ .scalar = .int32 } } },
         .{ .number = 3, .presence = .legacy_required, .kind = .{ .scalar = .{ .scalar = .string } } },
-        .{ .number = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string }, .is_packed = false, .delimited_encoding = false } } },
-        .{ .number = 5, .presence = .explicit, .kind = .{ .message_field = .{ .delimited_encoding = false } } },
-        .{ .number = 6, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .int32, .default_value = .{ .integer = 42 } } } },
-        .{ .number = 10, .presence = .explicit, .kind = .{ .enum_field = .{ .default_value = null } } },
-        .{ .number = 11, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .float } } },
-        .{ .number = 12, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true, .delimited_encoding = false } } },
+        .{ .number = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } },
+        .{ .number = 5, .kind = .{ .message_field = .{} } },
+        .{ .number = 6, .kind = .{ .scalar = .{ .scalar = .int32, .default_value = .{ .integer = 42 } } } },
+        .{ .number = 10, .kind = .{ .enum_field = .{} } },
+        .{ .number = 11, .kind = .{ .scalar = .{ .scalar = .float } } },
+        .{ .number = 12, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true } } },
     };
 
     pub fn deinit(self: *FakeMessageFoo, allocator: std.mem.Allocator) void {
@@ -38,7 +38,7 @@ pub const FakeMessageFoo = struct {
         value: ?[]const u8 = null,
 
         pub const _desc = &[_]field.FieldMetadata{
-            .{ .number = 1, .presence = .explicit, .kind = .{ .scalar = .{ .scalar = .string } } },
+            .{ .number = 1, .kind = .{ .scalar = .{ .scalar = .string } } },
         };
 
         pub fn deinit(self: *Bar, allocator: std.mem.Allocator) void {
