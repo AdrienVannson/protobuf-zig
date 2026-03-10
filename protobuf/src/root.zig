@@ -33,4 +33,5 @@ test {
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
     _ = @import("test/fake_message_foo.zig");
+    _ = @import("test/test_all_types_proto3.zig");
 }

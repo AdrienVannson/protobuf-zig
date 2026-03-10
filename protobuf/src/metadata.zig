@@ -6,7 +6,7 @@ pub const FieldPresence = descriptor.FieldPresence;
 
 pub const FieldMetadataElementType = union(enum) {
     scalar: ScalarType,
-    message: *const MessageMetadata,
+    message: void,
     enum_type: void,
 };
 
@@ -17,7 +17,6 @@ pub const FieldMetadataKind = union(enum) {
     },
     message_field: struct {
         delimited_encoding: bool = false,
-        message_metadata: *const MessageMetadata,
     },
     enum_field: struct {
         default_value: i32 = 0,

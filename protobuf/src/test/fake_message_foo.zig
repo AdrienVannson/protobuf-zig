@@ -18,7 +18,7 @@ pub const FakeMessageFoo = struct {
             .{ .number = 2, .presence = .implicit, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // implicit_field
             .{ .number = 3, .presence = .legacy_required, .kind = .{ .scalar = .{ .scalar = .string } } }, // legacy_required_field
             .{ .number = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_field
-            .{ .number = 5, .kind = .{ .message_field = .{ .message_metadata = &Bar._desc } } }, // message_field
+            .{ .number = 5, .kind = .{ .message_field = .{} } }, // message_field
             .{ .number = 6, .kind = .{ .scalar = .{ .scalar = .int32, .default_value = .{ .integer = 42 } } } }, // field_with_default
             .{ .number = 10, .kind = .{ .enum_field = .{} } }, // color_field
             .{ .number = 11, .kind = .{ .scalar = .{ .scalar = .float } } }, // float_field
