@@ -1,6 +1,6 @@
 const std = @import("std");
 const proto3_pb = @import("generated_old_lib/protobuf_test_messages/proto3.pb.zig");
-const our_types = @import("protobuf").test_types;
+const our_types = @import("our_protobuf").test_types;
 
 const Ext = proto3_pb.TestAllTypesProto3;
 const Our = our_types.TestAllTypesProto3;
@@ -14,7 +14,7 @@ const Our = our_types.TestAllTypesProto3;
 ///       result.deinit(alloc);  // safe even if partial
 ///       return err;
 ///   };
-pub fn fromExternal(src: Ext, alloc: std.mem.Allocator) !Our {
+pub fn fromExternal(src: Ext, alloc: std.mem.Allocator) error{OutOfMemory}!Our {
     var result = Our{};
     errdefer result.deinit(alloc);
 
@@ -178,17 +178,19 @@ pub fn fromExternal(src: Ext, alloc: std.mem.Allocator) !Our {
             try alloc.dupe(u8, e.value),
         );
     for (src.map_string_nested_message.items) |e|
-        try result.map_string_nested_message.put(
-            alloc,
-            try alloc.dupe(u8, e.key),
-            try convertNestedMessage(e.value, alloc),
-        );
+        if (e.value) |v|
+            try result.map_string_nested_message.put(
+                alloc,
+                try alloc.dupe(u8, e.key),
+                try convertNestedMessage(v, alloc),
+            );
     for (src.map_string_foreign_message.items) |e|
-        try result.map_string_foreign_message.put(
-            alloc,
-            try alloc.dupe(u8, e.key),
-            .{ .c = e.value.c },
-        );
+        if (e.value) |v|
+            try result.map_string_foreign_message.put(
+                alloc,
+                try alloc.dupe(u8, e.key),
+                .{ .c = v.c },
+            );
     for (src.map_string_nested_enum.items) |e|
         try result.map_string_nested_enum.put(
             alloc,
@@ -248,7 +250,7 @@ pub fn fromExternal(src: Ext, alloc: std.mem.Allocator) !Our {
 fn convertNestedMessage(
     src: Ext.NestedMessage,
     alloc: std.mem.Allocator,
-) !Our.NestedMessage {
+) error{OutOfMemory}!Our.NestedMessage {
     var result = Our.NestedMessage{ .a = src.a };
     if (src.corecursive) |c| {
         const p = try alloc.create(Our);

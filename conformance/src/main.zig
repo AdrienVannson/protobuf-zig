@@ -3,6 +3,7 @@ const std = @import("std");
 const conformance_pb = @import("generated_old_lib/conformance.pb.zig");
 const proto3_pb = @import("generated_old_lib/protobuf_test_messages/proto3.pb.zig");
 const convert = @import("convert.zig");
+const our_proto = @import("our_protobuf");
 
 const ConformanceRequest = conformance_pb.ConformanceRequest;
 const ConformanceResponse = conformance_pb.ConformanceResponse;
@@ -77,6 +78,20 @@ fn roundTrip(comptime T: type, payload: []const u8, alloc: std.mem.Allocator) Co
         return .{ .result = .{ .parse_error = @errorName(err) } };
     };
     defer msg.deinit(alloc);
+
+    if (T == proto3_pb.TestAllTypesProto3) {
+        var converted = convert.fromExternal(msg, alloc) catch |err| {
+            return .{ .result = .{ .parse_error = @errorName(err) } };
+        };
+        defer converted.deinit(alloc);
+
+        var out: std.Io.Writer.Allocating = .init(alloc);
+        our_proto.to_binary(alloc, converted, &out.writer) catch |err| {
+            return .{ .result = .{ .serialize_error = @errorName(err) } };
+        };
+        return .{ .result = .{ .protobuf_payload = out.written() } };
+    }
+
     var w: std.Io.Writer.Allocating = .init(alloc);
     msg.encode(&w.writer, alloc) catch |err| {
         return .{ .result = .{ .serialize_error = @errorName(err) } };
