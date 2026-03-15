@@ -13,7 +13,8 @@ pub const FieldMetadataElementType = union(enum) {
 pub const FieldMetadataKind = union(enum) {
     scalar: struct {
         scalar: ScalarType,
-        default_value: ?DefaultValue,
+        // Declared default value, if any. Defaults to null (no explicit default).
+        default_value: ?DefaultValue = null,
     },
     message_field: struct {
         delimited_encoding: bool = false,
