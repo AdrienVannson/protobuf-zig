@@ -11,6 +11,12 @@ pub fn build(b: *std.Build) void {
     });
     const protobuf_mod = protobuf_dep.module("protobuf");
 
+    const our_protobuf_dep = b.dependency("our_protobuf", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const our_protobuf_mod = our_protobuf_dep.module("protobuf");
+
     const protobuf_version = b.option(
         []const u8,
         "protobuf_version",
@@ -50,6 +56,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     exe_mod.addImport("protobuf", protobuf_mod);
+    exe_mod.addImport("our_protobuf", our_protobuf_mod);
 
     const exe = b.addExecutable(.{
         .name = "conformance",

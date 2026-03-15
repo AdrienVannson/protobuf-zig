@@ -25,6 +25,8 @@ pub const BinaryWriter = binary_writer.BinaryWriter;
 pub const to_binary = to_binary_mod.to_binary;
 pub const from_binary = from_binary_mod.from_binary;
 
+pub const test_types = @import("test/test_all_types_proto3.zig");
+
 test {
     _ = @import("wire/binary_writer.zig");
     _ = @import("wire/tag.zig");
