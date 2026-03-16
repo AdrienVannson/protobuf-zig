@@ -64,55 +64,69 @@ fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigT
 
 /// Encodes all scalar fields of msg into bw.
 ///
-/// Iterates T._desc.fields in parallel with std.meta.fields(T): metadata entry i
-/// corresponds to struct field i. Two safety checks skip misaligned entries:
-///
-/// 1. Bounds check: skip if i >= std.meta.fields(T).len.
-/// 2. Type-compatibility check: skip any .scalar entry whose expected Zig type does
-///    not match the actual struct field type at index i.
-///
-/// Non-scalar kinds (.message_field, .enum_field, .list, .map) are skipped.
+/// Each FieldMetadata carries a `field_index` pointing into std.meta.fields(T)
+/// and an optional `oneof_variant` for oneof members. This decouples the
+/// metadata array order from the struct field order, allowing N oneof entries
+/// to share a single struct field (the `?union(enum)`).
 fn writeMessage(bw: *BinaryWriter, msg: anytype) !void {
     const T = @TypeOf(msg);
     const struct_fields = std.meta.fields(T);
 
-    inline for (T._desc.fields, 0..) |field_meta, i| {
-        // Bounds check: skip if there is no struct field at this index.
-        if (comptime i >= struct_fields.len) continue;
+    inline for (T._desc.fields) |field_meta| {
+        const fi = comptime field_meta.field_index;
+        const field_name = comptime struct_fields[fi].name;
 
-        switch (field_meta.kind) {
-            .scalar => |sc| {
-                const ExpectedType = comptime scalarZigType(sc.scalar);
-                const StructFieldType = comptime struct_fields[i].type;
-                const presence = comptime field_meta.presence;
-
-                // Type-compatibility check: verify the struct field type matches
-                // what the metadata scalar type expects before accessing the field.
-                const type_ok = comptime switch (presence) {
-                    .implicit => StructFieldType == ExpectedType,
-                    .explicit, .legacy_required => StructFieldType == ?ExpectedType,
-                };
-
-                if (comptime type_ok) {
-                    switch (presence) {
-                        .implicit => {
-                            const value: ExpectedType = @field(msg, struct_fields[i].name);
-                            if (!isDefault(sc.scalar, value)) {
-                                try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
-                                try writeScalar(bw, sc.scalar, value);
+        if (comptime field_meta.oneof_variant) |variant_name| {
+            // Oneof: the struct field is ?union(enum). Check if the active
+            // variant matches this metadata entry.
+            if (@field(msg, field_name)) |active_union| {
+                switch (active_union) {
+                    inline else => |payload, tag| {
+                        if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
+                            switch (field_meta.kind) {
+                                .scalar => |sc| {
+                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
+                                    try writeScalar(bw, sc.scalar, payload);
+                                },
+                                else => {},
                             }
-                        },
-                        .explicit, .legacy_required => {
-                            const opt: ?ExpectedType = @field(msg, struct_fields[i].name);
-                            if (opt) |value| {
-                                try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
-                                try writeScalar(bw, sc.scalar, value);
-                            }
-                        },
-                    }
+                        }
+                    },
                 }
-            },
-            else => {},
+            }
+        } else {
+            switch (field_meta.kind) {
+                .scalar => |sc| {
+                    const ExpectedType = comptime scalarZigType(sc.scalar);
+                    const StructFieldType = comptime struct_fields[fi].type;
+                    const presence = comptime field_meta.presence;
+
+                    const type_ok = comptime switch (presence) {
+                        .implicit => StructFieldType == ExpectedType,
+                        .explicit, .legacy_required => StructFieldType == ?ExpectedType,
+                    };
+
+                    if (comptime type_ok) {
+                        switch (presence) {
+                            .implicit => {
+                                const value: ExpectedType = @field(msg, field_name);
+                                if (!isDefault(sc.scalar, value)) {
+                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
+                                    try writeScalar(bw, sc.scalar, value);
+                                }
+                            },
+                            .explicit, .legacy_required => {
+                                const opt: ?ExpectedType = @field(msg, field_name);
+                                if (opt) |value| {
+                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
+                                    try writeScalar(bw, sc.scalar, value);
+                                }
+                            },
+                        }
+                    }
+                },
+                else => {},
+            }
         }
     }
 }
@@ -132,6 +146,7 @@ pub fn to_binary(allocator: std.mem.Allocator, msg: anytype, writer: anytype) !v
 
 const testing = std.testing;
 const FakeMessageFoo = @import("../test/fake_message_foo.zig").FakeMessageFoo;
+const FakeOneofMessage = @import("../test/fake_message_foo.zig").FakeOneofMessage;
 
 fn expectToBinary(msg: anytype, expected: []const u8) !void {
     var buf = std.ArrayList(u8){};
@@ -166,5 +181,36 @@ test "legacy_required string non-empty encodes tag, length, and bytes" {
     try expectToBinary(
         FakeMessageFoo{ .legacy_required_field = "foo" },
         &.{ 0x1a, 0x03, 'f', 'o', 'o' },
+    );
+}
+
+test "oneof null emits nothing" {
+    try expectToBinary(FakeOneofMessage{}, &.{});
+}
+
+test "oneof uint32 variant encodes tag and varint" {
+    // field number 2, wire type varint
+    // tag = (2 << 3) | 0 = 0x10, value 99 = 0x63
+    try expectToBinary(
+        FakeOneofMessage{ .my_oneof = .{ .a_uint32 = 99 } },
+        &.{ 0x10, 0x63 },
+    );
+}
+
+test "oneof string variant encodes tag, length, and bytes" {
+    // field number 3, wire type length_delimited
+    // tag = (3 << 3) | 2 = 0x1a, length = 2, "hi"
+    try expectToBinary(
+        FakeOneofMessage{ .my_oneof = .{ .a_string = "hi" } },
+        &.{ 0x1a, 0x02, 'h', 'i' },
+    );
+}
+
+test "oneof with regular field combined" {
+    // some_field (number 1, implicit int32): tag = 0x08, value 7 = 0x07
+    // oneof a_uint32 (number 2): tag = 0x10, value 5 = 0x05
+    try expectToBinary(
+        FakeOneofMessage{ .some_field = 7, .my_oneof = .{ .a_uint32 = 5 } },
+        &.{ 0x08, 0x07, 0x10, 0x05 },
     );
 }
