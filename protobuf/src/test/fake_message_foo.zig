@@ -14,15 +14,15 @@ pub const FakeMessageFoo = struct {
 
     pub const _desc = metadata.MessageMetadata{
         .fields = &[_]metadata.FieldMetadata{
-            .{ .number = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // explicit_field
-            .{ .number = 2, .presence = .implicit, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // implicit_field
-            .{ .number = 3, .presence = .legacy_required, .kind = .{ .scalar = .{ .scalar = .string } } }, // legacy_required_field
-            .{ .number = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_field
-            .{ .number = 5, .kind = .{ .message_field = .{} } }, // message_field
-            .{ .number = 6, .kind = .{ .scalar = .{ .scalar = .int32, .default_value = .{ .integer = 42 } } } }, // field_with_default
-            .{ .number = 10, .kind = .{ .enum_field = .{} } }, // color_field
-            .{ .number = 11, .kind = .{ .scalar = .{ .scalar = .float } } }, // float_field
-            .{ .number = 12, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true } } }, // repeated_float_field
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // explicit_field
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // implicit_field
+            .{ .number = 3, .field_index = 2, .presence = .legacy_required, .kind = .{ .scalar = .{ .scalar = .string } } }, // legacy_required_field
+            .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_field
+            .{ .number = 5, .field_index = 4, .kind = .{ .message_field = .{} } }, // message_field
+            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32, .default_value = .{ .integer = 42 } } } }, // field_with_default
+            .{ .number = 10, .field_index = 6, .kind = .{ .enum_field = .{} } }, // color_field
+            .{ .number = 11, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .float } } }, // float_field
+            .{ .number = 12, .field_index = 8, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true } } }, // repeated_float_field
         },
     };
 
@@ -41,7 +41,7 @@ pub const FakeMessageFoo = struct {
 
         pub const _desc = metadata.MessageMetadata{
             .fields = &[_]metadata.FieldMetadata{
-                .{ .number = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // value
+                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // value
             },
         };
 
@@ -54,5 +54,23 @@ pub const FakeMessageFoo = struct {
         color_unknown = 0,
         color_red = 1,
         color_green = 2,
+    };
+};
+
+pub const FakeOneofMessage = struct {
+    pub const MyOneof = union(enum) {
+        a_uint32: u32,
+        a_string: []const u8,
+    };
+
+    some_field: i32 = 0,
+    my_oneof: ?MyOneof = null,
+
+    pub const _desc = metadata.MessageMetadata{
+        .fields = &[_]metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .scalar = .{ .scalar = .int32 } } },
+            .{ .number = 2, .field_index = 1, .oneof_variant = "a_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } },
+            .{ .number = 3, .field_index = 1, .oneof_variant = "a_string", .kind = .{ .scalar = .{ .scalar = .string } } },
+        },
     };
 };
