@@ -2,25 +2,13 @@ const std = @import("std");
 const binary_writer_mod = @import("binary_writer.zig");
 const tag_mod = @import("tag.zig");
 const metadata_mod = @import("../metadata.zig");
+const field_access = @import("../field_access.zig");
 
 const BinaryWriter = binary_writer_mod.BinaryWriter;
 const WireType = tag_mod.WireType;
 const ScalarType = metadata_mod.ScalarType;
-const FieldPresence = metadata_mod.FieldPresence;
 
-/// Returns the Zig value type corresponding to a ScalarType.
-fn scalarZigType(comptime scalar: ScalarType) type {
-    return switch (scalar) {
-        .int32, .sint32, .sfixed32 => i32,
-        .int64, .sint64, .sfixed64 => i64,
-        .uint32, .fixed32 => u32,
-        .uint64, .fixed64 => u64,
-        .bool => bool,
-        .float => f32,
-        .double => f64,
-        .string, .bytes => []const u8,
-    };
-}
+const scalarZigType = field_access.scalarZigType;
 
 /// Returns the wire type for a ScalarType.
 fn scalarWireType(comptime scalar: ScalarType) WireType {
@@ -30,15 +18,6 @@ fn scalarWireType(comptime scalar: ScalarType) WireType {
         .fixed64, .sfixed64, .double => .bit64,
         .string, .bytes => .length_delimited,
     };
-}
-
-/// Returns true when value equals the proto3 zero default for the scalar type.
-fn isDefault(comptime scalar: ScalarType, value: scalarZigType(scalar)) bool {
-    switch (scalar) {
-        .string, .bytes => return value.len == 0,
-        .bool => return !value,
-        else => return value == 0,
-    }
 }
 
 /// Writes a scalar value to bw using the appropriate BinaryWriter method.
@@ -62,68 +41,19 @@ fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigT
     }
 }
 
-/// Encodes all scalar fields of msg into bw.
+/// Encodes all fields of msg into bw.
 ///
-/// Each FieldMetadata carries a `field_index` pointing into std.meta.fields(T)
-/// and an optional `oneof_variant` for oneof members. This decouples the
-/// metadata array order from the struct field order, allowing N oneof entries
-/// to share a single struct field (the `?union(enum)`).
+/// Uses field_access to uniformly handle both regular fields and oneof
+/// variants, eliminating separate code paths.
 fn writeMessage(bw: *BinaryWriter, msg: anytype) !void {
     const T = @TypeOf(msg);
-    const struct_fields = std.meta.fields(T);
 
     inline for (T._desc.fields) |field_meta| {
-        const fi = comptime field_meta.field_index;
-        const field_name = comptime struct_fields[fi].name;
-
-        if (comptime field_meta.oneof_variant) |variant_name| {
-            // Oneof: the struct field is ?union(enum). Check if the active
-            // variant matches this metadata entry.
-            if (@field(msg, field_name)) |active_union| {
-                switch (active_union) {
-                    inline else => |payload, tag| {
-                        if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
-                            switch (field_meta.kind) {
-                                .scalar => |sc| {
-                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
-                                    try writeScalar(bw, sc.scalar, payload);
-                                },
-                                else => {},
-                            }
-                        }
-                    },
-                }
-            }
-        } else {
+        if (field_access.hasField(msg, field_meta)) {
             switch (field_meta.kind) {
                 .scalar => |sc| {
-                    const ExpectedType = comptime scalarZigType(sc.scalar);
-                    const StructFieldType = comptime struct_fields[fi].type;
-                    const presence = comptime field_meta.presence;
-
-                    const type_ok = comptime switch (presence) {
-                        .implicit => StructFieldType == ExpectedType,
-                        .explicit, .legacy_required => StructFieldType == ?ExpectedType,
-                    };
-
-                    if (comptime type_ok) {
-                        switch (presence) {
-                            .implicit => {
-                                const value: ExpectedType = @field(msg, field_name);
-                                if (!isDefault(sc.scalar, value)) {
-                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
-                                    try writeScalar(bw, sc.scalar, value);
-                                }
-                            },
-                            .explicit, .legacy_required => {
-                                const opt: ?ExpectedType = @field(msg, field_name);
-                                if (opt) |value| {
-                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
-                                    try writeScalar(bw, sc.scalar, value);
-                                }
-                            },
-                        }
-                    }
+                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
+                    try writeScalar(bw, sc.scalar, field_access.getField(msg, field_meta).?);
                 },
                 else => {},
             }
