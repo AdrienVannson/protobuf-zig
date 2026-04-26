@@ -1,3 +1,6 @@
+set dotenv-load
+set dotenv-override
+
 protobuf_version := "33.2"
 
 all: setup build generate test conformance code-quality
