@@ -13,3 +13,10 @@ pub const WireType = enum(u3) {
     /// Used for fixed32, sfixed32, float. Always 4 bytes, little-endian.
     bit32 = 5,
 };
+
+/// A decoded field tag: the (field number, wire type) pair encoded as a
+/// single varint at the start of every field on the wire.
+pub const Tag = struct {
+    number: u32,
+    wire_type: WireType,
+};
