@@ -104,6 +104,28 @@ pub const BinaryReader = struct {
         if (self.pos != self.end) return error.UnconsumedBytes;
     }
 
+    /// Consume one field's payload after its tag has been read.
+    pub fn skipField(self: *BinaryReader, wire_type: WireType) !void {
+        switch (wire_type) {
+            .varint => _ = try self.varint(),
+            .bit32 => {
+                if (self.end - self.pos < 4) return error.UnexpectedEof;
+                self.pos += 4;
+            },
+            .bit64 => {
+                if (self.end - self.pos < 8) return error.UnexpectedEof;
+                self.pos += 8;
+            },
+            .length_delimited => {
+                const len = try self.varint();
+                const n = std.math.cast(usize, len) orelse return error.LengthExceedsBuffer;
+                if (n > self.end - self.pos) return error.LengthExceedsBuffer;
+                self.pos += n;
+            },
+            .sgroup, .egroup => return error.UnsupportedWireType,
+        }
+    }
+
     /// Read an unsigned integer encoded as a varint.
     pub fn varint(self: *BinaryReader) !u64 {
         return decodeVarint(self.data, &self.pos, self.end);
@@ -543,5 +565,85 @@ test "finish with unconsumed bytes returns error" {
 
 test "finish empty reader" {
     var r = BinaryReader.init(testing.allocator, &.{});
+    try expectReaderConsumed(&r);
+}
+
+// skipField
+
+test "skipField varint" {
+    var r = BinaryReader.init(testing.allocator, &.{ 0x2a, 0x08 });
+    try r.skipField(.varint);
+    try testing.expectEqual(@as(u64, 8), try r.varint());
+    try expectReaderConsumed(&r);
+}
+
+test "skipField bit32" {
+    var r = BinaryReader.init(testing.allocator, &.{ 0x01, 0x02, 0x03, 0x04, 0x2a });
+    try r.skipField(.bit32);
+    try testing.expectEqual(@as(u64, 42), try r.varint());
+    try expectReaderConsumed(&r);
+}
+
+test "skipField bit64" {
+    var r = BinaryReader.init(testing.allocator, &.{ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x2a });
+    try r.skipField(.bit64);
+    try testing.expectEqual(@as(u64, 42), try r.varint());
+    try expectReaderConsumed(&r);
+}
+
+test "skipField length_delimited" {
+    // length=3, payload "abc", then varint 42
+    var r = BinaryReader.init(testing.allocator, &.{ 0x03, 'a', 'b', 'c', 0x2a });
+    try r.skipField(.length_delimited);
+    try testing.expectEqual(@as(u64, 42), try r.varint());
+    try expectReaderConsumed(&r);
+}
+
+test "skipField sgroup returns error" {
+    var r = BinaryReader.init(testing.allocator, &.{});
+    defer r.deinit();
+    try testing.expectError(error.UnsupportedWireType, r.skipField(.sgroup));
+}
+
+test "skipField egroup returns error" {
+    var r = BinaryReader.init(testing.allocator, &.{});
+    defer r.deinit();
+    try testing.expectError(error.UnsupportedWireType, r.skipField(.egroup));
+}
+
+test "skipField varint truncated" {
+    var r = BinaryReader.init(testing.allocator, &.{0x80});
+    defer r.deinit();
+    try testing.expectError(error.UnexpectedEof, r.skipField(.varint));
+}
+
+test "skipField bit32 truncated" {
+    var r = BinaryReader.init(testing.allocator, &.{ 0x01, 0x02 });
+    defer r.deinit();
+    try testing.expectError(error.UnexpectedEof, r.skipField(.bit32));
+}
+
+test "skipField bit64 truncated" {
+    var r = BinaryReader.init(testing.allocator, &.{ 0x01, 0x02, 0x03 });
+    defer r.deinit();
+    try testing.expectError(error.UnexpectedEof, r.skipField(.bit64));
+}
+
+test "skipField length_delimited truncated" {
+    var r = BinaryReader.init(testing.allocator, &.{ 0x05, 'a', 'b' });
+    defer r.deinit();
+    try testing.expectError(error.LengthExceedsBuffer, r.skipField(.length_delimited));
+}
+
+test "unknown field in tag stream is skipped" {
+    // tag(99, varint) value=7, tag(1, varint) value=3
+    // tag(99, varint): (99 << 3) | 0 = 0x318 → 0x98 0x06
+    // tag(1, varint):  (1 << 3) | 0 = 0x08
+    var r = BinaryReader.init(testing.allocator, &.{ 0x98, 0x06, 0x07, 0x08, 0x03 });
+    const t1 = try r.tag();
+    try r.skipField(t1.wire_type);
+    const t2 = try r.tag();
+    try testing.expectEqual(@as(u32, 1), t2.number);
+    try testing.expectEqual(@as(u64, 3), try r.varint());
     try expectReaderConsumed(&r);
 }

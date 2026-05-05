@@ -2,35 +2,14 @@ const std = @import("std");
 const binary_writer_mod = @import("binary_writer.zig");
 const tag_mod = @import("tag.zig");
 const metadata_mod = @import("../metadata.zig");
+const scalar_meta = @import("scalar_meta.zig");
 
 const BinaryWriter = binary_writer_mod.BinaryWriter;
 const WireType = tag_mod.WireType;
 const ScalarType = metadata_mod.ScalarType;
 const FieldPresence = metadata_mod.FieldPresence;
-
-/// Returns the Zig value type corresponding to a ScalarType.
-fn scalarZigType(comptime scalar: ScalarType) type {
-    return switch (scalar) {
-        .int32, .sint32, .sfixed32 => i32,
-        .int64, .sint64, .sfixed64 => i64,
-        .uint32, .fixed32 => u32,
-        .uint64, .fixed64 => u64,
-        .bool => bool,
-        .float => f32,
-        .double => f64,
-        .string, .bytes => []const u8,
-    };
-}
-
-/// Returns the wire type for a ScalarType.
-fn scalarWireType(comptime scalar: ScalarType) WireType {
-    return switch (scalar) {
-        .int32, .int64, .uint32, .uint64, .sint32, .sint64, .bool => .varint,
-        .fixed32, .sfixed32, .float => .bit32,
-        .fixed64, .sfixed64, .double => .bit64,
-        .string, .bytes => .length_delimited,
-    };
-}
+const scalarZigType = scalar_meta.scalarZigType;
+const scalarWireType = scalar_meta.scalarWireType;
 
 /// Returns true when value equals the proto3 zero default for the scalar type.
 fn isDefault(comptime scalar: ScalarType, value: scalarZigType(scalar)) bool {
