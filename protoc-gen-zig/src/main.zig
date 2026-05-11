@@ -1,6 +1,6 @@
 const std = @import("std");
-const plugin = @import("generated/google/protobuf/compiler.pb.zig");
-const descriptor = @import("generated/google/protobuf.pb.zig");
+const plugin = @import("gen/google/protobuf/compiler.pb.zig");
+const descriptor = @import("gen/google/protobuf.pb.zig");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
