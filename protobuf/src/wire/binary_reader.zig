@@ -70,11 +70,10 @@ pub const BinaryReader = struct {
     /// stack, and narrows end to the sub-message boundary. Subsequent reads
     /// are confined to the sub-message until join() is called.
     pub fn fork(self: *BinaryReader) !void {
-        const len = try decodeVarint(self.data, &self.pos, self.end);
-        const len_usize = std.math.cast(usize, len) orelse return error.LengthExceedsBuffer;
-        if (len_usize > self.end - self.pos) return error.LengthExceedsBuffer;
+        const len: usize = try decodeVarint(self.data, &self.pos, self.end);
+        if (self.pos + len > self.end) return error.UnexpectedEof;
         try self.stack.append(self.allocator, self.end);
-        self.end = self.pos + len_usize;
+        self.end = self.pos + len;
     }
 
     /// Close the current sub-message scope.
@@ -180,8 +179,8 @@ pub const BinaryReader = struct {
     /// allocated with the reader's allocator; free with the same allocator.
     pub fn bytes(self: *BinaryReader) ![]u8 {
         const len = try self.varint();
-        const len_usize = std.math.cast(usize, len) orelse return error.LengthExceedsBuffer;
-        if (len_usize > self.end - self.pos) return error.LengthExceedsBuffer;
+        const len_usize = std.math.cast(usize, len) orelse return error.UnexpectedEof;
+        if (len_usize > self.end - self.pos) return error.UnexpectedEof;
         const owned = try self.allocator.dupe(u8, self.data[self.pos..][0..len_usize]);
         self.pos += len_usize;
         return owned;
@@ -474,14 +473,14 @@ test "string simple" {
 test "bytes length exceeds buffer" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x05, 'h', 'i' });
     defer r.deinit();
-    try testing.expectError(error.LengthExceedsBuffer, r.bytes());
+    try testing.expectError(error.UnexpectedEof, r.bytes());
 }
 
 test "bytes truncated payload after valid length" {
     // length=2 but only 1 byte of payload available
     var r = BinaryReader.init(testing.allocator, &.{ 0x02, 'a' });
     defer r.deinit();
-    try testing.expectError(error.LengthExceedsBuffer, r.bytes());
+    try testing.expectError(error.UnexpectedEof, r.bytes());
 }
 
 // fork / join
@@ -539,7 +538,7 @@ test "fork eof terminates field loop" {
 test "fork length exceeds parent scope" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x05, 0x01, 0x02 });
     defer r.deinit();
-    try testing.expectError(error.LengthExceedsBuffer, r.fork());
+    try testing.expectError(error.UnexpectedEof, r.fork());
 }
 
 test "join without fork returns error" {
