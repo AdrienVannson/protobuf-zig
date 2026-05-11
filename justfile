@@ -3,7 +3,7 @@ set dotenv-override
 
 protobuf_version := "33.2"
 
-all: setup build generate test conformance code-quality
+all: setup setup-conformance build generate test conformance code-quality
 
 build:
     cd protobuf && zig build
@@ -31,9 +31,13 @@ generate:
         --proto_path=./protoc-gen-zig/testprotos \
         example.proto
 
-# Download protoc, conformance runner, and conformance protos
+# Download protoc (all platforms)
 setup version=protobuf_version:
     PROTOBUF_VERSION={{version}} tools/upstream-protobuf.sh setup {{version}}
+
+# Download the conformance test runner (Linux/macOS only)
+setup-conformance version=protobuf_version:
+    PROTOBUF_VERSION={{version}} tools/upstream-protobuf.sh setup-conformance {{version}}
 
 # Run protoc (downloads if needed)
 protoc *args:
