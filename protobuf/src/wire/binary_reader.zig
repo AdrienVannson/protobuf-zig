@@ -59,11 +59,6 @@ pub const BinaryReader = struct {
         self.stack.deinit(self.allocator);
     }
 
-    /// Return the number of bytes remaining in the current scope.
-    pub fn remainingInScope(self: *const BinaryReader) usize {
-        return self.end - self.pos;
-    }
-
     /// Open a length-delimited sub-message scope.
     ///
     /// Reads a varint length prefix, saves the current scope's end on the
@@ -84,6 +79,11 @@ pub const BinaryReader = struct {
         if (self.stack.items.len == 0) return error.JoinWithoutFork;
         if (self.pos != self.end) return error.UnconsumedBytes;
         self.end = self.stack.pop().?;
+    }
+
+    /// Return the number of bytes remaining in the current scope.
+    pub fn remainingInScope(self: *const BinaryReader) usize {
+        return self.end - self.pos;
     }
 
     /// Verify the reader has fully consumed its input with no open forks.
