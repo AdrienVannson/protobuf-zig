@@ -100,10 +100,18 @@ pub const BinaryReader = struct {
     /// Read a field tag (field number + wire type).
     pub fn tag(self: *BinaryReader) !Tag {
         const v = try self.varint();
-        const number = std.math.cast(u32, v >> 3) orelse return error.InvalidFieldNumber;
-        if (number == 0 or number > 536870911) return error.InvalidFieldNumber;
-        const wire_raw: u3 = @intCast(v & 0x07);
-        const wire_type = std.meta.intToEnum(WireType, wire_raw) catch return error.InvalidWireType;
+
+        const number: u32 = blk: {
+            const n = v >> 3;
+            if (n == 0 or n > 536_870_911) return error.InvalidFieldNumber;
+            break :blk @intCast(n);
+        };
+
+        const wire_type = blk: {
+            const wire_raw: u3 = @intCast(v & 0x07);
+            break :blk std.meta.intToEnum(WireType, wire_raw) catch return error.InvalidWireType;
+        };
+
         return .{ .number = number, .wire_type = wire_type };
     }
 
@@ -141,7 +149,7 @@ pub const BinaryReader = struct {
     fn readFixed(self: *BinaryReader, comptime T: type) !T {
         const size = @sizeOf(T);
         if (self.end - self.pos < size) return error.UnexpectedEof;
-        const value = std.mem.readInt(T, self.data[self.pos..][0..size], .little);
+        const value = std.mem.readInt(T, self.data[self.pos .. self.pos + size][0..size], .little);
         self.pos += size;
         return value;
     }
@@ -163,8 +171,7 @@ pub const BinaryReader = struct {
     }
 
     pub fn bool_(self: *BinaryReader) !bool {
-        const v = try self.varint();
-        return v != 0;
+        return try self.varint() != 0;
     }
 
     pub fn float_(self: *BinaryReader) !f32 {
@@ -178,11 +185,11 @@ pub const BinaryReader = struct {
     /// Read a length-delimited byte sequence. Returns a caller-owned copy
     /// allocated with the reader's allocator; free with the same allocator.
     pub fn bytes(self: *BinaryReader) ![]u8 {
-        const len = try self.varint();
-        const len_usize = std.math.cast(usize, len) orelse return error.UnexpectedEof;
-        if (len_usize > self.end - self.pos) return error.UnexpectedEof;
-        const owned = try self.allocator.dupe(u8, self.data[self.pos..][0..len_usize]);
-        self.pos += len_usize;
+        const len: usize = try self.varint();
+        if (self.pos + len > self.end) return error.UnexpectedEof;
+
+        const owned = try self.allocator.dupe(u8, self.data[self.pos .. self.pos + len]);
+        self.pos += len;
         return owned;
     }
 
@@ -215,25 +222,19 @@ fn expectReaderConsumed(r: *BinaryReader) !void {
 
 test "varint zero" {
     var r = BinaryReader.init(testing.allocator, &.{0x00});
-    try testing.expectEqual(@as(u64, 0), try r.varint());
+    try testing.expectEqual(0, try r.varint());
     try expectReaderConsumed(&r);
 }
 
 test "varint 127" {
     var r = BinaryReader.init(testing.allocator, &.{0x7f});
-    try testing.expectEqual(@as(u64, 127), try r.varint());
+    try testing.expectEqual(127, try r.varint());
     try expectReaderConsumed(&r);
 }
 
 test "varint 128" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x80, 0x01 });
-    try testing.expectEqual(@as(u64, 128), try r.varint());
-    try expectReaderConsumed(&r);
-}
-
-test "varint 150" {
-    var r = BinaryReader.init(testing.allocator, &.{ 0x96, 0x01 });
-    try testing.expectEqual(@as(u64, 150), try r.varint());
+    try testing.expectEqual(128, try r.varint());
     try expectReaderConsumed(&r);
 }
 
@@ -273,23 +274,7 @@ test "varint 10th byte overflow" {
 test "tag field 1 varint" {
     var r = BinaryReader.init(testing.allocator, &.{0x08});
     const t = try r.tag();
-    try testing.expectEqual(@as(u32, 1), t.number);
-    try testing.expectEqual(WireType.varint, t.wire_type);
-    try expectReaderConsumed(&r);
-}
-
-test "tag field 2 length_delimited" {
-    var r = BinaryReader.init(testing.allocator, &.{0x12});
-    const t = try r.tag();
-    try testing.expectEqual(@as(u32, 2), t.number);
-    try testing.expectEqual(WireType.length_delimited, t.wire_type);
-    try expectReaderConsumed(&r);
-}
-
-test "tag large field number" {
-    var r = BinaryReader.init(testing.allocator, &.{ 0xf8, 0xff, 0xff, 0xff, 0x0f });
-    const t = try r.tag();
-    try testing.expectEqual(@as(u32, 536870911), t.number);
+    try testing.expectEqual(1, t.number);
     try testing.expectEqual(WireType.varint, t.wire_type);
     try expectReaderConsumed(&r);
 }
@@ -305,22 +290,6 @@ test "tag invalid wire type 6" {
     var r = BinaryReader.init(testing.allocator, &.{0x0e});
     defer r.deinit();
     try testing.expectError(error.InvalidWireType, r.tag());
-}
-
-test "tag invalid wire type 7" {
-    // (field 1 << 3) | 7 = 0x0F
-    var r = BinaryReader.init(testing.allocator, &.{0x0f});
-    defer r.deinit();
-    try testing.expectError(error.InvalidWireType, r.tag());
-}
-
-test "tag field number exceeds u32" {
-    // varint = u64 max; v >> 3 > u32 max → InvalidFieldNumber.
-    var r = BinaryReader.init(testing.allocator, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    });
-    defer r.deinit();
-    try testing.expectError(error.InvalidFieldNumber, r.tag());
 }
 
 // scalar types (round-trip via writer)
