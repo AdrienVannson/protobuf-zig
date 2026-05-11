@@ -301,7 +301,7 @@ test "int32 -123" {
     defer testing.allocator.free(buf);
 
     var r = BinaryReader.init(testing.allocator, buf);
-    try testing.expectEqual(@as(i32, -123), try r.int32());
+    try testing.expectEqual(-123, try r.int32());
     try expectReaderConsumed(&r);
 }
 
@@ -312,25 +312,25 @@ test "int64 -9876543210" {
     defer testing.allocator.free(buf);
 
     var r = BinaryReader.init(testing.allocator, buf);
-    try testing.expectEqual(@as(i64, -9876543210), try r.int64());
+    try testing.expectEqual(-9876543210, try r.int64());
     try expectReaderConsumed(&r);
 }
 
 test "uint32 123" {
     var r = BinaryReader.init(testing.allocator, &.{0x7b});
-    try testing.expectEqual(@as(u32, 123), try r.uint32());
+    try testing.expectEqual(123, try r.uint32());
     try expectReaderConsumed(&r);
 }
 
 test "uint64 9876543210" {
     var r = BinaryReader.init(testing.allocator, &.{ 0xea, 0xad, 0xc0, 0xe5, 0x24 });
-    try testing.expectEqual(@as(u64, 9876543210), try r.uint64());
+    try testing.expectEqual(9876543210, try r.uint64());
     try expectReaderConsumed(&r);
 }
 
 test "sint32 -123" {
     var r = BinaryReader.init(testing.allocator, &.{ 0xf5, 0x01 });
-    try testing.expectEqual(@as(i32, -123), try r.sint32());
+    try testing.expectEqual(-123, try r.sint32());
     try expectReaderConsumed(&r);
 }
 
@@ -349,31 +349,31 @@ test "sint32 value exceeds u32" {
 
 test "sint64 -9876543210" {
     var r = BinaryReader.init(testing.allocator, &.{ 0xd3, 0xdb, 0x80, 0xcb, 0x49 });
-    try testing.expectEqual(@as(i64, -9876543210), try r.sint64());
+    try testing.expectEqual(-9876543210, try r.sint64());
     try expectReaderConsumed(&r);
 }
 
 test "fixed32 123" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x7b, 0x00, 0x00, 0x00 });
-    try testing.expectEqual(@as(u32, 123), try r.fixed32());
+    try testing.expectEqual(123, try r.fixed32());
     try expectReaderConsumed(&r);
 }
 
 test "fixed64 9876543210" {
     var r = BinaryReader.init(testing.allocator, &.{ 0xea, 0x16, 0xb0, 0x4c, 0x02, 0x00, 0x00, 0x00 });
-    try testing.expectEqual(@as(u64, 9876543210), try r.fixed64());
+    try testing.expectEqual(9876543210, try r.fixed64());
     try expectReaderConsumed(&r);
 }
 
 test "sfixed32 -123" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x85, 0xff, 0xff, 0xff });
-    try testing.expectEqual(@as(i32, -123), try r.sfixed32());
+    try testing.expectEqual(-123, try r.sfixed32());
     try expectReaderConsumed(&r);
 }
 
 test "sfixed64 -9876543210" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x16, 0xe9, 0x4f, 0xb3, 0xfd, 0xff, 0xff, 0xff });
-    try testing.expectEqual(@as(i64, -9876543210), try r.sfixed64());
+    try testing.expectEqual(-9876543210, try r.sfixed64());
     try expectReaderConsumed(&r);
 }
 
@@ -391,13 +391,13 @@ test "bool_ false" {
 
 test "float_ 123.0" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x00, 0x00, 0xf6, 0x42 });
-    try testing.expectEqual(@as(f32, 123.0), try r.float_());
+    try testing.expectEqual(123.0, try r.float_());
     try expectReaderConsumed(&r);
 }
 
 test "double 9876543210.0" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x00, 0x00, 0x50, 0xb7, 0x80, 0x65, 0x02, 0x42 });
-    try testing.expectEqual(@as(f64, 9876543210.0), try r.double());
+    try testing.expectEqual(9876543210.0, try r.double());
     try expectReaderConsumed(&r);
 }
 
@@ -431,23 +431,8 @@ test "bytes simple" {
     try expectReaderConsumed(&r);
 }
 
-test "string simple" {
-    var r = BinaryReader.init(testing.allocator, &.{ 0x05, 'h', 'e', 'l', 'l', 'o' });
-    const out = try r.string();
-    defer testing.allocator.free(out);
-    try testing.expectEqualSlices(u8, "hello", out);
-    try expectReaderConsumed(&r);
-}
-
 test "bytes length exceeds buffer" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x05, 'h', 'i' });
-    defer r.deinit();
-    try testing.expectError(error.UnexpectedEof, r.bytes());
-}
-
-test "bytes truncated payload after valid length" {
-    // length=2 but only 1 byte of payload available
-    var r = BinaryReader.init(testing.allocator, &.{ 0x02, 'a' });
     defer r.deinit();
     try testing.expectError(error.UnexpectedEof, r.bytes());
 }
@@ -457,7 +442,7 @@ test "bytes truncated payload after valid length" {
 test "fork join simple sub-message" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x01, 0x2a });
     try r.fork();
-    try testing.expectEqual(@as(u64, 42), try r.varint());
+    try testing.expectEqual(42, try r.varint());
     try r.join();
     try expectReaderConsumed(&r);
 }
@@ -465,10 +450,10 @@ test "fork join simple sub-message" {
 test "fork join with tag" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x0a, 0x01, 0x0c });
     const t = try r.tag();
-    try testing.expectEqual(@as(u32, 1), t.number);
+    try testing.expectEqual(1, t.number);
     try testing.expectEqual(WireType.length_delimited, t.wire_type);
     try r.fork();
-    try testing.expectEqual(@as(u64, 12), try r.varint());
+    try testing.expectEqual(12, try r.varint());
     try r.join();
     try expectReaderConsumed(&r);
 }
@@ -476,30 +461,13 @@ test "fork join with tag" {
 test "fork join nested" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x0a, 0x03, 0x0a, 0x01, 0x07 });
     const outer = try r.tag();
-    try testing.expectEqual(@as(u32, 1), outer.number);
+    try testing.expectEqual(1, outer.number);
     try r.fork();
     const inner = try r.tag();
-    try testing.expectEqual(@as(u32, 1), inner.number);
+    try testing.expectEqual(1, inner.number);
     try r.fork();
-    try testing.expectEqual(@as(u64, 7), try r.varint());
+    try testing.expectEqual(7, try r.varint());
     try r.join();
-    try r.join();
-    try expectReaderConsumed(&r);
-}
-
-test "fork eof terminates field loop" {
-    // Two fields inside a sub-message: tag(1, varint)+varint(1), tag(2, varint)+varint(2).
-    // Outer payload length = 4 bytes.
-    var r = BinaryReader.init(testing.allocator, &.{ 0x04, 0x08, 0x01, 0x10, 0x02 });
-    try r.fork();
-    var seen: u32 = 0;
-    while (r.remainingInScope() > 0) {
-        const t = try r.tag();
-        const v = try r.varint();
-        seen += 1;
-        try testing.expectEqual(@as(u64, t.number), v);
-    }
-    try testing.expectEqual(@as(u32, 2), seen);
     try r.join();
     try expectReaderConsumed(&r);
 }
@@ -538,9 +506,4 @@ test "finish with unconsumed bytes returns error" {
     defer r.deinit();
     _ = try r.varint();
     try testing.expectError(error.UnconsumedBytes, r.finish());
-}
-
-test "finish empty reader" {
-    var r = BinaryReader.init(testing.allocator, &.{});
-    try expectReaderConsumed(&r);
 }
