@@ -4,31 +4,20 @@ const tag_mod = @import("tag.zig");
 const WireType = tag_mod.WireType;
 const Tag = tag_mod.Tag;
 
-/// Decodes a base-128 varint from data starting at pos.*. On success, advances
-/// pos.* past the varint and returns the decoded value. On failure, pos.* is
-/// not modified.
+/// Decodes a base-128 varint from data starting at pos.*. Advances pos.*
+/// past the bytes consumed.
 fn decodeVarint(data: []const u8, pos: *usize, end: usize) !u64 {
     var result: u64 = 0;
     var shift: u6 = 0;
-    var i: usize = pos.*;
-    var bytes_read: usize = 0;
-    while (bytes_read < 10) : (bytes_read += 1) {
-        if (i >= end) return error.UnexpectedEof;
-        const byte = data[i];
-        i += 1;
-        if (bytes_read == 9) {
-            // The 10th byte may only contribute 1 bit (9*7 + 1 = 64).
-            if ((byte & 0x7F) > 0x01) return error.InvalidVarint;
-            result |= @as(u64, byte & 0x7F) << shift;
-            if ((byte & 0x80) != 0) return error.InvalidVarint;
-            pos.* = i;
-            return result;
+    for (0..10) |b| {
+        if (pos.* >= end) return error.UnexpectedEof;
+        const byte = data[pos.*];
+        pos.* += 1;
+        if (b == 9 and byte > 1) { // The 10th byte may only contribute 1 bit (9*7 + 1 = 64).
+            return error.InvalidVarint;
         }
         result |= @as(u64, byte & 0x7F) << shift;
-        if ((byte & 0x80) == 0) {
-            pos.* = i;
-            return result;
-        }
+        if ((byte & 0x80) == 0) return result;
         shift += 7;
     }
     return error.InvalidVarint;
@@ -112,17 +101,17 @@ pub const BinaryReader = struct {
     /// Read a field tag (field number + wire type).
     pub fn tag(self: *BinaryReader) !Tag {
         const v = try self.varint();
-        const number = std.math.cast(u32, v >> 3) orelse return error.InvalidVarint;
+        const number = std.math.cast(u32, v >> 3) orelse return error.InvalidFieldNumber;
+        if (number == 0 or number > 536870911) return error.InvalidFieldNumber;
         const wire_raw: u3 = @intCast(v & 0x07);
-        return .{
-            .number = number,
-            .wire_type = @enumFromInt(wire_raw),
-        };
+        const wire_type = std.meta.intToEnum(WireType, wire_raw) catch return error.InvalidWireType;
+        return .{ .number = number, .wire_type = wire_type };
     }
 
     pub fn int32(self: *BinaryReader) !i32 {
         const v = try self.varint();
-        return @truncate(@as(i64, @bitCast(v)));
+        const signed: i64 = @bitCast(v);
+        return @truncate(signed);
     }
 
     pub fn int64(self: *BinaryReader) !i64 {
@@ -132,7 +121,7 @@ pub const BinaryReader = struct {
 
     pub fn uint32(self: *BinaryReader) !u32 {
         const v = try self.varint();
-        return std.math.cast(u32, v) orelse return error.InvalidVarint;
+        return std.math.cast(u32, v) orelse return error.IntegerOverflow;
     }
 
     pub fn uint64(self: *BinaryReader) !u64 {
@@ -141,7 +130,7 @@ pub const BinaryReader = struct {
 
     pub fn sint32(self: *BinaryReader) !i32 {
         const v = try self.varint();
-        const u: u32 = std.math.cast(u32, v) orelse return error.InvalidVarint;
+        const u: u32 = std.math.cast(u32, v) orelse return error.IntegerOverflow;
         return @bitCast((u >> 1) ^ (0 -% (u & 1)));
     }
 
@@ -306,6 +295,35 @@ test "tag large field number" {
     try expectReaderConsumed(&r);
 }
 
+test "tag field number 0 rejected" {
+    var r = BinaryReader.init(testing.allocator, &.{0x00});
+    defer r.deinit();
+    try testing.expectError(error.InvalidFieldNumber, r.tag());
+}
+
+test "tag invalid wire type 6" {
+    // (field 1 << 3) | 6 = 0x0E
+    var r = BinaryReader.init(testing.allocator, &.{0x0e});
+    defer r.deinit();
+    try testing.expectError(error.InvalidWireType, r.tag());
+}
+
+test "tag invalid wire type 7" {
+    // (field 1 << 3) | 7 = 0x0F
+    var r = BinaryReader.init(testing.allocator, &.{0x0f});
+    defer r.deinit();
+    try testing.expectError(error.InvalidWireType, r.tag());
+}
+
+test "tag field number exceeds u32" {
+    // varint = u64 max; v >> 3 > u32 max → InvalidFieldNumber.
+    var r = BinaryReader.init(testing.allocator, &.{
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+    });
+    defer r.deinit();
+    try testing.expectError(error.InvalidFieldNumber, r.tag());
+}
+
 // scalar types (round-trip via writer)
 
 test "int32 -123" {
@@ -346,6 +364,19 @@ test "sint32 -123" {
     var r = BinaryReader.init(testing.allocator, &.{ 0xf5, 0x01 });
     try testing.expectEqual(@as(i32, -123), try r.sint32());
     try expectReaderConsumed(&r);
+}
+
+test "uint32 value exceeds u32" {
+    // varint encoding of 1 << 32 = 4294967296.
+    var r = BinaryReader.init(testing.allocator, &.{ 0x80, 0x80, 0x80, 0x80, 0x10 });
+    defer r.deinit();
+    try testing.expectError(error.IntegerOverflow, r.uint32());
+}
+
+test "sint32 value exceeds u32" {
+    var r = BinaryReader.init(testing.allocator, &.{ 0x80, 0x80, 0x80, 0x80, 0x10 });
+    defer r.deinit();
+    try testing.expectError(error.IntegerOverflow, r.sint32());
 }
 
 test "sint64 -9876543210" {
