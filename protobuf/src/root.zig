@@ -23,8 +23,6 @@ pub const DescField = descriptor.DescField;
 pub const DescExtensionKind = descriptor.DescExtensionKind;
 pub const DescExtension = descriptor.DescExtension;
 
-pub const BinaryWriter = binary_writer.BinaryWriter;
-pub const BinaryReader = binary_reader.BinaryReader;
 pub const to_binary = to_binary_mod.to_binary;
 pub const from_binary = from_binary_mod.from_binary;
 
