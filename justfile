@@ -28,7 +28,7 @@ generate:
     just protoc \
         --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
         --zig_out=./protobuf/src/testgen \
-        --proto_path=./protoc-gen-zig/testprotos \
+        --proto_path=./protoc-gen-zig/test_protos \
         example.proto
 
 # Download protoc (all platforms)
