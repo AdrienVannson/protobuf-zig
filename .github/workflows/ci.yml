@@ -33,8 +33,11 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Setup
-        if: runner.os != 'Windows'
         run: just setup
+
+      - name: Setup conformance
+        if: runner.os != 'Windows'
+        run: just setup-conformance
 
       - name: Build
         run: just build

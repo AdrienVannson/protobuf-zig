@@ -148,10 +148,22 @@ download_conformance() {
 cmd_setup() {
     local version="${1:-${PROTOBUF_VERSION}}"
     download_protoc "${version}"
-    download_conformance "${version}"
     echo ""
     echo "Setup complete for protobuf ${version}:"
-    cmd_paths "${version}"
+    echo "PROTOC=$(protoc_dir "${version}")/bin/protoc"
+    echo "PROTOC_INCLUDE=$(protoc_dir "${version}")/include"
+}
+
+cmd_setup_conformance() {
+    local version="${1:-${PROTOBUF_VERSION}}"
+    download_conformance "${version}"
+    echo ""
+    echo "Setup conformance complete for protobuf ${version}:"
+    local os platform
+    os="$(detect_os)"
+    platform="$(detect_conformance_platform "${os}")"
+    echo "CONFORMANCE_RUNNER=$(conformance_dir "${version}")/package/bin/conformance_test_runner-${platform}"
+    echo "CONFORMANCE_INCLUDE=$(conformance_dir "${version}")/package/include"
 }
 
 cmd_protoc() {
@@ -201,11 +213,12 @@ shift || true
 
 case "${CMD}" in
     setup)              cmd_setup "${@}" ;;
+    setup-conformance)  cmd_setup_conformance "${@}" ;;
     protoc)             cmd_protoc "${@}" ;;
     conformance-runner) cmd_conformance_runner "${@}" ;;
     paths)              cmd_paths "${@}" ;;
     *)
-        echo "Usage: $(basename "${0}") {setup|protoc|conformance-runner|paths} [args...]" >&2
+        echo "Usage: $(basename "${0}") {setup|setup-conformance|protoc|conformance-runner|paths} [args...]" >&2
         exit 1
         ;;
 esac
