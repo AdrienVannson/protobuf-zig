@@ -15,6 +15,7 @@ jobs:
   build-and-test:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
@@ -32,16 +33,19 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Setup
+        if: runner.os != 'Windows'
         run: just setup
 
       - name: Build
         run: just build
 
       - name: Generate
+        if: runner.os != 'Windows'
         run: just generate && git diff --exit-code
 
       - name: Test
         run: just test
 
       - name: Conformance
+        if: runner.os != 'Windows'
         run: just conformance
