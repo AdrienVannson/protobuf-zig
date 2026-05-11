@@ -30,7 +30,7 @@ jobs:
           version: 0.15.2
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
 
       - name: Setup
         run: just setup
