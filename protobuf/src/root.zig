@@ -26,6 +26,7 @@ pub const DescExtension = descriptor.DescExtension;
 pub const to_binary = to_binary_mod.to_binary;
 pub const from_binary = from_binary_mod.from_binary;
 
+// TODO delete
 pub const test_types = @import("test/test_all_types_proto3.zig");
 
 test {
