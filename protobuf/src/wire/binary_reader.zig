@@ -59,9 +59,9 @@ pub const BinaryReader = struct {
         self.stack.deinit(self.allocator);
     }
 
-    /// Returns true when the cursor has reached the end of the current scope.
-    pub fn eof(self: *const BinaryReader) bool {
-        return self.pos == self.end;
+    /// Return the number of bytes remaining in the current scope.
+    pub fn remainingInScope(self: *const BinaryReader) usize {
+        return self.end - self.pos;
     }
 
     /// Open a length-delimited sub-message scope.
@@ -524,7 +524,7 @@ test "fork eof terminates field loop" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x04, 0x08, 0x01, 0x10, 0x02 });
     try r.fork();
     var seen: u32 = 0;
-    while (!r.eof()) {
+    while (r.remainingInScope() > 0) {
         const t = try r.tag();
         const v = try r.varint();
         seen += 1;
