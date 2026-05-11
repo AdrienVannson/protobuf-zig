@@ -19,7 +19,7 @@ pub fn build(b: *std.Build) void {
     );
 
     const gen_step = protobuf.RunProtocStep.create(protobuf_dep.builder, target, .{
-        .destination_directory = b.path("src/generated"),
+        .destination_directory = b.path("src/gen"),
         .source_files = &.{
             b.pathJoin(&.{ protoc_include, "google/protobuf/descriptor.proto" }),
             b.pathJoin(&.{ protoc_include, "google/protobuf/compiler/plugin.proto" }),
