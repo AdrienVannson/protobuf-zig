@@ -79,6 +79,8 @@ fn generateFieldGetter(
 ) !void {
     if (!isPlainScalarField(field)) return;
     const field_name = field.name orelse return;
+
+    // TODO make sure the new name doesn't conflict with any existing member
     const field_name_camel = try toCamelCase(f.alloc, field_name);
     defer f.alloc.free(field_name_camel);
 
