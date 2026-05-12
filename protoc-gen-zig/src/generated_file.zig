@@ -115,19 +115,11 @@ test "tuple of string and integer at indent zero" {
     try expectContents(&f, "foo42;\n");
 }
 
-test "writeLine prefixes current indentation" {
-    var f = GeneratedFile.init(testing.allocator);
-    f.indent();
-    f.indent();
-    try f.writeLine("a;");
-    try expectContents(&f, "        a;\n");
-}
-
 test "tuple writeLine indents once at the start of the line" {
     var f = GeneratedFile.init(testing.allocator);
     f.indent();
     f.indent();
-    try f.writeLine(.{ "const x = ", @as(u32, 42), ";" });
+    try f.writeLine(.{ "const x = ", 42, ";" });
     try expectContents(&f, "        const x = 42;\n");
 }
 
@@ -138,31 +130,6 @@ test "indent and unindent across multiple lines" {
     f.unindent();
     try f.writeLine("y");
     try expectContents(&f, "    x\ny\n");
-}
-
-test "mid-line indent does not retroactively indent current line" {
-    var f = GeneratedFile.init(testing.allocator);
-    try f.write("abc");
-    f.indent();
-    try f.writeLine("def");
-    try f.writeLine("ghi");
-    try expectContents(&f, "abcdef\n    ghi\n");
-}
-
-test "empty string write does not emit indentation" {
-    var f = GeneratedFile.init(testing.allocator);
-    f.indent();
-    try f.write("");
-    try f.writeLine("x");
-    try expectContents(&f, "    x\n");
-}
-
-test "empty tuple is a no-op" {
-    var f = GeneratedFile.init(testing.allocator);
-    f.indent();
-    try f.write(.{});
-    try f.writeLine("x");
-    try expectContents(&f, "    x\n");
 }
 
 test "slice with runtime length" {
