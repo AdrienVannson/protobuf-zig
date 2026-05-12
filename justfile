@@ -3,7 +3,7 @@ set dotenv-override
 
 protobuf_version := "33.2"
 
-all: setup setup-conformance build generate test conformance code-quality
+all: setup setup-conformance build generate test conformance code-quality generate-wkt
 
 build:
     cd protobuf && zig build
@@ -30,6 +30,24 @@ generate:
         --zig_out=./protobuf/src/testgen \
         --proto_path=./protoc-gen-zig/test_protos \
         example.proto
+
+# Generate the well-known types using protoc-gen-zig.
+generate-wkt: setup
+    #!/usr/bin/env bash
+    set -euo pipefail
+    (cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}})
+    rm -rf protobuf/src/wkt
+    mkdir -p protobuf/src/wkt
+    include_dir="$(PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh paths | grep '^PROTOC_INCLUDE=' | cut -d= -f2-)"
+    proto_files=()
+    while IFS= read -r line; do
+        proto_files+=("$line")
+    done < <(cd "$include_dir" && ls google/protobuf/*.proto | LC_ALL=C sort)
+    just protoc \
+        --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
+        --zig_out=./protobuf/src/wkt \
+        --proto_path="$include_dir" \
+        "${proto_files[@]}"
 
 # Download protoc (all platforms)
 setup version=protobuf_version:
