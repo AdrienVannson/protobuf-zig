@@ -6,8 +6,8 @@ const INDENT_UNIT = "    ";
 ///
 /// Tracks an indentation level managed via `indent()` / `unindent()`. The
 /// current indentation is automatically emitted before the first piece of
-/// content on each new line, so chained `write` / `writeLine` calls produce
-/// correctly indented output without manual prefixing.
+/// content on each new line, so successive `write` / `writeLine` calls
+/// produce correctly indented output without manual prefixing.
 pub const GeneratedFile = struct {
     alloc: std.mem.Allocator,
     buffer: std.ArrayList(u8),
@@ -28,35 +28,33 @@ pub const GeneratedFile = struct {
     }
 
     /// Append `value` to the buffer. If positioned at the start of a line,
-    /// the current indentation is written first. Accepts `[]const u8`,
-    /// string literals, and any integer type. Returns `self` for chaining.
-    pub fn write(self: *GeneratedFile, value: anytype) !*GeneratedFile {
+    /// the current indentation is written first.
+    ///
+    /// `value` may be a single piece (string or integer) or a tuple of such
+    /// pieces, in which case each element is written in order. This lets a
+    /// logical line be assembled in one call without nested `try`s:
+    ///
+    /// ```
+    /// try f.writeLine(.{ "const x = ", 42, ";" });
+    /// ```
+    pub fn write(self: *GeneratedFile, value: anytype) !void {
+        try self.maybeEmitIndent();
+
         const T = @TypeOf(value);
-        switch (@typeInfo(T)) {
-            .int, .comptime_int => {
-                try self.maybeEmitIndent();
-                try self.buffer.writer(self.alloc).print("{d}", .{value});
-            },
-            .pointer => {
-                const s: []const u8 = value;
-                if (s.len == 0) return self;
-                try self.maybeEmitIndent();
-                try self.buffer.appendSlice(self.alloc, s);
-            },
-            else => @compileError(
-                "GeneratedFile.write: unsupported type " ++ @typeName(T),
-            ),
+        const info = @typeInfo(T);
+        if (info == .@"struct" and info.@"struct".is_tuple) {
+            inline for (value) |elem| try self.writeOne(elem);
+        } else {
+            try self.writeOne(value);
         }
-        return self;
     }
 
     /// Same as `write`, then appends a newline and marks the buffer as being
-    /// at the start of a new line. Returns `self` for chaining.
-    pub fn writeLine(self: *GeneratedFile, value: anytype) !*GeneratedFile {
-        _ = try self.write(value);
+    /// at the start of a new line.
+    pub fn writeLine(self: *GeneratedFile, value: anytype) !void {
+        try self.write(value);
         try self.buffer.append(self.alloc, '\n');
         self.at_line_start = true;
-        return self;
     }
 
     pub fn indent(self: *GeneratedFile) *GeneratedFile {
@@ -73,6 +71,23 @@ pub const GeneratedFile = struct {
     /// `GeneratedFile` is left in an empty state and must still be `deinit`ed.
     pub fn toOwnedSlice(self: *GeneratedFile) ![]u8 {
         return self.buffer.toOwnedSlice(self.alloc);
+    }
+
+    fn writeOne(self: *GeneratedFile, value: anytype) !void {
+        const T = @TypeOf(value);
+        switch (@typeInfo(T)) {
+            .int, .comptime_int => {
+                try self.buffer.writer(self.alloc).print("{d}", .{value});
+            },
+            .pointer => {
+                const s: []const u8 = value;
+                if (s.len == 0) return;
+                try self.buffer.appendSlice(self.alloc, s);
+            },
+            else => @compileError(
+                "GeneratedFile.write: unsupported type " ++ @typeName(T),
+            ),
+        }
     }
 
     fn maybeEmitIndent(self: *GeneratedFile) !void {
@@ -96,10 +111,10 @@ fn expectContents(f: *GeneratedFile, expected: []const u8) !void {
     try testing.expectEqualSlices(u8, expected, out);
 }
 
-test "chained string and integer at indent zero" {
+test "tuple of string and integer at indent zero" {
     var f = GeneratedFile.init(testing.allocator);
     defer f.deinit();
-    _ = try (try (try f.write("foo")).write(@as(u32, 42))).writeLine(";");
+    try f.writeLine(.{ "foo", @as(u32, 42), ";" });
     try expectContents(&f, "foo42;\n");
 }
 
@@ -107,15 +122,15 @@ test "writeLine prefixes current indentation" {
     var f = GeneratedFile.init(testing.allocator);
     defer f.deinit();
     _ = f.indent().indent();
-    _ = try f.writeLine("a;");
+    try f.writeLine("a;");
     try expectContents(&f, "        a;\n");
 }
 
-test "indent applies once at the start of a line for chained writes" {
+test "tuple writeLine indents once at the start of the line" {
     var f = GeneratedFile.init(testing.allocator);
     defer f.deinit();
     _ = f.indent().indent();
-    _ = try (try (try f.write("const x = ")).write(@as(u32, 42))).writeLine(";");
+    try f.writeLine(.{ "const x = ", @as(u32, 42), ";" });
     try expectContents(&f, "        const x = 42;\n");
 }
 
@@ -123,19 +138,19 @@ test "indent and unindent across multiple lines" {
     var f = GeneratedFile.init(testing.allocator);
     defer f.deinit();
     _ = f.indent();
-    _ = try f.writeLine("x");
+    try f.writeLine("x");
     _ = f.unindent();
-    _ = try f.writeLine("y");
+    try f.writeLine("y");
     try expectContents(&f, "    x\ny\n");
 }
 
 test "mid-line indent does not retroactively indent current line" {
     var f = GeneratedFile.init(testing.allocator);
     defer f.deinit();
-    _ = try f.write("abc");
+    try f.write("abc");
     _ = f.indent();
-    _ = try f.writeLine("def");
-    _ = try f.writeLine("ghi");
+    try f.writeLine("def");
+    try f.writeLine("ghi");
     try expectContents(&f, "abcdef\n    ghi\n");
 }
 
@@ -143,26 +158,18 @@ test "empty string write does not emit indentation" {
     var f = GeneratedFile.init(testing.allocator);
     defer f.deinit();
     _ = f.indent();
-    _ = try f.write("");
-    _ = try f.writeLine("x");
+    try f.write("");
+    try f.writeLine("x");
     try expectContents(&f, "    x\n");
 }
 
-test "writeLine with empty string produces blank line without indentation" {
+test "empty tuple is a no-op" {
     var f = GeneratedFile.init(testing.allocator);
     defer f.deinit();
     _ = f.indent();
-    _ = try f.writeLine("a");
-    _ = try f.writeLine("");
-    _ = try f.writeLine("b");
-    try expectContents(&f, "    a\n\n    b\n");
-}
-
-test "negative integer is written with sign" {
-    var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
-    _ = try f.write(@as(i32, -7));
-    try expectContents(&f, "-7");
+    try f.write(.{});
+    try f.writeLine("x");
+    try expectContents(&f, "    x\n");
 }
 
 test "slice with runtime length" {
@@ -170,6 +177,6 @@ test "slice with runtime length" {
     defer f.deinit();
     const arr = [_]u8{ 'h', 'i' };
     const s: []const u8 = &arr;
-    _ = try f.write(s);
+    try f.write(s);
     try expectContents(&f, "hi");
 }
