@@ -53,6 +53,13 @@ pub const GeneratedFile = struct {
         self.at_line_start = true;
     }
 
+    /// Append a bare newline. No indentation is emitted, regardless of the
+    /// current `indent_level`.
+    pub fn emptyLine(self: *GeneratedFile) !void {
+        try self.buffer.append(self.alloc, '\n');
+        self.at_line_start = true;
+    }
+
     pub fn indent(self: *GeneratedFile) void {
         self.indent_level += 1;
     }
@@ -166,4 +173,13 @@ test "slice with runtime length" {
     const s: []const u8 = &arr;
     try f.write(s);
     try expectContents(&f, "hi");
+}
+
+test "emptyLine does not emit indentation" {
+    var f = GeneratedFile.init(testing.allocator);
+    f.indent();
+    try f.writeLine("a");
+    try f.emptyLine();
+    try f.writeLine("b");
+    try expectContents(&f, "    a\n\n    b\n");
 }
