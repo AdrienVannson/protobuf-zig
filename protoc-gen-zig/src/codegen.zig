@@ -2,6 +2,8 @@ const std = @import("std");
 const descriptor = @import("gen/google/protobuf.pb.zig");
 const GeneratedFile = @import("generated_file.zig").GeneratedFile;
 
+const FieldType = descriptor.FieldDescriptorProto.Type;
+
 pub fn generateFile(
     alloc: std.mem.Allocator,
     file: *const descriptor.FileDescriptorProto,
@@ -38,11 +40,104 @@ fn generateMessage(
 
     try f.writeLine(.{ "pub const ", name, " = struct {" });
     f.indent();
+
+    for (msg.field.items) |*field| {
+        try generateField(f, field);
+    }
+
     for (msg.nested_type.items) |*nested| {
         try generateMessage(f, nested);
     }
+
+    for (msg.field.items) |*field| {
+        try generateFieldGetter(f, field);
+    }
+
     f.unindent();
     try f.writeLine("};");
 
     try f.emptyLine();
+}
+
+fn generateField(
+    f: *GeneratedFile,
+    field: *const descriptor.FieldDescriptorProto,
+) !void {
+    const field_name = field.name orelse return;
+    if (!isPlainScalarField(field)) {
+        try f.writeLine(.{ "// field ", field_name });
+        return;
+    }
+    const zig_type = scalarZigType(field.type.?);
+    try f.writeLine(.{ field_name, ": ?", zig_type, " = null," });
+}
+
+fn generateFieldGetter(
+    f: *GeneratedFile,
+    field: *const descriptor.FieldDescriptorProto,
+) !void {
+    if (!isPlainScalarField(field)) return;
+    const field_name = field.name orelse return;
+    const zig_type = scalarZigType(field.type.?);
+    const default = scalarDefaultLiteral(field.type.?);
+    try f.emptyLine();
+    try f.write("pub fn get");
+    try writeCamelCase(f, field_name);
+    try f.writeLine(.{ "(self: @This()) ", zig_type, " {" });
+    f.indent();
+    try f.writeLine(.{ "return self.", field_name, " orelse ", default, ";" });
+    f.unindent();
+    try f.writeLine("}");
+}
+
+fn isPlainScalarField(field: *const descriptor.FieldDescriptorProto) bool {
+    if (field.label) |label| {
+        if (label == .LABEL_REPEATED) return false;
+    }
+    if (field.oneof_index != null and field.proto3_optional != true) return false;
+    const t = field.type orelse return false;
+    return switch (t) {
+        .TYPE_DOUBLE, .TYPE_FLOAT, .TYPE_INT64, .TYPE_UINT64, .TYPE_INT32, .TYPE_FIXED64, .TYPE_FIXED32, .TYPE_BOOL, .TYPE_STRING, .TYPE_BYTES, .TYPE_UINT32, .TYPE_SFIXED32, .TYPE_SFIXED64, .TYPE_SINT32, .TYPE_SINT64 => true,
+        .TYPE_GROUP, .TYPE_MESSAGE, .TYPE_ENUM => false,
+        else => false,
+    };
+}
+
+fn scalarZigType(t: FieldType) []const u8 {
+    return switch (t) {
+        .TYPE_DOUBLE => "f64",
+        .TYPE_FLOAT => "f32",
+        .TYPE_INT64, .TYPE_SINT64, .TYPE_SFIXED64 => "i64",
+        .TYPE_UINT64, .TYPE_FIXED64 => "u64",
+        .TYPE_INT32, .TYPE_SINT32, .TYPE_SFIXED32 => "i32",
+        .TYPE_UINT32, .TYPE_FIXED32 => "u32",
+        .TYPE_BOOL => "bool",
+        .TYPE_STRING, .TYPE_BYTES => "[]const u8",
+        else => unreachable,
+    };
+}
+
+fn scalarDefaultLiteral(t: FieldType) []const u8 {
+    return switch (t) {
+        .TYPE_DOUBLE, .TYPE_FLOAT => "0.0",
+        .TYPE_INT64, .TYPE_SINT64, .TYPE_SFIXED64, .TYPE_UINT64, .TYPE_FIXED64, .TYPE_INT32, .TYPE_SINT32, .TYPE_SFIXED32, .TYPE_UINT32, .TYPE_FIXED32 => "0",
+        .TYPE_BOOL => "false",
+        .TYPE_STRING, .TYPE_BYTES => "\"\"",
+        else => unreachable,
+    };
+}
+
+fn writeCamelCase(f: *GeneratedFile, snake: []const u8) !void {
+    var upper_next = true;
+    for (snake) |c| {
+        if (c == '_') {
+            upper_next = true;
+            continue;
+        }
+        const out = if (upper_next) std.ascii.toUpper(c) else c;
+        upper_next = false;
+        const buf = [_]u8{out};
+        const slice: []const u8 = &buf;
+        try f.write(slice);
+    }
 }
