@@ -80,9 +80,7 @@ pub const GeneratedFile = struct {
                 try self.buffer.writer(self.alloc).print("{d}", .{value});
             },
             .pointer => {
-                const s: []const u8 = value;
-                if (s.len == 0) return;
-                try self.buffer.appendSlice(self.alloc, s);
+                try self.buffer.appendSlice(self.alloc, value);
             },
             else => @compileError(
                 "GeneratedFile.write: unsupported type " ++ @typeName(T),
