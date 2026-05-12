@@ -23,16 +23,12 @@ pub const GeneratedFile = struct {
         };
     }
 
-    pub fn deinit(self: *GeneratedFile) void {
-        self.buffer.deinit(self.alloc);
-    }
-
     /// Append `value` to the buffer. If positioned at the start of a line,
     /// the current indentation is written first.
     ///
     /// `value` may be a single piece (string or integer) or a tuple of such
     /// pieces, in which case each element is written in order. This lets a
-    /// logical line be assembled in one call without nested `try`s:
+    /// logical line be assembled in one call:
     ///
     /// ```
     /// try f.writeLine(.{ "const x = ", 42, ";" });
@@ -65,8 +61,7 @@ pub const GeneratedFile = struct {
         self.indent_level -= 1;
     }
 
-    /// Transfers ownership of the underlying bytes to the caller. The
-    /// `GeneratedFile` is left in an empty state and must still be `deinit`ed.
+    /// Transfers ownership of the underlying bytes to the caller.
     pub fn toOwnedSlice(self: *GeneratedFile) ![]u8 {
         return self.buffer.toOwnedSlice(self.alloc);
     }
@@ -111,14 +106,12 @@ fn expectContents(f: *GeneratedFile, expected: []const u8) !void {
 
 test "tuple of string and integer at indent zero" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     try f.writeLine(.{ "foo", @as(u32, 42), ";" });
     try expectContents(&f, "foo42;\n");
 }
 
 test "writeLine prefixes current indentation" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     f.indent();
     f.indent();
     try f.writeLine("a;");
@@ -127,7 +120,6 @@ test "writeLine prefixes current indentation" {
 
 test "tuple writeLine indents once at the start of the line" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     f.indent();
     f.indent();
     try f.writeLine(.{ "const x = ", @as(u32, 42), ";" });
@@ -136,7 +128,6 @@ test "tuple writeLine indents once at the start of the line" {
 
 test "indent and unindent across multiple lines" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     f.indent();
     try f.writeLine("x");
     f.unindent();
@@ -146,7 +137,6 @@ test "indent and unindent across multiple lines" {
 
 test "mid-line indent does not retroactively indent current line" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     try f.write("abc");
     f.indent();
     try f.writeLine("def");
@@ -156,7 +146,6 @@ test "mid-line indent does not retroactively indent current line" {
 
 test "empty string write does not emit indentation" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     f.indent();
     try f.write("");
     try f.writeLine("x");
@@ -165,7 +154,6 @@ test "empty string write does not emit indentation" {
 
 test "empty tuple is a no-op" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     f.indent();
     try f.write(.{});
     try f.writeLine("x");
@@ -174,7 +162,6 @@ test "empty tuple is a no-op" {
 
 test "slice with runtime length" {
     var f = GeneratedFile.init(testing.allocator);
-    defer f.deinit();
     const arr = [_]u8{ 'h', 'i' };
     const s: []const u8 = &arr;
     try f.write(s);
