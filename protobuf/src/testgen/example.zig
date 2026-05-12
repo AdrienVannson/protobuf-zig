@@ -26,3 +26,11 @@ pub const Bar = struct {
         }
     };
 };
+
+pub const Color = enum(i32) {
+    COLOR_UNSPECIFIED = 0,
+    COLOR_RED = 1,
+    COLOR_GREEN = 2,
+    COLOR_NEG = -1,
+    _,
+};
