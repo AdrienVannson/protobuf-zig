@@ -44,6 +44,7 @@ fn generateMessage(
     for (msg.field.items) |*field| {
         try generateField(f, field);
     }
+    try f.emptyLine();
 
     for (msg.nested_type.items) |*nested| {
         try generateMessage(f, nested);

@@ -15,8 +15,9 @@ pub const Foo = struct {
 };
 
 pub const Bar = struct {
-    // foo
-    // tags
+    // field foo
+    // field tags
+
     pub const Nested = struct {
         value: ?i32 = null,
 
