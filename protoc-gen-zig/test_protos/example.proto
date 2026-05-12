@@ -12,6 +12,7 @@ enum Color {
 message Foo {
   string name = 1;
   int32 id = 2;
+  uint32 struct = 3; // 'struct' is a reserved keyword in Zig, should be escaped
 }
 
 message Bar {

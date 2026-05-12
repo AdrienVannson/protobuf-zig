@@ -41,8 +41,10 @@ fn generateMessage(
     msg: *const descriptor.DescriptorProto,
 ) !void {
     const name = msg.name orelse @panic("Message without name");
+    const safe_name = try escapeZigKeyword(f.alloc, name);
+    defer f.alloc.free(safe_name);
 
-    try f.writeLine(.{ "pub const ", name, " = struct {" });
+    try f.writeLine(.{ "pub const ", safe_name, " = struct {" });
     f.indent();
 
     for (msg.field.items) |*field| {
@@ -73,14 +75,18 @@ fn generateEnum(
     e: *const descriptor.EnumDescriptorProto,
 ) !void {
     const name = e.name orelse @panic("Enum without name");
+    const safe_name = try escapeZigKeyword(f.alloc, name);
+    defer f.alloc.free(safe_name);
 
-    try f.writeLine(.{ "pub const ", name, " = enum(i32) {" });
+    try f.writeLine(.{ "pub const ", safe_name, " = enum(i32) {" });
     f.indent();
 
     for (e.value.items) |*v| {
         const value_name = v.name orelse @panic("Enum value without name");
         const value_number = v.number orelse @panic("Enum value without number");
-        try f.writeLine(.{ value_name, " = ", value_number, "," });
+        const safe_value_name = try escapeZigKeyword(f.alloc, value_name);
+        defer f.alloc.free(safe_value_name);
+        try f.writeLine(.{ safe_value_name, " = ", value_number, "," });
     }
 
     try f.writeLine("_,");
@@ -100,7 +106,9 @@ fn generateField(
         return;
     }
     const zig_type = scalarZigType(field.type.?);
-    try f.writeLine(.{ field_name, ": ?", zig_type, " = null," });
+    const safe_field_name = try escapeZigKeyword(f.alloc, field_name);
+    defer f.alloc.free(safe_field_name);
+    try f.writeLine(.{ safe_field_name, ": ?", zig_type, " = null," });
 }
 
 fn generateFieldGetter(
@@ -114,13 +122,16 @@ fn generateFieldGetter(
     const field_name_camel = try toCamelCase(f.alloc, field_name);
     defer f.alloc.free(field_name_camel);
 
+    const safe_field_name = try escapeZigKeyword(f.alloc, field_name);
+    defer f.alloc.free(safe_field_name);
+
     const zig_type = scalarZigType(field.type.?);
     const default = scalarDefaultLiteral(field.type.?);
 
     try f.emptyLine();
     try f.writeLine(.{ "pub fn get", field_name_camel, "(self: @This()) ", zig_type, " {" });
     f.indent();
-    try f.writeLine(.{ "return self.", field_name, " orelse ", default, ";" });
+    try f.writeLine(.{ "return self.", safe_field_name, " orelse ", default, ";" });
     f.unindent();
     try f.writeLine("}");
 }
@@ -160,6 +171,13 @@ fn scalarDefaultLiteral(t: FieldType) []const u8 {
         .TYPE_STRING, .TYPE_BYTES => "\"\"",
         else => unreachable,
     };
+}
+
+fn escapeZigKeyword(alloc: std.mem.Allocator, name: []const u8) ![]u8 {
+    if (std.zig.Token.keywords.has(name)) {
+        return std.fmt.allocPrint(alloc, "@\"{s}\"", .{name});
+    }
+    return alloc.dupe(u8, name);
 }
 
 fn toCamelCase(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
