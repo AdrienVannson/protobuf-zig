@@ -35,7 +35,7 @@ pub fn main() !void {
 
         // Output name: strip .proto, append .zig
         const base = file_name[0 .. file_name.len - ".proto".len];
-        const out_name = try std.mem.concat(alloc, u8, &.{ base, ".zig" });
+        const out_name = try std.mem.concat(alloc, u8, &.{ base, ".pb.zig" });
 
         const out_file: plugin.CodeGeneratorResponse.File = .{
             .name = out_name,
