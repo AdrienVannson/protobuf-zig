@@ -79,12 +79,14 @@ fn generateFieldGetter(
 ) !void {
     if (!isPlainScalarField(field)) return;
     const field_name = field.name orelse return;
+    const field_name_camel = try toCamelCase(f.alloc, field_name);
+    defer f.alloc.free(field_name_camel);
+
     const zig_type = scalarZigType(field.type.?);
     const default = scalarDefaultLiteral(field.type.?);
+
     try f.emptyLine();
-    try f.write("pub fn get");
-    try writeCamelCase(f, field_name);
-    try f.writeLine(.{ "(self: @This()) ", zig_type, " {" });
+    try f.writeLine(.{ "pub fn get", field_name_camel, "(self: @This()) ", zig_type, " {" });
     f.indent();
     try f.writeLine(.{ "return self.", field_name, " orelse ", default, ";" });
     f.unindent();
@@ -128,17 +130,17 @@ fn scalarDefaultLiteral(t: FieldType) []const u8 {
     };
 }
 
-fn writeCamelCase(f: *GeneratedFile, snake: []const u8) !void {
+fn toCamelCase(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
+    var out: std.ArrayList(u8) = .{};
+    try out.ensureTotalCapacity(alloc, snake.len);
     var upper_next = true;
     for (snake) |c| {
         if (c == '_') {
             upper_next = true;
             continue;
         }
-        const out = if (upper_next) std.ascii.toUpper(c) else c;
+        try out.append(alloc, if (upper_next) std.ascii.toUpper(c) else c);
         upper_next = false;
-        const buf = [_]u8{out};
-        const slice: []const u8 = &buf;
-        try f.write(slice);
     }
+    return out.toOwnedSlice(alloc);
 }
