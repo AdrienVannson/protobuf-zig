@@ -18,6 +18,10 @@ pub fn generateFile(
         try generateMessage(&f, msg);
     }
 
+    for (file.enum_type.items) |*e| {
+        try generateEnum(&f, e);
+    }
+
     const raw = try f.toOwnedSlice();
     defer alloc.free(raw);
     return try formatZigSource(alloc, raw);
@@ -50,6 +54,10 @@ fn generateMessage(
         try generateMessage(f, nested);
     }
 
+    for (msg.enum_type.items) |*e| {
+        try generateEnum(f, e);
+    }
+
     for (msg.field.items) |*field| {
         try generateFieldGetter(f, field);
     }
@@ -57,6 +65,28 @@ fn generateMessage(
     f.unindent();
     try f.writeLine("};");
 
+    try f.emptyLine();
+}
+
+fn generateEnum(
+    f: *GeneratedFile,
+    e: *const descriptor.EnumDescriptorProto,
+) !void {
+    const name = e.name orelse @panic("Enum without name");
+
+    try f.writeLine(.{ "pub const ", name, " = enum(i32) {" });
+    f.indent();
+
+    for (e.value.items) |*v| {
+        const value_name = v.name orelse @panic("Enum value without name");
+        const value_number = v.number orelse @panic("Enum value without number");
+        try f.writeLine(.{ value_name, " = ", value_number, "," });
+    }
+
+    try f.writeLine("_,");
+
+    f.unindent();
+    try f.writeLine("};");
     try f.emptyLine();
 }
 
