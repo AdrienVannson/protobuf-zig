@@ -25,6 +25,8 @@ clean:
 # Run protoc-gen-zig on the test proto file
 generate:
     cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}}
+    rm -rf protobuf/src/testgen
+    mkdir -p protobuf/src/testgen
     just protoc \
         --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
         --zig_out=./protobuf/src/testgen \
