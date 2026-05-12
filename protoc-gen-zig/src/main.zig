@@ -1,6 +1,7 @@
 const std = @import("std");
 const plugin = @import("gen/google/protobuf/compiler.pb.zig");
 const descriptor = @import("gen/google/protobuf.pb.zig");
+const codegen = @import("codegen.zig");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -30,14 +31,7 @@ pub fn main() !void {
     for (request.file_to_generate.items) |file_name| {
         const file_desc = file_map.get(file_name) orelse continue;
 
-        // Build content: one comment per top-level message
-        var content: std.ArrayListUnmanaged(u8) = .{};
-        defer content.deinit(alloc);
-        for (file_desc.message_type.items) |msg| {
-            if (msg.name) |name| {
-                try content.writer(alloc).print("// Message: {s}\n", .{name});
-            }
-        }
+        const content = try codegen.generateFile(alloc, file_desc);
 
         // Output name: strip .proto, append .zig
         const base = file_name[0 .. file_name.len - ".proto".len];
@@ -45,7 +39,7 @@ pub fn main() !void {
 
         const out_file: plugin.CodeGeneratorResponse.File = .{
             .name = out_name,
-            .content = try content.toOwnedSlice(alloc),
+            .content = content,
         };
         try response.file.append(alloc, out_file);
     }
