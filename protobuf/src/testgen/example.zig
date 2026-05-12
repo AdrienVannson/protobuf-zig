@@ -4,6 +4,7 @@
 pub const Foo = struct {
     name: ?[]const u8 = null,
     id: ?i32 = null,
+    @"struct": ?u32 = null,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -11,6 +12,10 @@ pub const Foo = struct {
 
     pub fn getId(self: @This()) i32 {
         return self.id orelse 0;
+    }
+
+    pub fn getStruct(self: @This()) u32 {
+        return self.@"struct" orelse 0;
     }
 };
 
