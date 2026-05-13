@@ -50,6 +50,13 @@ pub fn build(b: *std.Build) void {
     );
     dedup_step.step.dependOn(&gen_step.step);
 
+    const gen_proto3_mod = b.createModule(.{
+        .root_source_file = b.path("src/gen/google/protobuf/test_messages_proto3.pb.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    gen_proto3_mod.addImport("protobuf", our_protobuf_mod);
+
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
@@ -57,6 +64,7 @@ pub fn build(b: *std.Build) void {
     });
     exe_mod.addImport("protobuf", protobuf_mod);
     exe_mod.addImport("our_protobuf", our_protobuf_mod);
+    exe_mod.addImport("gen_proto3", gen_proto3_mod);
 
     const exe = b.addExecutable(.{
         .name = "conformance",
