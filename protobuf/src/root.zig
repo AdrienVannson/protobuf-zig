@@ -26,6 +26,10 @@ pub const DescExtension = descriptor.DescExtension;
 pub const to_binary = to_binary_mod.to_binary;
 pub const from_binary = from_binary_mod.from_binary;
 
+/// Internal contract between `protoc-gen-zig` and the runtime codec.
+/// Not intended for direct use by end users.
+pub const _metadata = @import("metadata.zig");
+
 // TODO delete
 pub const test_types = @import("test/test_all_types_proto3.zig");
 
