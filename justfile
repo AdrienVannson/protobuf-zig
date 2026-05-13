@@ -49,12 +49,12 @@ generate-wkt: setup build
 generate-conformance: setup setup-conformance build
     #!/usr/bin/env bash
     set -euo pipefail
-    rm -rf conformance/gen
-    mkdir -p conformance/gen
+    rm -rf conformance/src/gen
+    mkdir -p conformance/src/gen
     conformance_include="$(PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh paths | grep '^CONFORMANCE_INCLUDE=' | cut -d= -f2-)"
     just protoc \
         --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
-        --zig_out=./conformance/gen \
+        --zig_out=./conformance/src/gen \
         --proto_path="$conformance_include" \
         conformance/conformance.proto \
         "$conformance_include"/google/protobuf/*.proto
