@@ -23,8 +23,7 @@ clean:
     rm -rf protoc-gen-zig/.zig-cache protoc-gen-zig/zig-out
 
 # Run protoc-gen-zig on the test proto file
-generate:
-    cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}}
+generate: build
     rm -rf protobuf/src/testgen
     mkdir -p protobuf/src/testgen
     just protoc \
@@ -34,10 +33,9 @@ generate:
         example.proto
 
 # Generate the well-known types using protoc-gen-zig.
-generate-wkt: setup
+generate-wkt: setup build
     #!/usr/bin/env bash
     set -euo pipefail
-    (cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}})
     rm -rf protobuf/src/wkt
     mkdir -p protobuf/src/wkt
     include_dir="$(PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh paths | grep '^PROTOC_INCLUDE=' | cut -d= -f2-)"
@@ -48,8 +46,7 @@ generate-wkt: setup
         "$include_dir"/google/protobuf/*.proto
 
 # Generate the example using buf
-generate-example:
-    cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}}
+generate-example: build
     cd example && buf generate
 
 # Build and run the example
