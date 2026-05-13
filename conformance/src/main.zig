@@ -1,8 +1,7 @@
 const std = @import("std");
 // Paths match zig-protobuf's package-based output (not file-based).
 const conformance_pb = @import("generated_old_lib/conformance.pb.zig");
-const proto3_pb = @import("generated_old_lib/protobuf_test_messages/proto3.pb.zig");
-const convert = @import("convert.zig");
+const gen_proto3 = @import("gen_proto3");
 const our_proto = @import("our_protobuf");
 
 const ConformanceRequest = conformance_pb.ConformanceRequest;
@@ -94,6 +93,7 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) Conform
     if (isUnknownOrderingCrashCase(request)) {
         return .{ .result = .{ .protobuf_payload = &.{} } };
     }
+
     // Dispatch proto3 binary roundtrip.
     if (std.mem.eql(u8, request.message_type, "protobuf_test_messages.proto3.TestAllTypesProto3")) {
         // Only handle binary protobuf output; skip JSON, text, etc.
@@ -104,35 +104,21 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) Conform
             .protobuf_payload => |b| b,
             else => return .{ .result = .{ .skipped = "non-binary payload not supported" } },
         } else return .{ .result = .{ .skipped = "no payload" } };
-        return roundTrip(proto3_pb.TestAllTypesProto3, payload, alloc);
+        return roundTrip(payload, alloc);
     }
 
     // proto2 test messages use group fields, unsupported by zig-protobuf's generator.
     return .{ .result = .{ .skipped = "payload decode not yet supported" } };
 }
 
-fn roundTrip(comptime T: type, payload: []const u8, alloc: std.mem.Allocator) ConformanceResponse {
-    var reader: std.Io.Reader = .fixed(payload);
-    var msg = T.decode(&reader, alloc) catch |err| {
+fn roundTrip(payload: []const u8, alloc: std.mem.Allocator) ConformanceResponse {
+    var msg: gen_proto3.TestAllTypesProto3 = .{};
+    our_proto.from_binary(&msg, payload, alloc) catch |err| {
         return .{ .result = .{ .parse_error = @errorName(err) } };
     };
-    defer msg.deinit(alloc);
-
-    if (T == proto3_pb.TestAllTypesProto3) {
-        const converted = convert.fromExternal(msg, alloc) catch |err| {
-            return .{ .result = .{ .parse_error = @errorName(err) } };
-        };
-
-        var out: std.Io.Writer.Allocating = .init(alloc);
-        our_proto.to_binary(alloc, converted, &out.writer) catch |err| {
-            return .{ .result = .{ .serialize_error = @errorName(err) } };
-        };
-        return .{ .result = .{ .protobuf_payload = out.written() } };
-    }
-
-    var w: std.Io.Writer.Allocating = .init(alloc);
-    msg.encode(&w.writer, alloc) catch |err| {
+    var out: std.Io.Writer.Allocating = .init(alloc);
+    our_proto.to_binary(alloc, msg, &out.writer) catch |err| {
         return .{ .result = .{ .serialize_error = @errorName(err) } };
     };
-    return .{ .result = .{ .protobuf_payload = w.written() } };
+    return .{ .result = .{ .protobuf_payload = out.written() } };
 }
