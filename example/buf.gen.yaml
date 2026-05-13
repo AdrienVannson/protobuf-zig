@@ -1,0 +1,4 @@
+version: v2
+plugins:
+  - local: ../protoc-gen-zig/zig-out/bin/protoc-gen-zig
+    out: gen
