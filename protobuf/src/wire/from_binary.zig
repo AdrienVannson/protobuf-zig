@@ -56,7 +56,7 @@ fn skipField(reader: *BinaryReader, wire_type: WireType) !void {
 /// Deserializes a message from its binary Protocol Buffer representation.
 ///
 /// msg must be a pointer to the message struct (e.g. &my_msg).
-pub fn from_binary(allocator: std.mem.Allocator, msg: anytype, data: []const u8) !void {
+pub fn from_binary(msg: anytype, data: []const u8, allocator: std.mem.Allocator) !void {
     const T = std.meta.Child(@TypeOf(msg));
     const struct_fields = std.meta.fields(T);
 
@@ -108,7 +108,7 @@ const FakeMessageFoo = @import("../test/fake_message_foo.zig").FakeMessageFoo;
 fn expectFromBinary(comptime T: type, expected: T, data: []const u8) !void {
     var msg: T = .{};
     defer msg.deinit(testing.allocator);
-    try from_binary(testing.allocator, &msg, data);
+    try from_binary(&msg, data, testing.allocator);
     try testing.expectEqualDeep(expected, msg);
 }
 
@@ -129,7 +129,7 @@ test "explicit optional int32 decoded" {
 test "legacy_required string decoded" {
     // field 3, length_delimited: tag = 0x1a, length 3, "foo"
     var msg: FakeMessageFoo = .{};
-    try from_binary(testing.allocator, &msg, &.{ 0x1a, 0x03, 'f', 'o', 'o' });
+    try from_binary(&msg, &.{ 0x1a, 0x03, 'f', 'o', 'o' }, testing.allocator);
     defer testing.allocator.free(msg.legacy_required_field.?);
     try testing.expectEqualStrings("foo", msg.legacy_required_field.?);
 }
