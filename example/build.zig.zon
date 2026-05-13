@@ -1,0 +1,10 @@
+.{
+    .name = .protobuf_example,
+    .fingerprint = 0x2fe271455ae88c43,
+    .version = "0.0.0",
+    .minimum_zig_version = "0.15.0",
+    .dependencies = .{
+        .protobuf = .{ .path = "../protobuf" },
+    },
+    .paths = .{ "build.zig", "build.zig.zon", "main.zig", "gen" },
+}
