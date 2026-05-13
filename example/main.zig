@@ -1,5 +1,6 @@
 const std = @import("std");
 const example = @import("gen/example.pb.zig");
+const protobuf = @import("protobuf");
 
 pub fn main() void {
     const person = example.Person{

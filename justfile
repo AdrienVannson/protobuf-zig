@@ -3,7 +3,7 @@ set dotenv-override
 
 protobuf_version := "33.2"
 
-all: setup setup-conformance build generate test conformance code-quality generate-wkt
+all: setup setup-conformance build generate generate-example run-example test conformance code-quality generate-wkt
 
 build:
     cd protobuf && zig build
@@ -46,6 +46,15 @@ generate-wkt: setup
         --zig_out=./protobuf/src/wkt \
         --proto_path="$include_dir" \
         "$include_dir"/google/protobuf/*.proto
+
+# Generate the example using buf
+generate-example:
+    cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}}
+    cd example && buf generate
+
+# Build and run the example
+run-example:
+    cd example && zig build run
 
 # Download protoc (all platforms)
 setup version=protobuf_version:

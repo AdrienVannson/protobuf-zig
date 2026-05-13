@@ -32,6 +32,9 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v4
 
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1
+
       - name: Setup
         run: just setup
 
@@ -47,6 +50,7 @@ jobs:
         run: |
           just generate
           just generate-wkt
+          just generate-example
           test -z "$(git status --porcelain)" # Check for uncommitted changes after generation
 
       - name: Test
@@ -55,3 +59,6 @@ jobs:
       - name: Conformance
         if: runner.os != 'Windows'
         run: just conformance
+
+      - name: Run example
+        run: just run-example
