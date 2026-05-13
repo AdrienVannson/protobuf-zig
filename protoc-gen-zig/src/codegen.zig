@@ -14,6 +14,11 @@ pub fn generateFile(
     try f.writeLine(.{ "// Source: ", file.name orelse @panic("File without name") });
     try f.emptyLine();
 
+    if (file.message_type.items.len > 0) {
+        try f.writeLine("const _metadata = @import(\"protobuf\")._metadata;");
+        try f.emptyLine();
+    }
+
     for (file.message_type.items) |*msg| {
         try generateMessage(&f, msg);
     }
@@ -64,6 +69,9 @@ fn generateMessage(
         try generateFieldGetter(f, field);
     }
 
+    try f.emptyLine();
+    try generateMessageMetadata(f, msg);
+
     f.unindent();
     try f.writeLine("};");
 
@@ -94,6 +102,40 @@ fn generateEnum(
     f.unindent();
     try f.writeLine("};");
     try f.emptyLine();
+}
+
+fn generateMessageMetadata(
+    f: *GeneratedFile,
+    msg: *const descriptor.DescriptorProto,
+) !void {
+    try f.writeLine("pub const _desc = _metadata.MessageMetadata{");
+    f.indent();
+    try f.writeLine(".fields = &[_]_metadata.FieldMetadata{");
+    f.indent();
+
+    var field_index: u32 = 0;
+    for (msg.field.items) |*field| {
+        if (!isPlainScalarField(field)) continue;
+        const field_name = field.name orelse @panic("Field without name");
+        const number = field.number orelse @panic("Field without number");
+        const scalar_name = scalarMetadataName(field.type.?);
+        try f.writeLine(.{
+            ".{ .number = ",
+            number,
+            ", .field_index = ",
+            field_index,
+            ", .kind = .{ .scalar = .{ .scalar = .",
+            scalar_name,
+            " } } }, // ",
+            field_name,
+        });
+        field_index += 1;
+    }
+
+    f.unindent();
+    try f.writeLine("},");
+    f.unindent();
+    try f.writeLine("};");
 }
 
 fn generateField(
@@ -146,6 +188,27 @@ fn isPlainScalarField(field: *const descriptor.FieldDescriptorProto) bool {
         .TYPE_DOUBLE, .TYPE_FLOAT, .TYPE_INT64, .TYPE_UINT64, .TYPE_INT32, .TYPE_FIXED64, .TYPE_FIXED32, .TYPE_BOOL, .TYPE_STRING, .TYPE_BYTES, .TYPE_UINT32, .TYPE_SFIXED32, .TYPE_SFIXED64, .TYPE_SINT32, .TYPE_SINT64 => true,
         .TYPE_GROUP, .TYPE_MESSAGE, .TYPE_ENUM => false,
         else => false,
+    };
+}
+
+fn scalarMetadataName(t: FieldType) []const u8 {
+    return switch (t) {
+        .TYPE_DOUBLE => "double",
+        .TYPE_FLOAT => "float",
+        .TYPE_INT64 => "int64",
+        .TYPE_UINT64 => "uint64",
+        .TYPE_INT32 => "int32",
+        .TYPE_FIXED64 => "fixed64",
+        .TYPE_FIXED32 => "fixed32",
+        .TYPE_BOOL => "bool",
+        .TYPE_STRING => "string",
+        .TYPE_BYTES => "bytes",
+        .TYPE_UINT32 => "uint32",
+        .TYPE_SFIXED32 => "sfixed32",
+        .TYPE_SFIXED64 => "sfixed64",
+        .TYPE_SINT32 => "sint32",
+        .TYPE_SINT64 => "sint64",
+        else => unreachable,
     };
 }
 
