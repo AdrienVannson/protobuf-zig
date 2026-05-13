@@ -34,7 +34,7 @@ pub const FieldMetadataKind = union(enum) {
 };
 
 pub const FieldMetadata = struct {
-    number: i32,
+    number: u32,
     field_index: u16,
     oneof_variant: ?[]const u8 = null,
     presence: FieldPresence = .explicit,

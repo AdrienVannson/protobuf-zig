@@ -65,10 +65,13 @@ pub fn from_binary(msg: anytype, data: []const u8, allocator: std.mem.Allocator)
 
     while (reader.remainingInScope() > 0) {
         const tag = try reader.tag();
+        const number = tag.number;
+
         var handled = false;
 
+        // TODO: check that the compiler is able to optimize this loop into O(log(n))
         inline for (T._desc.fields) |field_meta| {
-            if (!handled and field_meta.number == @as(i32, @intCast(tag.number))) {
+            if (field_meta.number == number) {
                 handled = true;
                 const field_name = comptime struct_fields[field_meta.field_index].name;
 
@@ -90,7 +93,7 @@ pub fn from_binary(msg: anytype, data: []const u8, allocator: std.mem.Allocator)
             }
         }
 
-        if (!handled) {
+        if (!handled) { // TODO: Unknown field
             try skipField(&reader, tag.wire_type);
         }
     }
