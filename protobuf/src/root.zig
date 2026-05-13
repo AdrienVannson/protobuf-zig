@@ -30,9 +30,6 @@ pub const from_binary = from_binary_mod.from_binary;
 /// Not intended for direct use by end users.
 pub const _metadata = @import("metadata.zig");
 
-// TODO delete
-pub const test_types = @import("test/test_all_types_proto3.zig");
-
 test {
     _ = @import("wire/binary_writer.zig");
     _ = @import("wire/binary_reader.zig");
@@ -42,5 +39,4 @@ test {
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
     _ = @import("test/fake_message_foo.zig");
-    _ = @import("test/test_all_types_proto3.zig");
 }

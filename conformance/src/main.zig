@@ -119,10 +119,9 @@ fn roundTrip(comptime T: type, payload: []const u8, alloc: std.mem.Allocator) Co
     defer msg.deinit(alloc);
 
     if (T == proto3_pb.TestAllTypesProto3) {
-        var converted = convert.fromExternal(msg, alloc) catch |err| {
+        const converted = convert.fromExternal(msg, alloc) catch |err| {
             return .{ .result = .{ .parse_error = @errorName(err) } };
         };
-        defer converted.deinit(alloc);
 
         var out: std.Io.Writer.Allocating = .init(alloc);
         our_proto.to_binary(alloc, converted, &out.writer) catch |err| {
