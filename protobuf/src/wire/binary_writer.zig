@@ -6,14 +6,14 @@ const WireType = tag.WireType;
 /// Encodes a u64 as a base-128 varint into buf and returns the used slice.
 fn encodeVarint(value: u64, buf: *[10]u8) []const u8 {
     var v = value;
-    var i: usize = 0;
+    var n: usize = 0;
     while (v > 0x7F) {
-        buf[i] = @intCast((v & 0x7F) | 0x80);
+        buf[n] = @intCast((v & 0x7F) | 0x80);
         v >>= 7;
-        i += 1;
+        n += 1;
     }
-    buf[i] = @intCast(v & 0x7F);
-    return buf[0 .. i + 1];
+    buf[n] = @intCast(v & 0x7F);
+    return buf[0 .. n + 1];
 }
 
 /// A writer for serializing Protocol Buffer wire format.
