@@ -132,12 +132,12 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) !void {
 }
 
 /// Serializes a message to its binary Protocol Buffer representation,
-/// writing the encoded bytes to writer.
-pub fn to_binary(allocator: std.mem.Allocator, msg: anytype, writer: anytype) !void {
+/// returning the encoded bytes as a caller-owned slice (freed with allocator).
+pub fn to_binary(allocator: std.mem.Allocator, msg: anytype) ![]u8 {
     var bw = BinaryWriter.init(allocator);
     defer bw.deinit();
     try writeMessage(&bw, msg);
-    try bw.finish(writer);
+    return bw.toOwnedSlice();
 }
 
 // ---------------------------------------------------------------------------
@@ -149,10 +149,9 @@ const FakeMessageFoo = @import("../test/fake_message_foo.zig").FakeMessageFoo;
 const FakeOneofMessage = @import("../test/fake_message_foo.zig").FakeOneofMessage;
 
 fn expectToBinary(msg: anytype, expected: []const u8) !void {
-    var buf = std.ArrayList(u8){};
-    defer buf.deinit(testing.allocator);
-    try to_binary(testing.allocator, msg, buf.writer(testing.allocator));
-    try testing.expectEqualSlices(u8, expected, buf.items);
+    const out = try to_binary(testing.allocator, msg);
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, expected, out);
 }
 
 test "empty message encodes to nothing" {
