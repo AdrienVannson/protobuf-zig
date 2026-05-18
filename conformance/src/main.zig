@@ -116,9 +116,8 @@ fn roundTrip(payload: []const u8, alloc: std.mem.Allocator) ConformanceResponse 
     our_proto.from_binary(&msg, payload, alloc) catch |err| {
         return .{ .result = .{ .parse_error = @errorName(err) } };
     };
-    var out: std.Io.Writer.Allocating = .init(alloc);
-    our_proto.to_binary(alloc, msg, &out.writer) catch |err| {
+    const encoded = our_proto.to_binary(alloc, msg) catch |err| {
         return .{ .result = .{ .serialize_error = @errorName(err) } };
     };
-    return .{ .result = .{ .protobuf_payload = out.written() } };
+    return .{ .result = .{ .protobuf_payload = encoded } };
 }

@@ -13,8 +13,7 @@ pub fn main() !void {
         .email = "alice@example.com",
     };
 
-    var buf = std.ArrayList(u8){};
-    defer buf.deinit(allocator);
-    try protobuf.to_binary(allocator, person, buf.writer(allocator));
-    std.debug.print("encoded ({d} bytes): {x}\n", .{ buf.items.len, buf.items });
+    const encoded = try protobuf.to_binary(allocator, person);
+    defer allocator.free(encoded);
+    std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
 }

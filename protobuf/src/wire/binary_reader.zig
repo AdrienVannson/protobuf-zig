@@ -205,14 +205,6 @@ pub const BinaryReader = struct {
 const testing = std.testing;
 const BinaryWriter = @import("binary_writer.zig").BinaryWriter;
 
-fn writerToOwnedSlice(w: *BinaryWriter) ![]u8 {
-    defer w.deinit();
-    var buf = std.ArrayList(u8){};
-    defer buf.deinit(testing.allocator);
-    try w.finish(buf.writer(testing.allocator));
-    return testing.allocator.dupe(u8, buf.items);
-}
-
 fn expectReaderConsumed(r: *BinaryReader) !void {
     defer r.deinit();
     try r.finish();
@@ -296,8 +288,9 @@ test "tag invalid wire type 6" {
 
 test "int32 -123" {
     var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
     try w.int32(-123);
-    const buf = try writerToOwnedSlice(&w);
+    const buf = try w.toOwnedSlice();
     defer testing.allocator.free(buf);
 
     var r = BinaryReader.init(testing.allocator, buf);
@@ -307,8 +300,9 @@ test "int32 -123" {
 
 test "int64 -9876543210" {
     var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
     try w.int64(-9876543210);
-    const buf = try writerToOwnedSlice(&w);
+    const buf = try w.toOwnedSlice();
     defer testing.allocator.free(buf);
 
     var r = BinaryReader.init(testing.allocator, buf);

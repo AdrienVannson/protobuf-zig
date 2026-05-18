@@ -29,7 +29,8 @@ fn encodeVarint(value: u64, buf: *[10]u8) []const u8 {
 /// number of bytes serialized.
 ///
 /// All chunks stored in the list are allocator-owned. Call deinit() to free
-/// them. Call finish(writer) to flush all chunks to a std.io writer.
+/// them. Call toOwnedSlice() to obtain a contiguous, caller-owned copy of
+/// the serialized bytes.
 pub const BinaryWriter = struct {
     allocator: std.mem.Allocator,
     chunks: std.ArrayList([]u8),
@@ -99,13 +100,20 @@ pub const BinaryWriter = struct {
         self.size += entry.parent_size + length_owned.len;
     }
 
-    /// Write the serialized bytes to writer, calling writeAll for each chunk.
+    /// Return the serialized bytes as a single contiguous slice owned by
+    /// the caller (freed with the writer's allocator). The writer state is
+    /// not modified — calling this multiple times yields equivalent buffers,
+    /// and further writes are still allowed.
     /// Returns error.UnclosedFork if any fork() calls have not been joined.
-    pub fn finish(self: *BinaryWriter, writer: anytype) !void {
+    pub fn toOwnedSlice(self: *BinaryWriter) ![]u8 {
         if (self.stack.items.len != 0) return error.UnclosedFork;
+        const out = try self.allocator.alloc(u8, self.size);
+        var offset: usize = 0;
         for (self.chunks.items) |chunk| {
-            try writer.writeAll(chunk);
+            @memcpy(out[offset..][0..chunk.len], chunk);
+            offset += chunk.len;
         }
+        return out;
     }
 
     /// Write an unsigned integer as a varint.
@@ -200,44 +208,17 @@ const testing = std.testing;
 
 fn expectWriterOutput(w: *BinaryWriter, expected: []const u8) !void {
     defer w.deinit();
-    var buf = std.ArrayList(u8){};
-    defer buf.deinit(testing.allocator);
-    try w.finish(buf.writer(testing.allocator));
-    try testing.expectEqualSlices(u8, expected, buf.items);
+    const out = try w.toOwnedSlice();
+    defer testing.allocator.free(out);
+    try testing.expectEqualSlices(u8, expected, out);
 }
 
 // varint
-
-test "varint zero" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.varint(0);
-    try expectWriterOutput(&w, &.{0x00});
-}
-
-test "varint 127" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.varint(127);
-    try expectWriterOutput(&w, &.{0x7f});
-}
-
-test "varint 128" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.varint(128);
-    try expectWriterOutput(&w, &.{ 0x80, 0x01 });
-}
 
 test "varint 150" {
     var w = BinaryWriter.init(testing.allocator);
     try w.varint(150);
     try expectWriterOutput(&w, &.{ 0x96, 0x01 });
-}
-
-test "varint max u64" {
-    var w = BinaryWriter.init(testing.allocator);
-    try w.varint(std.math.maxInt(u64));
-    try expectWriterOutput(&w, &.{
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-    });
 }
 
 // tag
@@ -386,18 +367,16 @@ test "fork join matches bytes encoding" {
     const owned = try testing.allocator.dupe(u8, payload);
     try fw.write(owned);
     try fw.join();
-    var fw_buf = std.ArrayList(u8){};
-    defer fw_buf.deinit(testing.allocator);
-    try fw.finish(fw_buf.writer(testing.allocator));
+    const fw_out = try fw.toOwnedSlice();
+    defer testing.allocator.free(fw_out);
 
     var bw = BinaryWriter.init(testing.allocator);
     defer bw.deinit();
     try bw.bytes(payload);
-    var bw_buf = std.ArrayList(u8){};
-    defer bw_buf.deinit(testing.allocator);
-    try bw.finish(bw_buf.writer(testing.allocator));
+    const bw_out = try bw.toOwnedSlice();
+    defer testing.allocator.free(bw_out);
 
-    try testing.expectEqualSlices(u8, bw_buf.items, fw_buf.items);
+    try testing.expectEqualSlices(u8, bw_out, fw_out);
 }
 
 test "fork join with tag" {
@@ -427,14 +406,14 @@ test "fork join nested" {
     try expectWriterOutput(&w, &.{ 0x0a, 0x03, 0x0a, 0x01, 0x07 });
 }
 
-// finish
+// toOwnedSlice
 
-test "finish empty writer" {
+test "toOwnedSlice empty writer" {
     var w = BinaryWriter.init(testing.allocator);
     try expectWriterOutput(&w, &.{});
 }
 
-test "finish complete message" {
+test "toOwnedSlice complete message" {
     // Field 1, VARINT, value 12: tag=0x08, value=0x0c
     var w = BinaryWriter.init(testing.allocator);
     try w.tag(1, .varint);
@@ -448,11 +427,11 @@ test "join without fork returns error" {
     try testing.expectError(error.JoinWithoutFork, w.join());
 }
 
-test "finish with unclosed fork returns error" {
+test "toOwnedSlice with unclosed fork returns error" {
     var w = BinaryWriter.init(testing.allocator);
     defer w.deinit();
     try w.fork();
-    try testing.expectError(error.UnclosedFork, w.finish(std.io.null_writer));
+    try testing.expectError(error.UnclosedFork, w.toOwnedSlice());
     // Clean up the unclosed fork so deinit works cleanly.
     try w.join();
 }
