@@ -138,12 +138,12 @@ pub const BinaryWriter = struct {
     }
 
     pub fn sint32(self: *BinaryWriter, value: i32) !void {
-        const zz = @as(u32, @bitCast((value << 1) ^ (value >> 31)));
+        const zz: u32 = @bitCast((value << 1) ^ (value >> 31));
         try self.varint(zz);
     }
 
     pub fn sint64(self: *BinaryWriter, value: i64) !void {
-        const zz = @as(u64, @bitCast((value << 1) ^ (value >> 63)));
+        const zz: u64 = @bitCast((value << 1) ^ (value >> 63));
         try self.varint(zz);
     }
 
@@ -170,7 +170,7 @@ pub const BinaryWriter = struct {
     }
 
     pub fn bool_(self: *BinaryWriter, value: bool) !void {
-        try self.varint(if (value) 1 else 0);
+        try self.varint(@intFromBool(value));
     }
 
     pub fn float_(self: *BinaryWriter, value: f32) !void {
