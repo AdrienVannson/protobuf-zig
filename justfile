@@ -83,6 +83,14 @@ protoc *args:
 conformance-runner *args:
     PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh conformance-runner {{args}}
 
+# Build documentation
+docs:
+    cd protobuf && zig build docs
+
+# Build documentation and serve it locally on port 8080
+docs-serve: docs
+    python3 -m http.server --directory protobuf/zig-out/docs 8080
+
 # Run protobuf conformance tests (not part of 'test')
 conformance:
     cd conformance && zig build -Doptimize=ReleaseFast -Dprotobuf_version={{protobuf_version}}
