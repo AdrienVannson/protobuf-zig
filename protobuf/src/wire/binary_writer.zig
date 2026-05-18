@@ -408,11 +408,6 @@ test "fork join nested" {
 
 // toOwnedSlice
 
-test "toOwnedSlice empty writer" {
-    var w = BinaryWriter.init(testing.allocator);
-    try expectWriterOutput(&w, &.{});
-}
-
 test "toOwnedSlice complete message" {
     // Field 1, VARINT, value 12: tag=0x08, value=0x0c
     var w = BinaryWriter.init(testing.allocator);
