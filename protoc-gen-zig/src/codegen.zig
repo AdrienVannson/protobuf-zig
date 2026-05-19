@@ -123,14 +123,9 @@ fn generateMessageMetadata(
     try f.writeLine(".fields = &[_]_metadata.FieldMetadata{");
     f.indent();
 
-    // Count regular scalar fields to compute base field_index for oneof groups.
-    var n_regular: u32 = 0;
-    for (msg.field.items) |*field| {
-        if (isPlainScalarField(field)) n_regular += 1;
-    }
+    var field_index: u32 = 0;
 
     // Regular scalar fields.
-    var field_index: u32 = 0;
     for (msg.field.items) |*field| {
         if (!isPlainScalarField(field)) continue;
         const field_name = field.name orelse @panic("Field without name");
@@ -150,7 +145,6 @@ fn generateMessageMetadata(
     }
 
     // Oneof variant entries — all variants of a group share the same field_index.
-    var oneof_base: u32 = n_regular;
     for (msg.oneof_decl.items, 0..) |_, i| {
         const oneof_idx: i32 = @intCast(i);
         if (!oneofHasScalarFields(msg, oneof_idx)) continue;
@@ -166,7 +160,7 @@ fn generateMessageMetadata(
                 ".{ .number = ",
                 number,
                 ", .field_index = ",
-                oneof_base,
+                field_index,
                 ", .oneof_variant = \"",
                 variant_name,
                 "\", .kind = .{ .scalar = .{ .scalar = .",
@@ -175,7 +169,7 @@ fn generateMessageMetadata(
                 variant_name,
             });
         }
-        oneof_base += 1;
+        field_index += 1;
     }
 
     f.unindent();
