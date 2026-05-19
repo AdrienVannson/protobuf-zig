@@ -1293,6 +1293,8 @@ pub const TestAllRequiredTypesProto2 = struct {
 };
 
 pub const TestLargeOneof = struct {
+    large_oneof: ?union(enum) {} = null,
+
     pub const A1 = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},

@@ -57,7 +57,6 @@ fn generateMessage(
     }
     for (msg.oneof_decl.items, 0..) |*oneof, i| {
         const oneof_name = oneof.name orelse @panic("Oneof without name");
-        if (!oneofHasScalarFields(msg, @intCast(i))) continue;
         try generateOneofField(f, msg, oneof_name, @intCast(i));
     }
     try f.emptyLine();
@@ -75,7 +74,6 @@ fn generateMessage(
     }
     for (msg.oneof_decl.items, 0..) |*oneof, i| {
         const oneof_name = oneof.name orelse @panic("Oneof without name");
-        if (!oneofHasScalarFields(msg, @intCast(i))) continue;
         try generateOneofVariantGetters(f, msg, oneof_name, @intCast(i));
     }
 
@@ -147,7 +145,6 @@ fn generateMessageMetadata(
     // Oneof variant entries — all variants of a group share the same field_index.
     for (msg.oneof_decl.items, 0..) |_, i| {
         const oneof_idx: i32 = @intCast(i);
-        if (!oneofHasScalarFields(msg, oneof_idx)) continue;
         for (msg.field.items) |*field| {
             const idx = field.oneof_index orelse continue;
             if (idx != oneof_idx) continue;
@@ -276,17 +273,6 @@ fn isScalarFieldType(t: FieldType) bool {
         .TYPE_DOUBLE, .TYPE_FLOAT, .TYPE_INT64, .TYPE_UINT64, .TYPE_INT32, .TYPE_FIXED64, .TYPE_FIXED32, .TYPE_BOOL, .TYPE_STRING, .TYPE_BYTES, .TYPE_UINT32, .TYPE_SFIXED32, .TYPE_SFIXED64, .TYPE_SINT32, .TYPE_SINT64 => true,
         else => false,
     };
-}
-
-fn oneofHasScalarFields(msg: *const descriptor.DescriptorProto, oneof_idx: i32) bool {
-    for (msg.field.items) |*field| {
-        const idx = field.oneof_index orelse continue;
-        if (idx != oneof_idx) continue;
-        if (field.proto3_optional == true) continue;
-        const t = field.type orelse continue;
-        if (isScalarFieldType(t)) return true;
-    }
-    return false;
 }
 
 fn isPlainScalarField(field: *const descriptor.FieldDescriptorProto) bool {
