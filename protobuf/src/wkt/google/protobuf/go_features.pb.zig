@@ -5,8 +5,6 @@ const _metadata = @import("protobuf")._metadata;
 
 pub const GoFeatures = struct {
     legacy_unmarshal_json_enum: ?bool = null,
-    // field api_level
-    // field strip_enum_prefix
 
     pub const APILevel = enum(i32) {
         API_LEVEL_UNSPECIFIED = 0,

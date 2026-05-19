@@ -30,23 +30,20 @@ pub const TestStatus = struct {
 };
 
 pub const FailureSet = struct {
-    // field test
-
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
 };
 
 pub const ConformanceRequest = struct {
-    // field protobuf_payload
-    // field json_payload
-    // field jspb_payload
-    // field text_payload
-    // field requested_output_format
     message_type: ?[]const u8 = null,
-    // field test_category
-    // field jspb_encoding_options
     print_unknown_fields: ?bool = null,
+    payload: ?union(enum) {
+        protobuf_payload: []const u8,
+        json_payload: []const u8,
+        jspb_payload: []const u8,
+        text_payload: []const u8,
+    } = null,
 
     pub fn getMessageType(self: @This()) []const u8 {
         return self.message_type orelse "";
@@ -56,27 +53,134 @@ pub const ConformanceRequest = struct {
         return self.print_unknown_fields orelse false;
     }
 
+    pub fn getProtobufPayload(self: @This()) []const u8 {
+        return if (self.payload) |c| switch (c) {
+            .protobuf_payload => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getJsonPayload(self: @This()) []const u8 {
+        return if (self.payload) |c| switch (c) {
+            .json_payload => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getJspbPayload(self: @This()) []const u8 {
+        return if (self.payload) |c| switch (c) {
+            .jspb_payload => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getTextPayload(self: @This()) []const u8 {
+        return if (self.payload) |c| switch (c) {
+            .text_payload => |v| v,
+            else => "",
+        } else "";
+    }
+
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 4, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // message_type
             .{ .number = 9, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // print_unknown_fields
+            .{ .number = 1, .field_index = 2, .oneof_variant = "protobuf_payload", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // protobuf_payload
+            .{ .number = 2, .field_index = 2, .oneof_variant = "json_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_payload
+            .{ .number = 7, .field_index = 2, .oneof_variant = "jspb_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // jspb_payload
+            .{ .number = 8, .field_index = 2, .oneof_variant = "text_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
         },
     };
 };
 
 pub const ConformanceResponse = struct {
-    // field parse_error
-    // field serialize_error
-    // field timeout_error
-    // field runtime_error
-    // field protobuf_payload
-    // field json_payload
-    // field skipped
-    // field jspb_payload
-    // field text_payload
+    result: ?union(enum) {
+        parse_error: []const u8,
+        serialize_error: []const u8,
+        timeout_error: []const u8,
+        runtime_error: []const u8,
+        protobuf_payload: []const u8,
+        json_payload: []const u8,
+        skipped: []const u8,
+        jspb_payload: []const u8,
+        text_payload: []const u8,
+    } = null,
+
+    pub fn getParseError(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .parse_error => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getSerializeError(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .serialize_error => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getTimeoutError(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .timeout_error => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getRuntimeError(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .runtime_error => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getProtobufPayload(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .protobuf_payload => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getJsonPayload(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .json_payload => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getSkipped(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .skipped => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getJspbPayload(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .jspb_payload => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getTextPayload(self: @This()) []const u8 {
+        return if (self.result) |c| switch (c) {
+            .text_payload => |v| v,
+            else => "",
+        } else "";
+    }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .oneof_variant = "parse_error", .kind = .{ .scalar = .{ .scalar = .string } } }, // parse_error
+            .{ .number = 6, .field_index = 0, .oneof_variant = "serialize_error", .kind = .{ .scalar = .{ .scalar = .string } } }, // serialize_error
+            .{ .number = 9, .field_index = 0, .oneof_variant = "timeout_error", .kind = .{ .scalar = .{ .scalar = .string } } }, // timeout_error
+            .{ .number = 2, .field_index = 0, .oneof_variant = "runtime_error", .kind = .{ .scalar = .{ .scalar = .string } } }, // runtime_error
+            .{ .number = 3, .field_index = 0, .oneof_variant = "protobuf_payload", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // protobuf_payload
+            .{ .number = 4, .field_index = 0, .oneof_variant = "json_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_payload
+            .{ .number = 5, .field_index = 0, .oneof_variant = "skipped", .kind = .{ .scalar = .{ .scalar = .string } } }, // skipped
+            .{ .number = 7, .field_index = 0, .oneof_variant = "jspb_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // jspb_payload
+            .{ .number = 8, .field_index = 0, .oneof_variant = "text_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
+        },
     };
 };
 

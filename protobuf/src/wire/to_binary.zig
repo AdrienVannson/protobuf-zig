@@ -62,7 +62,7 @@ fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigT
     }
 }
 
-/// Encodes all scalar fields of msg into bw.
+/// Encodes all fields of msg into bw.
 ///
 /// Each FieldMetadata carries a `field_index` pointing into std.meta.fields(T)
 /// and an optional `oneof_variant` for oneof members. This decouples the

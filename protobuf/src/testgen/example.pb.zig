@@ -7,6 +7,10 @@ pub const Foo = struct {
     name: ?[]const u8 = null,
     id: ?i32 = null,
     @"struct": ?u32 = null,
+    content: ?union(enum) {
+        x: i32,
+        y: []const u8,
+    } = null,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -20,19 +24,32 @@ pub const Foo = struct {
         return self.@"struct" orelse 0;
     }
 
+    pub fn getX(self: @This()) i32 {
+        return if (self.content) |c| switch (c) {
+            .x => |v| v,
+            else => 0,
+        } else 0;
+    }
+
+    pub fn getY(self: @This()) []const u8 {
+        return if (self.content) |c| switch (c) {
+            .y => |v| v,
+            else => "",
+        } else "";
+    }
+
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // id
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // struct
+            .{ .number = 4, .field_index = 3, .oneof_variant = "x", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // x
+            .{ .number = 5, .field_index = 3, .oneof_variant = "y", .kind = .{ .scalar = .{ .scalar = .string } } }, // y
         },
     };
 };
 
 pub const Bar = struct {
-    // field foo
-    // field tags
-
     pub const Nested = struct {
         value: ?i32 = null,
 

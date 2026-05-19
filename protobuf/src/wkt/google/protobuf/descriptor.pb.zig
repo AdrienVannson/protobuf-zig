@@ -4,8 +4,6 @@
 const _metadata = @import("protobuf")._metadata;
 
 pub const FileDescriptorSet = struct {
-    // field file
-
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
@@ -14,18 +12,7 @@ pub const FileDescriptorSet = struct {
 pub const FileDescriptorProto = struct {
     name: ?[]const u8 = null,
     package: ?[]const u8 = null,
-    // field dependency
-    // field public_dependency
-    // field weak_dependency
-    // field option_dependency
-    // field message_type
-    // field enum_type
-    // field service
-    // field extension
-    // field options
-    // field source_code_info
     syntax: ?[]const u8 = null,
-    // field edition
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -50,21 +37,10 @@ pub const FileDescriptorProto = struct {
 
 pub const DescriptorProto = struct {
     name: ?[]const u8 = null,
-    // field field
-    // field extension
-    // field nested_type
-    // field enum_type
-    // field extension_range
-    // field oneof_decl
-    // field options
-    // field reserved_range
-    // field reserved_name
-    // field visibility
 
     pub const ExtensionRange = struct {
         start: ?i32 = null,
         end: ?i32 = null,
-        // field options
 
         pub fn getStart(self: @This()) i32 {
             return self.start orelse 0;
@@ -114,11 +90,6 @@ pub const DescriptorProto = struct {
 };
 
 pub const ExtensionRangeOptions = struct {
-    // field uninterpreted_option
-    // field declaration
-    // field features
-    // field verification
-
     pub const Declaration = struct {
         number: ?i32 = null,
         full_name: ?[]const u8 = null,
@@ -171,14 +142,11 @@ pub const ExtensionRangeOptions = struct {
 pub const FieldDescriptorProto = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
-    // field label
-    // field type
     type_name: ?[]const u8 = null,
     extendee: ?[]const u8 = null,
     default_value: ?[]const u8 = null,
     oneof_index: ?i32 = null,
     json_name: ?[]const u8 = null,
-    // field options
     proto3_optional: ?bool = null,
 
     pub const Type = enum(i32) {
@@ -258,7 +226,6 @@ pub const FieldDescriptorProto = struct {
 
 pub const OneofDescriptorProto = struct {
     name: ?[]const u8 = null,
-    // field options
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -273,11 +240,6 @@ pub const OneofDescriptorProto = struct {
 
 pub const EnumDescriptorProto = struct {
     name: ?[]const u8 = null,
-    // field value
-    // field options
-    // field reserved_range
-    // field reserved_name
-    // field visibility
 
     pub const EnumReservedRange = struct {
         start: ?i32 = null,
@@ -313,7 +275,6 @@ pub const EnumDescriptorProto = struct {
 pub const EnumValueDescriptorProto = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
-    // field options
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -333,8 +294,6 @@ pub const EnumValueDescriptorProto = struct {
 
 pub const ServiceDescriptorProto = struct {
     name: ?[]const u8 = null,
-    // field method
-    // field options
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -351,7 +310,6 @@ pub const MethodDescriptorProto = struct {
     name: ?[]const u8 = null,
     input_type: ?[]const u8 = null,
     output_type: ?[]const u8 = null,
-    // field options
     client_streaming: ?bool = null,
     server_streaming: ?bool = null,
 
@@ -392,7 +350,6 @@ pub const FileOptions = struct {
     java_multiple_files: ?bool = null,
     java_generate_equals_and_hash: ?bool = null,
     java_string_check_utf8: ?bool = null,
-    // field optimize_for
     go_package: ?[]const u8 = null,
     cc_generic_services: ?bool = null,
     java_generic_services: ?bool = null,
@@ -406,8 +363,6 @@ pub const FileOptions = struct {
     php_namespace: ?[]const u8 = null,
     php_metadata_namespace: ?[]const u8 = null,
     ruby_package: ?[]const u8 = null,
-    // field features
-    // field uninterpreted_option
 
     pub const OptimizeMode = enum(i32) {
         SPEED = 1,
@@ -518,8 +473,6 @@ pub const MessageOptions = struct {
     deprecated: ?bool = null,
     map_entry: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
-    // field features
-    // field uninterpreted_option
 
     pub fn getMessageSetWireFormat(self: @This()) bool {
         return self.message_set_wire_format orelse false;
@@ -553,23 +506,14 @@ pub const MessageOptions = struct {
 };
 
 pub const FieldOptions = struct {
-    // field ctype
     @"packed": ?bool = null,
-    // field jstype
     lazy: ?bool = null,
     unverified_lazy: ?bool = null,
     deprecated: ?bool = null,
     weak: ?bool = null,
     debug_redact: ?bool = null,
-    // field retention
-    // field targets
-    // field edition_defaults
-    // field features
-    // field feature_support
-    // field uninterpreted_option
 
     pub const EditionDefault = struct {
-        // field edition
         value: ?[]const u8 = null,
 
         pub fn getValue(self: @This()) []const u8 {
@@ -584,10 +528,7 @@ pub const FieldOptions = struct {
     };
 
     pub const FeatureSupport = struct {
-        // field edition_introduced
-        // field edition_deprecated
         deprecation_warning: ?[]const u8 = null,
-        // field edition_removed
 
         pub fn getDeprecationWarning(self: @This()) []const u8 {
             return self.deprecation_warning orelse "";
@@ -672,9 +613,6 @@ pub const FieldOptions = struct {
 };
 
 pub const OneofOptions = struct {
-    // field features
-    // field uninterpreted_option
-
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
@@ -684,8 +622,6 @@ pub const EnumOptions = struct {
     allow_alias: ?bool = null,
     deprecated: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
-    // field features
-    // field uninterpreted_option
 
     pub fn getAllowAlias(self: @This()) bool {
         return self.allow_alias orelse false;
@@ -710,10 +646,7 @@ pub const EnumOptions = struct {
 
 pub const EnumValueOptions = struct {
     deprecated: ?bool = null,
-    // field features
     debug_redact: ?bool = null,
-    // field feature_support
-    // field uninterpreted_option
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -732,9 +665,7 @@ pub const EnumValueOptions = struct {
 };
 
 pub const ServiceOptions = struct {
-    // field features
     deprecated: ?bool = null,
-    // field uninterpreted_option
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -749,9 +680,6 @@ pub const ServiceOptions = struct {
 
 pub const MethodOptions = struct {
     deprecated: ?bool = null,
-    // field idempotency_level
-    // field features
-    // field uninterpreted_option
 
     pub const IdempotencyLevel = enum(i32) {
         IDEMPOTENCY_UNKNOWN = 0,
@@ -772,7 +700,6 @@ pub const MethodOptions = struct {
 };
 
 pub const UninterpretedOption = struct {
-    // field name
     identifier_value: ?[]const u8 = null,
     positive_int_value: ?u64 = null,
     negative_int_value: ?i64 = null,
@@ -837,15 +764,6 @@ pub const UninterpretedOption = struct {
 };
 
 pub const FeatureSet = struct {
-    // field field_presence
-    // field enum_type
-    // field repeated_field_encoding
-    // field utf8_validation
-    // field message_encoding
-    // field json_format
-    // field enforce_naming_style
-    // field default_symbol_visibility
-
     pub const VisibilityFeature = struct {
         pub const DefaultSymbolVisibility = enum(i32) {
             DEFAULT_SYMBOL_VISIBILITY_UNKNOWN = 0,
@@ -917,15 +835,7 @@ pub const FeatureSet = struct {
 };
 
 pub const FeatureSetDefaults = struct {
-    // field defaults
-    // field minimum_edition
-    // field maximum_edition
-
     pub const FeatureSetEditionDefault = struct {
-        // field edition
-        // field overridable_features
-        // field fixed_features
-
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
@@ -937,14 +847,9 @@ pub const FeatureSetDefaults = struct {
 };
 
 pub const SourceCodeInfo = struct {
-    // field location
-
     pub const Location = struct {
-        // field path
-        // field span
         leading_comments: ?[]const u8 = null,
         trailing_comments: ?[]const u8 = null,
-        // field leading_detached_comments
 
         pub fn getLeadingComments(self: @This()) []const u8 {
             return self.leading_comments orelse "";
@@ -968,14 +873,10 @@ pub const SourceCodeInfo = struct {
 };
 
 pub const GeneratedCodeInfo = struct {
-    // field annotation
-
     pub const Annotation = struct {
-        // field path
         source_file: ?[]const u8 = null,
         begin: ?i32 = null,
         end: ?i32 = null,
-        // field semantic
 
         pub const Semantic = enum(i32) {
             NONE = 0,

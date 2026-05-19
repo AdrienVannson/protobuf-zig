@@ -4,11 +4,8 @@
 const _metadata = @import("protobuf")._metadata;
 
 pub const Struct = struct {
-    // field fields
-
     pub const FieldsEntry = struct {
         key: ?[]const u8 = null,
-        // field value
 
         pub fn getKey(self: @This()) []const u8 {
             return self.key orelse "";
@@ -27,21 +24,43 @@ pub const Struct = struct {
 };
 
 pub const Value = struct {
-    // field null_value
-    // field number_value
-    // field string_value
-    // field bool_value
-    // field struct_value
-    // field list_value
+    kind: ?union(enum) {
+        number_value: f64,
+        string_value: []const u8,
+        bool_value: bool,
+    } = null,
+
+    pub fn getNumberValue(self: @This()) f64 {
+        return if (self.kind) |c| switch (c) {
+            .number_value => |v| v,
+            else => 0.0,
+        } else 0.0;
+    }
+
+    pub fn getStringValue(self: @This()) []const u8 {
+        return if (self.kind) |c| switch (c) {
+            .string_value => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getBoolValue(self: @This()) bool {
+        return if (self.kind) |c| switch (c) {
+            .bool_value => |v| v,
+            else => false,
+        } else false;
+    }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 2, .field_index = 0, .oneof_variant = "number_value", .kind = .{ .scalar = .{ .scalar = .double } } }, // number_value
+            .{ .number = 3, .field_index = 0, .oneof_variant = "string_value", .kind = .{ .scalar = .{ .scalar = .string } } }, // string_value
+            .{ .number = 4, .field_index = 0, .oneof_variant = "bool_value", .kind = .{ .scalar = .{ .scalar = .bool } } }, // bool_value
+        },
     };
 };
 
 pub const ListValue = struct {
-    // field values
-
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
