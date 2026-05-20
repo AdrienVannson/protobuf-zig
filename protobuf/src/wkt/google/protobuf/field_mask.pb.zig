@@ -4,8 +4,6 @@
 const _metadata = @import("protobuf")._metadata;
 
 pub const FieldMask = struct {
-    // field paths
-
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };

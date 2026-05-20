@@ -5,10 +5,8 @@ const _metadata = @import("protobuf")._metadata;
 
 pub const JavaFeatures = struct {
     legacy_closed_enum: ?bool = null,
-    // field utf8_validation
     large_enum: ?bool = null,
     use_old_outer_classname_default: ?bool = null,
-    // field nest_in_file_class
 
     pub const NestInFileClassFeature = struct {
         pub const NestInFileClass = enum(i32) {

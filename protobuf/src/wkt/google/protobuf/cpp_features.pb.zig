@@ -5,7 +5,6 @@ const _metadata = @import("protobuf")._metadata;
 
 pub const CppFeatures = struct {
     legacy_closed_enum: ?bool = null,
-    // field string_type
     enum_name_uses_string_view: ?bool = null,
 
     pub const StringType = enum(i32) {

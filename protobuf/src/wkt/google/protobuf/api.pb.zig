@@ -5,12 +5,7 @@ const _metadata = @import("protobuf")._metadata;
 
 pub const Api = struct {
     name: ?[]const u8 = null,
-    // field methods
-    // field options
     version: ?[]const u8 = null,
-    // field source_context
-    // field mixins
-    // field syntax
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -40,8 +35,6 @@ pub const Method = struct {
     request_streaming: ?bool = null,
     response_type_url: ?[]const u8 = null,
     response_streaming: ?bool = null,
-    // field options
-    // field syntax
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {

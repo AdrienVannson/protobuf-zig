@@ -5,11 +5,6 @@ const _metadata = @import("protobuf")._metadata;
 
 pub const Type = struct {
     name: ?[]const u8 = null,
-    // field fields
-    // field oneofs
-    // field options
-    // field source_context
-    // field syntax
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -29,14 +24,11 @@ pub const Type = struct {
 };
 
 pub const Field = struct {
-    // field kind
-    // field cardinality
     number: ?i32 = null,
     name: ?[]const u8 = null,
     type_url: ?[]const u8 = null,
     oneof_index: ?i32 = null,
     @"packed": ?bool = null,
-    // field options
     json_name: ?[]const u8 = null,
     default_value: ?[]const u8 = null,
 
@@ -114,10 +106,6 @@ pub const Field = struct {
 
 pub const Enum = struct {
     name: ?[]const u8 = null,
-    // field enumvalue
-    // field options
-    // field source_context
-    // field syntax
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -139,7 +127,6 @@ pub const Enum = struct {
 pub const EnumValue = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
-    // field options
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -159,7 +146,6 @@ pub const EnumValue = struct {
 
 pub const Option = struct {
     name: ?[]const u8 = null,
-    // field value
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";

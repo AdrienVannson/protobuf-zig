@@ -19,94 +19,8 @@ pub const TestAllTypesProto2 = struct {
     optional_bool: ?bool = null,
     optional_string: ?[]const u8 = null,
     optional_bytes: ?[]const u8 = null,
-    // field optional_nested_message
-    // field optional_foreign_message
-    // field optional_nested_enum
-    // field optional_foreign_enum
     optional_string_piece: ?[]const u8 = null,
     optional_cord: ?[]const u8 = null,
-    // field recursive_message
-    // field repeated_int32
-    // field repeated_int64
-    // field repeated_uint32
-    // field repeated_uint64
-    // field repeated_sint32
-    // field repeated_sint64
-    // field repeated_fixed32
-    // field repeated_fixed64
-    // field repeated_sfixed32
-    // field repeated_sfixed64
-    // field repeated_float
-    // field repeated_double
-    // field repeated_bool
-    // field repeated_string
-    // field repeated_bytes
-    // field repeated_nested_message
-    // field repeated_foreign_message
-    // field repeated_nested_enum
-    // field repeated_foreign_enum
-    // field repeated_string_piece
-    // field repeated_cord
-    // field packed_int32
-    // field packed_int64
-    // field packed_uint32
-    // field packed_uint64
-    // field packed_sint32
-    // field packed_sint64
-    // field packed_fixed32
-    // field packed_fixed64
-    // field packed_sfixed32
-    // field packed_sfixed64
-    // field packed_float
-    // field packed_double
-    // field packed_bool
-    // field packed_nested_enum
-    // field unpacked_int32
-    // field unpacked_int64
-    // field unpacked_uint32
-    // field unpacked_uint64
-    // field unpacked_sint32
-    // field unpacked_sint64
-    // field unpacked_fixed32
-    // field unpacked_fixed64
-    // field unpacked_sfixed32
-    // field unpacked_sfixed64
-    // field unpacked_float
-    // field unpacked_double
-    // field unpacked_bool
-    // field unpacked_nested_enum
-    // field map_int32_int32
-    // field map_int64_int64
-    // field map_uint32_uint32
-    // field map_uint64_uint64
-    // field map_sint32_sint32
-    // field map_sint64_sint64
-    // field map_fixed32_fixed32
-    // field map_fixed64_fixed64
-    // field map_sfixed32_sfixed32
-    // field map_sfixed64_sfixed64
-    // field map_int32_bool
-    // field map_int32_float
-    // field map_int32_double
-    // field map_int32_nested_message
-    // field map_bool_bool
-    // field map_string_string
-    // field map_string_bytes
-    // field map_string_nested_message
-    // field map_string_foreign_message
-    // field map_string_nested_enum
-    // field map_string_foreign_enum
-    // field oneof_uint32
-    // field oneof_nested_message
-    // field oneof_string
-    // field oneof_bytes
-    // field oneof_bool
-    // field oneof_uint64
-    // field oneof_float
-    // field oneof_double
-    // field oneof_enum
-    // field data
-    // field multiwordgroupfield
     default_int32: ?i32 = null,
     default_int64: ?i64 = null,
     default_uint32: ?u32 = null,
@@ -140,11 +54,18 @@ pub const TestAllTypesProto2 = struct {
     field__Name16: ?i32 = null,
     field_name17__: ?i32 = null,
     Field_name18__: ?i32 = null,
-    // field message_set_correct
+    oneof_field: ?union(enum) {
+        oneof_uint32: u32,
+        oneof_string: []const u8,
+        oneof_bytes: []const u8,
+        oneof_bool: bool,
+        oneof_uint64: u64,
+        oneof_float: f32,
+        oneof_double: f64,
+    } = null,
 
     pub const NestedMessage = struct {
         a: ?i32 = null,
-        // field corecursive
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -419,7 +340,6 @@ pub const TestAllTypesProto2 = struct {
 
     pub const MapInt32NestedMessageEntry = struct {
         key: ?i32 = null,
-        // field value
 
         pub fn getKey(self: @This()) i32 {
             return self.key orelse 0;
@@ -494,7 +414,6 @@ pub const TestAllTypesProto2 = struct {
 
     pub const MapStringNestedMessageEntry = struct {
         key: ?[]const u8 = null,
-        // field value
 
         pub fn getKey(self: @This()) []const u8 {
             return self.key orelse "";
@@ -509,7 +428,6 @@ pub const TestAllTypesProto2 = struct {
 
     pub const MapStringForeignMessageEntry = struct {
         key: ?[]const u8 = null,
-        // field value
 
         pub fn getKey(self: @This()) []const u8 {
             return self.key orelse "";
@@ -524,7 +442,6 @@ pub const TestAllTypesProto2 = struct {
 
     pub const MapStringNestedEnumEntry = struct {
         key: ?[]const u8 = null,
-        // field value
 
         pub fn getKey(self: @This()) []const u8 {
             return self.key orelse "";
@@ -539,7 +456,6 @@ pub const TestAllTypesProto2 = struct {
 
     pub const MapStringForeignEnumEntry = struct {
         key: ?[]const u8 = null,
-        // field value
 
         pub fn getKey(self: @This()) []const u8 {
             return self.key orelse "";
@@ -627,11 +543,30 @@ pub const TestAllTypesProto2 = struct {
     };
 
     pub const ExtensionWithOneof = struct {
-        // field a
-        // field b
+        oneof_field: ?union(enum) {
+            a: i32,
+            b: i32,
+        } = null,
+
+        pub fn getA(self: @This()) i32 {
+            return if (self.oneof_field) |c| switch (c) {
+                .a => |v| v,
+                else => 0,
+            } else 0;
+        }
+
+        pub fn getB(self: @This()) i32 {
+            return if (self.oneof_field) |c| switch (c) {
+                .b => |v| v,
+                else => 0,
+            } else 0;
+        }
 
         pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{},
+            .fields = &[_]_metadata.FieldMetadata{
+                .{ .number = 1, .field_index = 0, .oneof_variant = "a", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // a
+                .{ .number = 2, .field_index = 0, .oneof_variant = "b", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // b
+            },
         };
     };
 
@@ -843,6 +778,55 @@ pub const TestAllTypesProto2 = struct {
         return self.Field_name18__ orelse 0;
     }
 
+    pub fn getOneofUint32(self: @This()) u32 {
+        return if (self.oneof_field) |c| switch (c) {
+            .oneof_uint32 => |v| v,
+            else => 0,
+        } else 0;
+    }
+
+    pub fn getOneofString(self: @This()) []const u8 {
+        return if (self.oneof_field) |c| switch (c) {
+            .oneof_string => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getOneofBytes(self: @This()) []const u8 {
+        return if (self.oneof_field) |c| switch (c) {
+            .oneof_bytes => |v| v,
+            else => "",
+        } else "";
+    }
+
+    pub fn getOneofBool(self: @This()) bool {
+        return if (self.oneof_field) |c| switch (c) {
+            .oneof_bool => |v| v,
+            else => false,
+        } else false;
+    }
+
+    pub fn getOneofUint64(self: @This()) u64 {
+        return if (self.oneof_field) |c| switch (c) {
+            .oneof_uint64 => |v| v,
+            else => 0,
+        } else 0;
+    }
+
+    pub fn getOneofFloat(self: @This()) f32 {
+        return if (self.oneof_field) |c| switch (c) {
+            .oneof_float => |v| v,
+            else => 0.0,
+        } else 0.0;
+    }
+
+    pub fn getOneofDouble(self: @This()) f64 {
+        return if (self.oneof_field) |c| switch (c) {
+            .oneof_double => |v| v,
+            else => 0.0,
+        } else 0.0;
+    }
+
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // optional_int32
@@ -895,6 +879,13 @@ pub const TestAllTypesProto2 = struct {
             .{ .number = 416, .field_index = 47, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__Name16
             .{ .number = 417, .field_index = 48, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_name17__
             .{ .number = 418, .field_index = 49, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_name18__
+            .{ .number = 111, .field_index = 50, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
+            .{ .number = 113, .field_index = 50, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
+            .{ .number = 114, .field_index = 50, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
+            .{ .number = 115, .field_index = 50, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
+            .{ .number = 116, .field_index = 50, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
+            .{ .number = 117, .field_index = 50, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
+            .{ .number = 118, .field_index = 50, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
         },
     };
 };
@@ -936,10 +927,7 @@ pub const GroupField = struct {
 pub const UnknownToTestAllTypes = struct {
     optional_int32: ?i32 = null,
     optional_string: ?[]const u8 = null,
-    // field nested_message
-    // field optionalgroup
     optional_bool: ?bool = null,
-    // field repeated_int32
 
     pub const OptionalGroup = struct {
         a: ?i32 = null,
@@ -1011,7 +999,6 @@ pub const OneStringProto2 = struct {
 pub const ProtoWithKeywords = struct {
     @"inline": ?i32 = null,
     concept: ?[]const u8 = null,
-    // field requires
 
     pub fn getInline(self: @This()) i32 {
         return self.@"inline" orelse 0;
@@ -1045,15 +1032,8 @@ pub const TestAllRequiredTypesProto2 = struct {
     required_bool: ?bool = null,
     required_string: ?[]const u8 = null,
     required_bytes: ?[]const u8 = null,
-    // field required_nested_message
-    // field required_foreign_message
-    // field required_nested_enum
-    // field required_foreign_enum
     required_string_piece: ?[]const u8 = null,
     required_cord: ?[]const u8 = null,
-    // field recursive_message
-    // field optional_recursive_message
-    // field data
     default_int32: ?i32 = null,
     default_int64: ?i64 = null,
     default_uint32: ?u32 = null,
@@ -1072,8 +1052,6 @@ pub const TestAllRequiredTypesProto2 = struct {
 
     pub const NestedMessage = struct {
         a: ?i32 = null,
-        // field corecursive
-        // field optional_corecursive
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -1315,11 +1293,7 @@ pub const TestAllRequiredTypesProto2 = struct {
 };
 
 pub const TestLargeOneof = struct {
-    // field a1
-    // field a2
-    // field a3
-    // field a4
-    // field a5
+    large_oneof: ?union(enum) {} = null,
 
     pub const A1 = struct {
         pub const _desc = _metadata.MessageMetadata{

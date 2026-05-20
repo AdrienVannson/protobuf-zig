@@ -55,6 +55,10 @@ fn generateMessage(
     for (msg.field.items) |*field| {
         try generateField(f, field);
     }
+    for (msg.oneof_decl.items, 0..) |*oneof, i| {
+        const oneof_name = oneof.name orelse @panic("Oneof without name");
+        try generateOneofField(f, msg, oneof_name, @intCast(i));
+    }
     try f.emptyLine();
 
     for (msg.nested_type.items) |*nested| {
@@ -67,6 +71,10 @@ fn generateMessage(
 
     for (msg.field.items) |*field| {
         try generateFieldGetter(f, field);
+    }
+    for (msg.oneof_decl.items, 0..) |*oneof, i| {
+        const oneof_name = oneof.name orelse @panic("Oneof without name");
+        try generateOneofVariantGetters(f, msg, oneof_name, @intCast(i));
     }
 
     try f.emptyLine();
@@ -114,6 +122,8 @@ fn generateMessageMetadata(
     f.indent();
 
     var field_index: u32 = 0;
+
+    // Regular scalar fields.
     for (msg.field.items) |*field| {
         if (!isPlainScalarField(field)) continue;
         const field_name = field.name orelse @panic("Field without name");
@@ -132,6 +142,32 @@ fn generateMessageMetadata(
         field_index += 1;
     }
 
+    // Oneof variant entries — all variants of a group share the same field_index.
+    for (msg.oneof_decl.items, 0..) |_, i| {
+        const oneof_idx: i32 = @intCast(i);
+        for (msg.field.items) |*field| {
+            if (field.oneof_index != oneof_idx) continue;
+            if (field.proto3_optional == true) continue;
+            const t = field.type orelse @panic("Field without type");
+            if (!isScalarFieldType(t)) continue;
+            const variant_name = field.name orelse @panic("Field without name");
+            const number = field.number orelse @panic("Field without number");
+            try f.writeLine(.{
+                ".{ .number = ",
+                number,
+                ", .field_index = ",
+                field_index,
+                ", .oneof_variant = \"",
+                variant_name,
+                "\", .kind = .{ .scalar = .{ .scalar = .",
+                scalarMetadataName(t),
+                " } } }, // ",
+                variant_name,
+            });
+        }
+        field_index += 1;
+    }
+
     f.unindent();
     try f.writeLine("},");
     f.unindent();
@@ -142,15 +178,66 @@ fn generateField(
     f: *GeneratedFile,
     field: *const descriptor.FieldDescriptorProto,
 ) !void {
+    if (!isPlainScalarField(field)) return;
     const field_name = field.name orelse return;
-    if (!isPlainScalarField(field)) {
-        try f.writeLine(.{ "// field ", field_name });
-        return;
-    }
     const zig_type = scalarZigType(field.type.?);
     const safe_field_name = try escapeZigKeyword(f.alloc, field_name);
     defer f.alloc.free(safe_field_name);
     try f.writeLine(.{ safe_field_name, ": ?", zig_type, " = null," });
+}
+
+fn generateOneofField(
+    f: *GeneratedFile,
+    msg: *const descriptor.DescriptorProto,
+    oneof_name: []const u8,
+    oneof_idx: i32,
+) !void {
+    const safe_name = try escapeZigKeyword(f.alloc, oneof_name);
+    defer f.alloc.free(safe_name);
+    try f.write(.{ safe_name, ": ?union(enum) {" });
+    for (msg.field.items) |*field| {
+        if (field.oneof_index != oneof_idx) continue;
+        if (field.proto3_optional == true) continue;
+        const t = field.type orelse @panic("Field without type");
+        if (!isScalarFieldType(t)) continue;
+        const variant_name = field.name orelse @panic("Field without name");
+        const safe_variant = try escapeZigKeyword(f.alloc, variant_name);
+        defer f.alloc.free(safe_variant);
+        try f.write(.{ " ", safe_variant, ": ", scalarZigType(t), "," });
+    }
+    try f.writeLine(" } = null,");
+}
+
+fn generateOneofVariantGetters(
+    f: *GeneratedFile,
+    msg: *const descriptor.DescriptorProto,
+    oneof_name: []const u8,
+    oneof_idx: i32,
+) !void {
+    const safe_oneof_name = try escapeZigKeyword(f.alloc, oneof_name);
+    defer f.alloc.free(safe_oneof_name);
+    for (msg.field.items) |*field| {
+        if (field.oneof_index != oneof_idx) continue;
+        if (field.proto3_optional == true) continue;
+        const t = field.type orelse continue;
+        if (!isScalarFieldType(t)) continue;
+        const variant_name = field.name orelse continue;
+        const safe_variant = try escapeZigKeyword(f.alloc, variant_name);
+        defer f.alloc.free(safe_variant);
+        const getter_name = try toCamelCase(f.alloc, variant_name);
+        defer f.alloc.free(getter_name);
+        const default = scalarDefaultLiteral(t);
+        try f.emptyLine();
+        try f.writeLine(.{ "pub fn get", getter_name, "(self: @This()) ", scalarZigType(t), " {" });
+        f.indent();
+        try f.writeLine(.{
+            "return if (self.", safe_oneof_name,       ") |c| switch (c) { .",
+            safe_variant,       " => |v| v, else => ", default,
+            " } else ",         default,               ";",
+        });
+        f.unindent();
+        try f.writeLine("}");
+    }
 }
 
 fn generateFieldGetter(
@@ -178,17 +265,20 @@ fn generateFieldGetter(
     try f.writeLine("}");
 }
 
+fn isScalarFieldType(t: FieldType) bool {
+    return switch (t) {
+        .TYPE_DOUBLE, .TYPE_FLOAT, .TYPE_INT64, .TYPE_UINT64, .TYPE_INT32, .TYPE_FIXED64, .TYPE_FIXED32, .TYPE_BOOL, .TYPE_STRING, .TYPE_BYTES, .TYPE_UINT32, .TYPE_SFIXED32, .TYPE_SFIXED64, .TYPE_SINT32, .TYPE_SINT64 => true,
+        else => false,
+    };
+}
+
 fn isPlainScalarField(field: *const descriptor.FieldDescriptorProto) bool {
     if (field.label) |label| {
         if (label == .LABEL_REPEATED) return false;
     }
     if (field.oneof_index != null and field.proto3_optional != true) return false;
     const t = field.type orelse return false;
-    return switch (t) {
-        .TYPE_DOUBLE, .TYPE_FLOAT, .TYPE_INT64, .TYPE_UINT64, .TYPE_INT32, .TYPE_FIXED64, .TYPE_FIXED32, .TYPE_BOOL, .TYPE_STRING, .TYPE_BYTES, .TYPE_UINT32, .TYPE_SFIXED32, .TYPE_SFIXED64, .TYPE_SINT32, .TYPE_SINT64 => true,
-        .TYPE_GROUP, .TYPE_MESSAGE, .TYPE_ENUM => false,
-        else => false,
-    };
+    return isScalarFieldType(t);
 }
 
 fn scalarMetadataName(t: FieldType) []const u8 {
