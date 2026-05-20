@@ -16,13 +16,13 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
         const field_name = comptime fields[fi].name;
 
         if (comptime field_meta.oneof_variant) |variant_name| {
-            if (@field(msg.*, field_name)) |active| {
+            if (@field(msg, field_name)) |active| {
                 switch (active) {
                     inline else => |payload, tag| {
                         if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
                             switch (field_meta.kind) {
-                                .scalar => |sc| {
-                                    if (comptime sc.scalar == .string or sc.scalar == .bytes) {
+                                .scalar => |kind| {
+                                    if (comptime kind.scalar == .string or kind.scalar == .bytes) {
                                         allocator.free(payload);
                                     }
                                 },
@@ -34,11 +34,9 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
             }
         } else {
             switch (field_meta.kind) {
-                .scalar => |sc| {
-                    if (comptime (sc.scalar == .string or sc.scalar == .bytes) and
-                        field_meta.presence != .implicit)
-                    {
-                        if (@field(msg.*, field_name)) |s| allocator.free(s);
+                .scalar => |kind| {
+                    if (comptime (kind.scalar == .string or kind.scalar == .bytes)) {
+                        if (@field(msg, field_name)) |s| allocator.free(s);
                     }
                 },
                 else => {},
