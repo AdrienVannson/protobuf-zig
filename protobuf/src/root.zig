@@ -30,6 +30,12 @@ pub const from_binary = from_binary_mod.from_binary;
 /// Not intended for direct use by end users.
 pub const _metadata = @import("metadata.zig");
 
+/// Code-generation helpers called by generated `.pb.zig` files.
+/// Not intended for direct use by end users.
+pub const _codegen = struct {
+    pub const deinit_message = @import("_codegen/message_deinit.zig").deinit_message;
+};
+
 test {
     _ = @import("wire/binary_writer.zig");
     _ = @import("wire/binary_reader.zig");
@@ -38,6 +44,7 @@ test {
     _ = @import("metadata.zig");
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
+    _ = @import("_codegen/message_deinit.zig");
     _ = @import("test/fake_message_foo.zig");
     _ = @import("test/descriptor_roundtrip_test.zig");
 }
