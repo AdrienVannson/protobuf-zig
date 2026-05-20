@@ -1,18 +1,19 @@
 const std = @import("std");
-const metadata_mod = @import("../metadata.zig");
-const ScalarType = metadata_mod.ScalarType;
+const ScalarType = @import("../metadata.zig").ScalarType;
 
 /// Frees all allocator-owned fields in a decoded message.
 ///
 /// Called by the generated `deinit` method on every message struct.
-/// `msg` must be a pointer to a message struct that has a `_desc` field.
+/// `msg` must be a pointer to a message struct.
+///
+/// TODO: check the memory model. How does it work for non-optional allocated fields?
 pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
     const T = std.meta.Child(@TypeOf(msg));
-    const struct_fields = std.meta.fields(T);
+    const fields = std.meta.fields(T);
 
     inline for (T._desc.fields) |field_meta| {
         const fi = comptime field_meta.field_index;
-        const field_name = comptime struct_fields[fi].name;
+        const field_name = comptime fields[fi].name;
 
         if (comptime field_meta.oneof_variant) |variant_name| {
             if (@field(msg.*, field_name)) |active| {
