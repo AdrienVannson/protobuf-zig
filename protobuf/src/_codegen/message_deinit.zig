@@ -1,5 +1,5 @@
 const std = @import("std");
-const ScalarType = @import("../metadata.zig").ScalarType;
+const ScalarType = @import("metadata.zig").ScalarType;
 
 /// Frees all allocator-owned fields in a decoded message.
 ///

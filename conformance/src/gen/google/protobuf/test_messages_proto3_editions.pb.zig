@@ -2,8 +2,8 @@
 // Source: google/protobuf/test_messages_proto3_editions.proto
 
 const std = @import("std");
-const _metadata = @import("protobuf")._metadata;
 const _codegen = @import("protobuf")._codegen;
+const _metadata = _codegen.metadata;
 
 pub const TestAllTypesProto3 = struct {
     optional_int32: ?i32 = null,

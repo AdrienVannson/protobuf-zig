@@ -1,7 +1,7 @@
 const std = @import("std");
 const binary_reader_mod = @import("binary_reader.zig");
 const tag_mod = @import("tag.zig");
-const metadata_mod = @import("../metadata.zig");
+const metadata_mod = @import("../_codegen/metadata.zig");
 
 const BinaryReader = binary_reader_mod.BinaryReader;
 const WireType = tag_mod.WireType;

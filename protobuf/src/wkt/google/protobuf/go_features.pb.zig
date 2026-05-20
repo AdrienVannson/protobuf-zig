@@ -2,8 +2,8 @@
 // Source: google/protobuf/go_features.proto
 
 const std = @import("std");
-const _metadata = @import("protobuf")._metadata;
 const _codegen = @import("protobuf")._codegen;
+const _metadata = _codegen.metadata;
 
 pub const GoFeatures = struct {
     legacy_unmarshal_json_enum: ?bool = null,

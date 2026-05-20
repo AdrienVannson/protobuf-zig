@@ -26,14 +26,11 @@ pub const DescExtension = descriptor.DescExtension;
 pub const to_binary = to_binary_mod.to_binary;
 pub const from_binary = from_binary_mod.from_binary;
 
-/// Internal contract between `protoc-gen-zig` and the runtime codec.
-/// Not intended for direct use by end users.
-pub const _metadata = @import("metadata.zig");
-
 /// Code-generation helpers called by generated `.pb.zig` files.
 /// Not intended for direct use by end users.
 pub const _codegen = struct {
     pub const deinit_message = @import("_codegen/message_deinit.zig").deinit_message;
+    pub const metadata = @import("_codegen/metadata.zig");
 };
 
 test {
@@ -41,7 +38,7 @@ test {
     _ = @import("wire/binary_reader.zig");
     _ = @import("wire/tag.zig");
     _ = @import("descriptor.zig");
-    _ = @import("metadata.zig");
+    _ = @import("_codegen/metadata.zig");
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
     _ = @import("_codegen/message_deinit.zig");

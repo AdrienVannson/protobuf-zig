@@ -2,8 +2,8 @@
 // Source: google/protobuf/duration.proto
 
 const std = @import("std");
-const _metadata = @import("protobuf")._metadata;
 const _codegen = @import("protobuf")._codegen;
+const _metadata = _codegen.metadata;
 
 pub const Duration = struct {
     seconds: ?i64 = null,
