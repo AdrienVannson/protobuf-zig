@@ -16,8 +16,8 @@ pub fn generateFile(
 
     if (file.message_type.items.len > 0) {
         try f.writeLine("const std = @import(\"std\");");
-        try f.writeLine("const _metadata = @import(\"protobuf\")._metadata;");
         try f.writeLine("const _codegen = @import(\"protobuf\")._codegen;");
+        try f.writeLine("const _metadata = _codegen.metadata;");
         try f.emptyLine();
     }
 

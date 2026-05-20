@@ -1,4 +1,4 @@
-const descriptor = @import("descriptor.zig");
+const descriptor = @import("../descriptor.zig");
 
 pub const ScalarType = descriptor.ScalarType;
 pub const DefaultValue = descriptor.DefaultValue;

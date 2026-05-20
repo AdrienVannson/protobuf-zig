@@ -1,5 +1,5 @@
 const std = @import("std");
-const metadata = @import("../metadata.zig");
+const metadata = @import("../_codegen/metadata.zig");
 
 pub const FakeMessageFoo = struct {
     explicit_field: ?i32 = null,
