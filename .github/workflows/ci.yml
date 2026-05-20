@@ -33,9 +33,10 @@ jobs:
         uses: extractions/setup-just@v4
 
       - name: Install buf
-        uses: bufbuild/buf-setup-action@v1
+        uses: bufbuild/buf-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          setup_only: true
 
       - name: Setup
         run: just setup
