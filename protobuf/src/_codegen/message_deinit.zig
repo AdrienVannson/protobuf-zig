@@ -9,15 +9,15 @@ const ScalarType = @import("../metadata.zig").ScalarType;
 /// TODO: check the memory model. How does it work for non-optional allocated fields?
 pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
     const T = std.meta.Child(@TypeOf(msg));
-    const fields = std.meta.fields(T);
+    const members = std.meta.fields(T);
 
     inline for (T._desc.fields) |field_meta| {
         const fi = comptime field_meta.field_index;
-        const field_name = comptime fields[fi].name;
+        const member_name = comptime members[fi].name;
 
         if (comptime field_meta.oneof_variant) |variant_name| {
-            if (@field(msg, field_name)) |active| {
-                switch (active) {
+            if (@field(msg, member_name)) |member_active| {
+                switch (member_active) {
                     inline else => |payload, tag| {
                         if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
                             switch (field_meta.kind) {
@@ -36,7 +36,7 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
             switch (field_meta.kind) {
                 .scalar => |kind| {
                     if (comptime (kind.scalar == .string or kind.scalar == .bytes)) {
-                        if (@field(msg, field_name)) |s| allocator.free(s);
+                        if (@field(msg, member_name)) |s| allocator.free(s);
                     }
                 },
                 else => {},
