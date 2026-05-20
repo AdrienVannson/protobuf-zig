@@ -30,7 +30,7 @@ generate: build
         --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
         --zig_out=./protobuf/src/testgen \
         --proto_path=./protoc-gen-zig/test_protos \
-        example.proto
+        $(find ./protoc-gen-zig/test_protos -iname "*.proto")
 
 # Generate the well-known types using protoc-gen-zig.
 generate-wkt: setup build
