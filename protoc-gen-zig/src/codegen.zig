@@ -146,10 +146,9 @@ fn generateMessageMetadata(
     for (msg.oneof_decl.items, 0..) |_, i| {
         const oneof_idx: i32 = @intCast(i);
         for (msg.field.items) |*field| {
-            const idx = field.oneof_index orelse continue;
-            if (idx != oneof_idx) continue;
+            if (field.oneof_index != oneof_idx) continue;
             if (field.proto3_optional == true) continue;
-            const t = field.type orelse continue;
+            const t = field.type orelse @panic("Field without type");
             if (!isScalarFieldType(t)) continue;
             const variant_name = field.name orelse @panic("Field without name");
             const number = field.number orelse @panic("Field without number");
@@ -197,12 +196,11 @@ fn generateOneofField(
     defer f.alloc.free(safe_name);
     try f.write(.{ safe_name, ": ?union(enum) {" });
     for (msg.field.items) |*field| {
-        const idx = field.oneof_index orelse continue;
-        if (idx != oneof_idx) continue;
+        if (field.oneof_index != oneof_idx) continue;
         if (field.proto3_optional == true) continue;
-        const t = field.type orelse continue;
+        const t = field.type orelse @panic("Field without type");
         if (!isScalarFieldType(t)) continue;
-        const variant_name = field.name orelse continue;
+        const variant_name = field.name orelse @panic("Field without name");
         const safe_variant = try escapeZigKeyword(f.alloc, variant_name);
         defer f.alloc.free(safe_variant);
         try f.write(.{ " ", safe_variant, ": ", scalarZigType(t), "," });
@@ -219,8 +217,7 @@ fn generateOneofVariantGetters(
     const safe_oneof_name = try escapeZigKeyword(f.alloc, oneof_name);
     defer f.alloc.free(safe_oneof_name);
     for (msg.field.items) |*field| {
-        const idx = field.oneof_index orelse continue;
-        if (idx != oneof_idx) continue;
+        if (field.oneof_index != oneof_idx) continue;
         if (field.proto3_optional == true) continue;
         const t = field.type orelse continue;
         if (!isScalarFieldType(t)) continue;
