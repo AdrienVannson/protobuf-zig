@@ -15,7 +15,9 @@ pub fn generateFile(
     try f.emptyLine();
 
     if (file.message_type.items.len > 0) {
+        try f.writeLine("const std = @import(\"std\");");
         try f.writeLine("const _metadata = @import(\"protobuf\")._metadata;");
+        try f.writeLine("const _codegen = @import(\"protobuf\")._codegen;");
         try f.emptyLine();
     }
 
@@ -81,6 +83,9 @@ fn generateMessage(
     }
 
     try f.emptyLine();
+    try generateMessageDeinit(f);
+
+    try f.emptyLine();
     try generateMessageMetadata(f, msg);
 
     f.unindent();
@@ -113,6 +118,14 @@ fn generateEnum(
     f.unindent();
     try f.writeLine("};");
     try f.emptyLine();
+}
+
+fn generateMessageDeinit(f: *GeneratedFile) !void {
+    try f.writeLine("pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {");
+    f.indent();
+    try f.writeLine("_codegen.deinit_message(self, allocator);");
+    f.unindent();
+    try f.writeLine("}");
 }
 
 fn generateMessageMetadata(
