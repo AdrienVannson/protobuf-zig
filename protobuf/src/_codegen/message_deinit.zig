@@ -46,3 +46,43 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
         }
     }
 }
+
+test "deinit_message string" {
+    const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
+    var alloc = std.testing.allocator;
+
+    var msg = TestAllTypesProto3{
+        .optional_string = try alloc.dupe(u8, "hello"),
+    };
+    deinit_message(&msg, alloc);
+}
+
+test "deinit_message bytes" {
+    const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
+    var alloc = std.testing.allocator;
+
+    var msg = TestAllTypesProto3{
+        .optional_bytes = try alloc.dupe(u8, "hello"),
+    };
+    deinit_message(&msg, alloc);
+}
+
+test "deinit_message oneof string" {
+    const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
+    var alloc = std.testing.allocator;
+
+    var msg = TestAllTypesProto3{
+        .oneof_field = .{ .oneof_string = try alloc.dupe(u8, "hello") },
+    };
+    deinit_message(&msg, alloc);
+}
+
+test "deinit_message oneof bytes" {
+    const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
+    var alloc = std.testing.allocator;
+
+    var msg = TestAllTypesProto3{
+        .oneof_field = .{ .oneof_bytes = try alloc.dupe(u8, "hello") },
+    };
+    deinit_message(&msg, alloc);
+}
