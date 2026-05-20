@@ -343,7 +343,11 @@ fn emitDescriptorBytes(
 ) !void {
     var w: std.Io.Writer.Allocating = .init(alloc);
     defer w.deinit();
-    try file.encode(&w.writer, alloc);
+
+    // Strip source_code_info before encoding
+    var stripped = file.*;
+    stripped.source_code_info = null;
+    try stripped.encode(&w.writer, alloc);
     const bytes = w.written();
 
     // TODO: make sure variable name doesn't conflict with any existing identifier
