@@ -30,17 +30,11 @@ pub const FieldPresence = enum(i32) {
 
 /// Default value for a scalar field.
 pub const DefaultValue = union(enum) {
-    string: []const u8,
     boolean: bool,
     integer: i64,
     float: f64,
+    string: []const u8,
     bytes: []const u8,
-};
-
-/// A member of a message in source order: either a regular field or a oneof group.
-pub const DescMember = union(enum) {
-    field: *const DescField,
-    oneof: *const DescOneof,
 };
 
 /// The type carried by a repeated field element or a map field value.
@@ -132,7 +126,10 @@ pub const DescMessage = struct {
     /// Oneof groups, excluding synthetic proto3 optional oneofs.
     oneofs: []const DescOneof,
     /// Fields and oneof groups in source declaration order.
-    members: []const DescMember,
+    members: []const union(enum) {
+        field: *const DescField,
+        oneof: *const DescOneof,
+    },
     /// Nested enumerations.
     nested_enums: []const DescEnum,
     /// Nested messages, excluding synthetic map-entry messages.

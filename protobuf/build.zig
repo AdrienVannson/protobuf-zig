@@ -4,18 +4,15 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    _ = b.addModule("protobuf", .{
+    const protobuf_module = b.addModule("protobuf", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
+    protobuf_module.addImport("protobuf", protobuf_module);
 
     const lib_unit_tests = b.addTest(.{
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/root.zig"),
-            .target = target,
-            .optimize = optimize,
-        }),
+        .root_module = protobuf_module,
     });
 
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);

@@ -55,6 +55,7 @@ jobs:
           just generate-wkt
           just generate-example
           just generate-conformance
+          git status
           test -z "$(git status --porcelain)" # Check for uncommitted changes after generation
 
       - name: Test

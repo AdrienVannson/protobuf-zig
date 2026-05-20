@@ -27,6 +27,9 @@ pub fn generateFile(
         try generateEnum(&f, e);
     }
 
+    try f.emptyLine();
+    try emitDescriptorBytes(&f, file, alloc);
+
     const raw = try f.toOwnedSlice();
     defer alloc.free(raw);
     return try formatZigSource(alloc, raw);
@@ -331,6 +334,30 @@ fn escapeZigKeyword(alloc: std.mem.Allocator, name: []const u8) ![]u8 {
         return std.fmt.allocPrint(alloc, "@\"{s}\"", .{name});
     }
     return alloc.dupe(u8, name);
+}
+
+fn emitDescriptorBytes(
+    f: *GeneratedFile,
+    file: *const descriptor.FileDescriptorProto,
+    alloc: std.mem.Allocator,
+) !void {
+    var w: std.Io.Writer.Allocating = .init(alloc);
+    defer w.deinit();
+
+    // Strip source_code_info before encoding
+    var stripped = file.*;
+    stripped.source_code_info = null;
+    try stripped.encode(&w.writer, alloc);
+    const bytes = w.written();
+
+    // TODO: make sure variable name doesn't conflict with any existing identifier
+    try f.write("pub const DESCRIPTOR_BYTES: []const u8 = \"");
+    var buf: [4]u8 = undefined;
+    for (bytes) |b| {
+        const s = try std.fmt.bufPrint(&buf, "\\x{x:0>2}", .{b});
+        try f.write(s);
+    }
+    try f.writeLine("\";");
 }
 
 fn toCamelCase(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
