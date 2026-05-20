@@ -221,7 +221,7 @@ fn generateOneofVariantGetters(
         if (field.proto3_optional == true) continue;
         const t = field.type orelse continue;
         if (!isScalarFieldType(t)) continue;
-        const variant_name = field.name orelse continue;
+        const variant_name = field.name orelse @panic("Field without name");
         const safe_variant = try escapeZigKeyword(f.alloc, variant_name);
         defer f.alloc.free(safe_variant);
         const getter_name = try toCamelCase(f.alloc, variant_name);
