@@ -1,0 +1,14 @@
+pub const any = @import("wkt/any.pb.zig");
+pub const api = @import("wkt/api.pb.zig");
+pub const cpp_features = @import("wkt/cpp_features.pb.zig");
+pub const descriptor = @import("wkt/descriptor.pb.zig");
+pub const duration = @import("wkt/duration.pb.zig");
+pub const empty = @import("wkt/empty.pb.zig");
+pub const field_mask = @import("wkt/field_mask.pb.zig");
+pub const go_features = @import("wkt/go_features.pb.zig");
+pub const java_features = @import("wkt/java_features.pb.zig");
+pub const source_context = @import("wkt/source_context.pb.zig");
+pub const struct_ = @import("wkt/struct.pb.zig");
+pub const timestamp = @import("wkt/timestamp.pb.zig");
+pub const type_ = @import("wkt/type.pb.zig");
+pub const wrappers = @import("wkt/wrappers.pb.zig");
