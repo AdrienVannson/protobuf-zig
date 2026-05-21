@@ -1,8 +1,7 @@
 const std = @import("std");
 const from_binary = @import("../wire/from_binary.zig").from_binary;
 const example = @import("../testgen/example.pb.zig");
-const FileDescriptorProto =
-    @import("../wkt/google/protobuf/descriptor.pb.zig").FileDescriptorProto;
+const FileDescriptorProto = @import("../wkt/descriptor.pb.zig").FileDescriptorProto;
 
 test "example.pb.zig DESCRIPTOR_BYTES decodes file name" {
     const alloc = std.testing.allocator;

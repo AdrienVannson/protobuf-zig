@@ -26,6 +26,8 @@ pub const DescExtension = descriptor.DescExtension;
 pub const to_binary = to_binary_mod.to_binary;
 pub const from_binary = from_binary_mod.from_binary;
 
+pub const wkt = @import("wkt.zig");
+
 /// Code-generation helpers called by generated `.pb.zig` files.
 /// Not intended for direct use by end users.
 pub const _codegen = struct {
@@ -42,6 +44,7 @@ test {
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
     _ = @import("_codegen/message_deinit.zig");
+    _ = @import("wkt.zig");
     _ = @import("test/fake_message_foo.zig");
     _ = @import("test/descriptor_roundtrip_test.zig");
 }

@@ -44,6 +44,8 @@ generate-wkt: setup build
         --zig_out=./protobuf/src/wkt \
         --proto_path="$include_dir" \
         "$include_dir"/google/protobuf/*.proto
+    mv protobuf/src/wkt/google/protobuf/*.pb.zig protobuf/src/wkt/
+    rm -rf protobuf/src/wkt/google
 
 # Generate conformance proto bindings using protoc-gen-zig.
 generate-conformance: setup setup-conformance build
