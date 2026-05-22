@@ -22,10 +22,17 @@ pub const ScalarType = enum(i32) {
 
 /// Field presence semantics.
 /// Values match the FeatureSet.FieldPresence numbering from descriptor.proto.
-pub const FieldPresence = enum(i32) {
+pub const SupportedFieldPresence = enum(i32) {
     explicit = 1,
     implicit = 2,
     legacy_required = 3,
+};
+
+pub const SupportedEdition = enum(i32) {
+    edition_proto2 = 998,
+    edition_proto3 = 999,
+    edition_2023 = 1000,
+    edition_2024 = 1001,
 };
 
 /// Default value for a scalar field.
@@ -59,8 +66,7 @@ pub const DescComments = struct {
 /// Describes a protobuf source file.
 pub const DescFile = struct {
     /// Numeric edition of this file
-    /// TODO: use an enum
-    edition: u32,
+    edition: SupportedEdition,
     /// File path as declared in the package (e.g. "foo/bar.proto").
     name: []const u8,
     /// Directly imported files, in import-statement order.
@@ -126,10 +132,7 @@ pub const DescMessage = struct {
     /// Oneof groups, excluding synthetic proto3 optional oneofs.
     oneofs: []const DescOneof,
     /// Fields and oneof groups in source declaration order.
-    members: []const union(enum) {
-        field: *const DescField,
-        oneof: *const DescOneof,
-    },
+    members: []const DescMessageMember,
     /// Nested enumerations.
     nested_enums: []const DescEnum,
     /// Nested messages, excluding synthetic map-entry messages.
@@ -138,6 +141,12 @@ pub const DescMessage = struct {
     nested_extensions: []const DescExtension,
     /// Whether this message is marked deprecated.
     deprecated: bool,
+};
+
+/// A field or oneof group, as it appears in source declaration order.
+pub const DescMessageMember = union(enum) {
+    field: *const DescField,
+    oneof: *const DescOneof,
 };
 
 /// Describes a oneof group inside a message.
@@ -214,7 +223,7 @@ pub const DescField = struct {
     /// Whether this field is marked deprecated.
     deprecated: bool,
     /// Field presence semantics.
-    presence: FieldPresence,
+    presence: SupportedFieldPresence,
     /// Kind and kind-specific data for this field.
     kind: DescFieldKind,
 };
@@ -263,7 +272,7 @@ pub const DescExtension = struct {
     /// Whether this extension is marked deprecated.
     deprecated: bool,
     /// Field presence semantics.
-    presence: FieldPresence,
+    presence: SupportedFieldPresence,
     /// Kind and kind-specific data for this extension.
     kind: DescExtensionKind,
 };
