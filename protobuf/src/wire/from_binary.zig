@@ -65,10 +65,21 @@ const ReadMessageError = error{
     IntegerOverflow,
 };
 
+fn readMessageField(reader: *BinaryReader, field_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
+    const FieldType = @TypeOf(field_ptr.*); // ?*Child
+    const Child = std.meta.Child(std.meta.Child(FieldType));
+    const child_ptr = field_ptr.* orelse blk: { // Merge into existing message if non-null, otherwise allocate new one.
+        const p = try allocator.create(Child);
+        p.* = .{};
+        field_ptr.* = p;
+        break :blk p;
+    };
+    try reader.fork();
+    try readMessage(reader, child_ptr, allocator);
+    try reader.join();
+}
+
 /// Decodes all fields of msg from the current scope of reader.
-///
-/// Operates on whatever scope is currently active (the full message for a top-level
-/// call, or a forked submessage scope for nested messages).
 fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
     const T = std.meta.Child(@TypeOf(msg));
     const struct_fields = std.meta.fields(T);
@@ -98,22 +109,7 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                             @field(msg.*, field_name) = try readScalar(reader, sc.scalar);
                         }
                     },
-                    .message_field => {
-                        // The struct field type is ?*Child. Allocate the child if absent
-                        // (repeated tags on the same field merge into the same child, per
-                        // the proto spec).
-                        const FieldType = comptime struct_fields[field_meta.field_index].type;
-                        const Child = comptime std.meta.Child(std.meta.Child(FieldType));
-                        const child_ptr = @field(msg.*, field_name) orelse blk: {
-                            const p = try allocator.create(Child);
-                            p.* = .{};
-                            @field(msg.*, field_name) = p;
-                            break :blk p;
-                        };
-                        try reader.fork();
-                        try readMessage(reader, child_ptr, allocator);
-                        try reader.join();
-                    },
+                    .message_field => try readMessageField(reader, &@field(msg.*, field_name), allocator),
                     else => try skipField(reader, tag.wire_type),
                 }
             }
