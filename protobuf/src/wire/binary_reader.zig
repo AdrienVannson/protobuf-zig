@@ -127,8 +127,7 @@ pub const BinaryReader = struct {
     }
 
     pub fn uint32(self: *BinaryReader) !u32 {
-        const v = try self.varint();
-        return std.math.cast(u32, v) orelse return error.IntegerOverflow;
+        return @truncate(try self.varint());
     }
 
     pub fn uint64(self: *BinaryReader) !u64 {
@@ -137,7 +136,7 @@ pub const BinaryReader = struct {
 
     pub fn sint32(self: *BinaryReader) !i32 {
         const v = try self.varint();
-        const u: u32 = std.math.cast(u32, v) orelse return error.IntegerOverflow;
+        const u: u32 = @truncate(v);
         return @bitCast((u >> 1) ^ (0 -% (u & 1)));
     }
 
@@ -326,19 +325,6 @@ test "sint32 -123" {
     var r = BinaryReader.init(testing.allocator, &.{ 0xf5, 0x01 });
     try testing.expectEqual(-123, try r.sint32());
     try expectReaderConsumed(&r);
-}
-
-test "uint32 value exceeds u32" {
-    // varint encoding of 1 << 32 = 4294967296.
-    var r = BinaryReader.init(testing.allocator, &.{ 0x80, 0x80, 0x80, 0x80, 0x10 });
-    defer r.deinit();
-    try testing.expectError(error.IntegerOverflow, r.uint32());
-}
-
-test "sint32 value exceeds u32" {
-    var r = BinaryReader.init(testing.allocator, &.{ 0x80, 0x80, 0x80, 0x80, 0x10 });
-    defer r.deinit();
-    try testing.expectError(error.IntegerOverflow, r.sint32());
 }
 
 test "sint64 -9876543210" {
