@@ -3,7 +3,7 @@ set dotenv-override
 
 protobuf_version := "33.2"
 
-all: setup setup-conformance build generate generate-example run-example test conformance code-quality generate-wkt generate-conformance
+all: setup setup-conformance build generate generate-example run-example test conformance code-quality generate-wkt generate-conformance generate-plugin
 
 build:
     cd protobuf && zig build
@@ -60,6 +60,20 @@ generate-conformance: setup setup-conformance build
         --proto_path="$conformance_include" \
         conformance/conformance.proto \
         "$conformance_include"/google/protobuf/*.proto
+
+# Regenerate plugin bootstrap bindings using our own protoc-gen-zig.
+generate-plugin: setup build
+    #!/usr/bin/env bash
+    set -euo pipefail
+    rm -rf protoc-gen-zig/src/gen
+    mkdir -p protoc-gen-zig/src/gen
+    include_dir="$(PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh paths | grep '^PROTOC_INCLUDE=' | cut -d= -f2-)"
+    just protoc \
+        --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
+        --zig_out=./protoc-gen-zig/src/gen \
+        --proto_path="$include_dir" \
+        google/protobuf/descriptor.proto \
+        google/protobuf/compiler/plugin.proto
 
 # Generate the example using buf
 generate-example: build

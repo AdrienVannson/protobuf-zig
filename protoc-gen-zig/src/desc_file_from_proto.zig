@@ -2,7 +2,7 @@
 // TODO: rewrite properly
 
 const std = @import("std");
-const descriptor = @import("gen/google/protobuf.pb.zig");
+const descriptor = @import("gen_old/google/protobuf.pb.zig");
 const protobuf = @import("our_protobuf");
 
 const FieldType = descriptor.FieldDescriptorProto.Type;
