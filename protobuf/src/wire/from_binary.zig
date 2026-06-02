@@ -157,12 +157,11 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                             @field(msg.*, field_name) = try readScalar(reader, sc.scalar);
                         }
                     },
+                    .enum_field => {
+                        @field(msg.*, field_name) = @enumFromInt(try reader.int32());
+                    },
                     .message_field => try readMessageField(reader, &@field(msg.*, field_name), allocator),
                     .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, tag.wire_type, allocator),
-                    .enum_field => {
-                        const EnumType = comptime std.meta.Child(struct_fields[field_meta.field_index].type);
-                        @field(msg.*, field_name) = @as(EnumType, @enumFromInt(try reader.int32()));
-                    },
                     else => try skipField(reader, tag.wire_type),
                 }
             }

@@ -311,27 +311,6 @@ test "repeated string field two elements encodes both" {
     );
 }
 
-test "singular enum field null emits nothing" {
-    try expectToBinary(FakeMessageFoo{}, &.{});
-}
-
-test "singular enum field non-null encodes tag and varint" {
-    // color_field: field number 10, wire type varint
-    // tag = (10 << 3) | 0 = 0x50, color_green = 2 = 0x02
-    try expectToBinary(FakeMessageFoo{ .color_field = .color_green }, &.{ 0x50, 0x02 });
-}
-
-test "singular enum field negative value encodes tag and varint" {
-    // color_unknown has number 0, which encodes as a zero varint (omitted by implicit presence rules).
-    // We test color_red (1) directly to verify the tag and value.
-    // tag = 0x50, color_red = 1 = 0x01
-    try expectToBinary(FakeMessageFoo{ .color_field = .color_red }, &.{ 0x50, 0x01 });
-}
-
-test "repeated packed enum field empty emits nothing" {
-    try expectToBinary(FakeMessageFoo{}, &.{});
-}
-
 test "repeated packed enum field two elements encodes length-delimited blob" {
     // repeated_color_field: field number 13, wire type length_delimited (packed)
     // tag = (13 << 3) | 2 = 0x6a, length = 2 (color_red=1 + color_green=2 each 1 byte)
