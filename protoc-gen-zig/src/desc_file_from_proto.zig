@@ -540,7 +540,7 @@ fn parseDefaultValue(alloc: std.mem.Allocator, sc: protobuf.ScalarType, raw: ?[]
     return switch (sc) {
         .bool => .{ .boolean = std.mem.eql(u8, s, "true") },
         .int32, .int64, .sint32, .sint64, .sfixed32, .sfixed64 => .{ .integer = std.fmt.parseInt(i64, s, 10) catch return null },
-        .uint32, .uint64, .fixed32, .fixed64 => .{ .integer = @intCast(std.fmt.parseInt(u64, s, 10) catch return null) },
+        .uint32, .uint64, .fixed32, .fixed64 => .{ .integer = @bitCast(std.fmt.parseInt(u64, s, 10) catch return null) },
         .float, .double => .{ .float = std.fmt.parseFloat(f64, s) catch return null },
         .string => .{ .string = try alloc.dupe(u8, s) },
         .bytes => .{ .bytes = try alloc.dupe(u8, s) },
