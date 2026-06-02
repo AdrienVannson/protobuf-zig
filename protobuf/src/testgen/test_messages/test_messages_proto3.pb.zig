@@ -21,8 +21,11 @@ pub const TestAllTypesProto3 = struct {
     optional_bool: ?bool = null,
     optional_string: ?[]const u8 = null,
     optional_bytes: ?[]const u8 = null,
+    optional_nested_message: ?*TestAllTypesProto3.NestedMessage = null,
+    optional_foreign_message: ?*ForeignMessage = null,
     optional_string_piece: ?[]const u8 = null,
     optional_cord: ?[]const u8 = null,
+    recursive_message: ?*TestAllTypesProto3 = null,
     fieldname1: ?i32 = null,
     field_name2: ?i32 = null,
     _field_name3: ?i32 = null,
@@ -53,6 +56,7 @@ pub const TestAllTypesProto3 = struct {
 
     pub const NestedMessage = struct {
         a: ?i32 = null,
+        corecursive: ?*TestAllTypesProto3 = null,
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -65,6 +69,7 @@ pub const TestAllTypesProto3 = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
                 .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // a
+                .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // corecursive
             },
         };
     };
@@ -297,33 +302,36 @@ pub const TestAllTypesProto3 = struct {
             .{ .number = 13, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .bool } } }, // optional_bool
             .{ .number = 14, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string
             .{ .number = 15, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // optional_bytes
-            .{ .number = 24, .field_index = 15, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string_piece
-            .{ .number = 25, .field_index = 16, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_cord
-            .{ .number = 401, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // fieldname1
-            .{ .number = 402, .field_index = 18, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_name2
-            .{ .number = 403, .field_index = 19, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // _field_name3
-            .{ .number = 404, .field_index = 20, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__name4_
-            .{ .number = 405, .field_index = 21, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field0name5
-            .{ .number = 406, .field_index = 22, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_0_name6
-            .{ .number = 407, .field_index = 23, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // fieldName7
-            .{ .number = 408, .field_index = 24, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FieldName8
-            .{ .number = 409, .field_index = 25, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_Name9
-            .{ .number = 410, .field_index = 26, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_Name10
-            .{ .number = 411, .field_index = 27, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FIELD_NAME11
-            .{ .number = 412, .field_index = 28, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FIELD_name12
-            .{ .number = 413, .field_index = 29, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // __field_name13
-            .{ .number = 414, .field_index = 30, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // __Field_name14
-            .{ .number = 415, .field_index = 31, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__name15
-            .{ .number = 416, .field_index = 32, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__Name16
-            .{ .number = 417, .field_index = 33, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_name17__
-            .{ .number = 418, .field_index = 34, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_name18__
-            .{ .number = 111, .field_index = 35, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
-            .{ .number = 113, .field_index = 35, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
-            .{ .number = 114, .field_index = 35, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
-            .{ .number = 115, .field_index = 35, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
-            .{ .number = 116, .field_index = 35, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
-            .{ .number = 117, .field_index = 35, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
-            .{ .number = 118, .field_index = 35, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
+            .{ .number = 18, .field_index = 15, .kind = .{ .message_field = .{} } }, // optional_nested_message
+            .{ .number = 19, .field_index = 16, .kind = .{ .message_field = .{} } }, // optional_foreign_message
+            .{ .number = 24, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string_piece
+            .{ .number = 25, .field_index = 18, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_cord
+            .{ .number = 27, .field_index = 19, .kind = .{ .message_field = .{} } }, // recursive_message
+            .{ .number = 401, .field_index = 20, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // fieldname1
+            .{ .number = 402, .field_index = 21, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_name2
+            .{ .number = 403, .field_index = 22, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // _field_name3
+            .{ .number = 404, .field_index = 23, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__name4_
+            .{ .number = 405, .field_index = 24, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field0name5
+            .{ .number = 406, .field_index = 25, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_0_name6
+            .{ .number = 407, .field_index = 26, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // fieldName7
+            .{ .number = 408, .field_index = 27, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FieldName8
+            .{ .number = 409, .field_index = 28, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_Name9
+            .{ .number = 410, .field_index = 29, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_Name10
+            .{ .number = 411, .field_index = 30, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FIELD_NAME11
+            .{ .number = 412, .field_index = 31, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FIELD_name12
+            .{ .number = 413, .field_index = 32, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // __field_name13
+            .{ .number = 414, .field_index = 33, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // __Field_name14
+            .{ .number = 415, .field_index = 34, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__name15
+            .{ .number = 416, .field_index = 35, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__Name16
+            .{ .number = 417, .field_index = 36, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_name17__
+            .{ .number = 418, .field_index = 37, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_name18__
+            .{ .number = 111, .field_index = 38, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
+            .{ .number = 113, .field_index = 38, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
+            .{ .number = 114, .field_index = 38, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
+            .{ .number = 115, .field_index = 38, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
+            .{ .number = 116, .field_index = 38, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
+            .{ .number = 117, .field_index = 38, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
+            .{ .number = 118, .field_index = 38, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
         },
     };
 };

@@ -53,15 +53,36 @@ fn skipField(reader: *BinaryReader, wire_type: WireType) !void {
     }
 }
 
-/// Deserializes a message from its binary Protocol Buffer representation.
-///
-/// msg must be a pointer to the message struct (e.g. &my_msg).
-pub fn from_binary(msg: anytype, data: []const u8, allocator: std.mem.Allocator) !void {
+const ReadMessageError = error{
+    UnexpectedEof,
+    InvalidVarint,
+    InvalidFieldNumber,
+    InvalidWireType,
+    UnsupportedWireType,
+    OutOfMemory,
+    JoinWithoutFork,
+    UnconsumedBytes,
+    IntegerOverflow,
+};
+
+fn readMessageField(reader: *BinaryReader, field_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
+    const FieldType = @TypeOf(field_ptr.*); // ?*Child
+    const Child = std.meta.Child(std.meta.Child(FieldType));
+    const child_ptr = field_ptr.* orelse blk: { // Merge into existing message if non-null, otherwise allocate new one.
+        const p = try allocator.create(Child);
+        p.* = .{};
+        field_ptr.* = p;
+        break :blk p;
+    };
+    try reader.fork();
+    try readMessage(reader, child_ptr, allocator);
+    try reader.join();
+}
+
+/// Decodes all fields of msg from the current scope of reader.
+fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
     const T = std.meta.Child(@TypeOf(msg));
     const struct_fields = std.meta.fields(T);
-
-    var reader = BinaryReader.init(allocator, data);
-    defer reader.deinit();
 
     while (reader.remainingInScope() > 0) {
         const tag = try reader.tag();
@@ -78,26 +99,35 @@ pub fn from_binary(msg: anytype, data: []const u8, allocator: std.mem.Allocator)
                 switch (field_meta.kind) {
                     .scalar => |sc| {
                         if (comptime field_meta.oneof_variant != null) {
-                            try skipField(&reader, tag.wire_type);
+                            try skipField(reader, tag.wire_type);
                         } else {
                             if (comptime (sc.scalar == .string or sc.scalar == .bytes) and
                                 field_meta.presence != .implicit)
                             {
                                 if (@field(msg.*, field_name)) |old| allocator.free(old);
                             }
-                            @field(msg.*, field_name) = try readScalar(&reader, sc.scalar);
+                            @field(msg.*, field_name) = try readScalar(reader, sc.scalar);
                         }
                     },
-                    else => try skipField(&reader, tag.wire_type),
+                    .message_field => try readMessageField(reader, &@field(msg.*, field_name), allocator),
+                    else => try skipField(reader, tag.wire_type),
                 }
             }
         }
 
         if (!handled) { // TODO: Unknown field
-            try skipField(&reader, tag.wire_type);
+            try skipField(reader, tag.wire_type);
         }
     }
+}
 
+/// Deserializes a message from its binary Protocol Buffer representation.
+///
+/// msg must be a pointer to the message struct (e.g. &my_msg).
+pub fn from_binary(msg: anytype, data: []const u8, allocator: std.mem.Allocator) !void {
+    var reader = BinaryReader.init(allocator, data);
+    defer reader.deinit();
+    try readMessage(&reader, msg, allocator);
     try reader.finish();
 }
 
@@ -155,4 +185,15 @@ test "unknown field number skipped" {
         FakeMessageFoo{ .implicit_field = 7 },
         &.{ 0x98, 0x06, 0x01, 0x10, 0x07 },
     );
+}
+
+test "message field decoded" {
+    // message_field: field number 5, wire type length_delimited
+    // tag = 0x2a, length = 5
+    // Bar.value ("foo"): tag = 0x0a, length = 3, 'f', 'o', 'o'
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x2a, 0x05, 0x0a, 0x03, 'f', 'o', 'o' }, testing.allocator);
+    try testing.expect(msg.message_field != null);
+    try testing.expectEqualStrings("foo", msg.message_field.?.value.?);
 }

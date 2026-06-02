@@ -18,6 +18,8 @@ pub const FileDescriptorSet = struct {
 pub const FileDescriptorProto = struct {
     name: ?[]const u8 = null,
     package: ?[]const u8 = null,
+    options: ?*FileOptions = null,
+    source_code_info: ?*SourceCodeInfo = null,
     syntax: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -40,17 +42,21 @@ pub const FileDescriptorProto = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // package
-            .{ .number = 12, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // syntax
+            .{ .number = 8, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 9, .field_index = 3, .kind = .{ .message_field = .{} } }, // source_code_info
+            .{ .number = 12, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // syntax
         },
     };
 };
 
 pub const DescriptorProto = struct {
     name: ?[]const u8 = null,
+    options: ?*MessageOptions = null,
 
     pub const ExtensionRange = struct {
         start: ?i32 = null,
         end: ?i32 = null,
+        options: ?*ExtensionRangeOptions = null,
 
         pub fn getStart(self: @This()) i32 {
             return self.start orelse 0;
@@ -68,6 +74,7 @@ pub const DescriptorProto = struct {
             .fields = &[_]_metadata.FieldMetadata{
                 .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // start
                 .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
+                .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
             },
         };
     };
@@ -107,11 +114,14 @@ pub const DescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 7, .field_index = 1, .kind = .{ .message_field = .{} } }, // options
         },
     };
 };
 
 pub const ExtensionRangeOptions = struct {
+    features: ?*FeatureSet = null,
+
     pub const Declaration = struct {
         number: ?i32 = null,
         full_name: ?[]const u8 = null,
@@ -165,7 +175,9 @@ pub const ExtensionRangeOptions = struct {
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 50, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
+        },
     };
 };
 
@@ -177,6 +189,7 @@ pub const FieldDescriptorProto = struct {
     default_value: ?[]const u8 = null,
     oneof_index: ?i32 = null,
     json_name: ?[]const u8 = null,
+    options: ?*FieldOptions = null,
     proto3_optional: ?bool = null,
 
     pub const Type = enum(i32) {
@@ -253,13 +266,15 @@ pub const FieldDescriptorProto = struct {
             .{ .number = 7, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
             .{ .number = 9, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
             .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
-            .{ .number = 17, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool } } }, // proto3_optional
+            .{ .number = 8, .field_index = 7, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 17, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .bool } } }, // proto3_optional
         },
     };
 };
 
 pub const OneofDescriptorProto = struct {
     name: ?[]const u8 = null,
+    options: ?*OneofOptions = null,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -272,12 +287,14 @@ pub const OneofDescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // options
         },
     };
 };
 
 pub const EnumDescriptorProto = struct {
     name: ?[]const u8 = null,
+    options: ?*EnumOptions = null,
 
     pub const EnumReservedRange = struct {
         start: ?i32 = null,
@@ -314,6 +331,7 @@ pub const EnumDescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 3, .field_index = 1, .kind = .{ .message_field = .{} } }, // options
         },
     };
 };
@@ -321,6 +339,7 @@ pub const EnumDescriptorProto = struct {
 pub const EnumValueDescriptorProto = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
+    options: ?*EnumValueOptions = null,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -338,12 +357,14 @@ pub const EnumValueDescriptorProto = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
+            .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
         },
     };
 };
 
 pub const ServiceDescriptorProto = struct {
     name: ?[]const u8 = null,
+    options: ?*ServiceOptions = null,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -356,6 +377,7 @@ pub const ServiceDescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 3, .field_index = 1, .kind = .{ .message_field = .{} } }, // options
         },
     };
 };
@@ -364,6 +386,7 @@ pub const MethodDescriptorProto = struct {
     name: ?[]const u8 = null,
     input_type: ?[]const u8 = null,
     output_type: ?[]const u8 = null,
+    options: ?*MethodOptions = null,
     client_streaming: ?bool = null,
     server_streaming: ?bool = null,
 
@@ -396,8 +419,9 @@ pub const MethodDescriptorProto = struct {
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // input_type
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // output_type
-            .{ .number = 5, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // client_streaming
-            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // server_streaming
+            .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // client_streaming
+            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool } } }, // server_streaming
         },
     };
 };
@@ -421,6 +445,7 @@ pub const FileOptions = struct {
     php_namespace: ?[]const u8 = null,
     php_metadata_namespace: ?[]const u8 = null,
     ruby_package: ?[]const u8 = null,
+    features: ?*FeatureSet = null,
 
     pub const OptimizeMode = enum(i32) {
         SPEED = 1,
@@ -525,6 +550,7 @@ pub const FileOptions = struct {
             .{ .number = 41, .field_index = 15, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_namespace
             .{ .number = 44, .field_index = 16, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_metadata_namespace
             .{ .number = 45, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // ruby_package
+            .{ .number = 50, .field_index = 18, .kind = .{ .message_field = .{} } }, // features
         },
     };
 };
@@ -535,6 +561,7 @@ pub const MessageOptions = struct {
     deprecated: ?bool = null,
     map_entry: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
+    features: ?*FeatureSet = null,
 
     pub fn getMessageSetWireFormat(self: @This()) bool {
         return self.message_set_wire_format orelse false;
@@ -567,6 +594,7 @@ pub const MessageOptions = struct {
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 7, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // map_entry
             .{ .number = 11, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
+            .{ .number = 12, .field_index = 5, .kind = .{ .message_field = .{} } }, // features
         },
     };
 };
@@ -578,6 +606,8 @@ pub const FieldOptions = struct {
     deprecated: ?bool = null,
     weak: ?bool = null,
     debug_redact: ?bool = null,
+    features: ?*FeatureSet = null,
+    feature_support: ?*FieldOptions.FeatureSupport = null,
 
     pub const EditionDefault = struct {
         value: ?[]const u8 = null,
@@ -686,17 +716,23 @@ pub const FieldOptions = struct {
             .{ .number = 3, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 10, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // weak
             .{ .number = 16, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
+            .{ .number = 21, .field_index = 6, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 22, .field_index = 7, .kind = .{ .message_field = .{} } }, // feature_support
         },
     };
 };
 
 pub const OneofOptions = struct {
+    features: ?*FeatureSet = null,
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
+        },
     };
 };
 
@@ -704,6 +740,7 @@ pub const EnumOptions = struct {
     allow_alias: ?bool = null,
     deprecated: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
+    features: ?*FeatureSet = null,
 
     pub fn getAllowAlias(self: @This()) bool {
         return self.allow_alias orelse false;
@@ -726,13 +763,16 @@ pub const EnumOptions = struct {
             .{ .number = 2, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // allow_alias
             .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 6, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
+            .{ .number = 7, .field_index = 3, .kind = .{ .message_field = .{} } }, // features
         },
     };
 };
 
 pub const EnumValueOptions = struct {
     deprecated: ?bool = null,
+    features: ?*FeatureSet = null,
     debug_redact: ?bool = null,
+    feature_support: ?*FieldOptions.FeatureSupport = null,
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -749,12 +789,15 @@ pub const EnumValueOptions = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
-            .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
+            .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
+            .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // feature_support
         },
     };
 };
 
 pub const ServiceOptions = struct {
+    features: ?*FeatureSet = null,
     deprecated: ?bool = null,
 
     pub fn getDeprecated(self: @This()) bool {
@@ -767,13 +810,15 @@ pub const ServiceOptions = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 33, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 34, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 33, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
         },
     };
 };
 
 pub const MethodOptions = struct {
     deprecated: ?bool = null,
+    features: ?*FeatureSet = null,
 
     pub const IdempotencyLevel = enum(i32) {
         IDEMPOTENCY_UNKNOWN = 0,
@@ -793,6 +838,7 @@ pub const MethodOptions = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 33, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 35, .field_index = 1, .kind = .{ .message_field = .{} } }, // features
         },
     };
 };
@@ -950,12 +996,18 @@ pub const FeatureSet = struct {
 
 pub const FeatureSetDefaults = struct {
     pub const FeatureSetEditionDefault = struct {
+        overridable_features: ?*FeatureSet = null,
+        fixed_features: ?*FeatureSet = null,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
 
         pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{},
+            .fields = &[_]_metadata.FieldMetadata{
+                .{ .number = 4, .field_index = 0, .kind = .{ .message_field = .{} } }, // overridable_features
+                .{ .number = 5, .field_index = 1, .kind = .{ .message_field = .{} } }, // fixed_features
+            },
         };
     };
 

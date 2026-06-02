@@ -143,8 +143,6 @@ Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.FLOAT[0].ProtobufOutput #
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.INT32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \010\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.INT32[6].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \010\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.INT64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \020\000
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.MESSAGE[0].ProtobufOutput # Output was not equivalent to reference message: Expect: \222\001\000, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.MESSAGE[1].ProtobufOutput # Output was not equivalent to reference message: Expect: \222\001\003\010\322\011, but got: 
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.SFIXED32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \115\000\000\000\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.SFIXED64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \121\000\000\000\000\000\000\000\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.SINT32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \050\000
@@ -173,15 +171,12 @@ Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.SINT32 # Should hav
 Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.SINT64 # Should have failed to parse, but didn't.
 Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.UINT32 # Should have failed to parse, but didn't.
 Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.UINT64 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInSubmessageValue.MESSAGE # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.RepeatedScalarMessageMerge.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_message: { corecursive { optional_int32: 4321 optional_
+Required.Proto3.ProtobufInput.RepeatedScalarMessageMerge.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_message.corecursive.repeated_int32[0]: 1234deleted: opt
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.ENUM.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAR
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.SINT32.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.UINT32.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
 Required.Proto3.ProtobufInput.UnknownVarint.ProtobufOutput # Output was not equivalent to reference message: Expect: \250\037\001, but got: 
-Required.Proto3.ProtobufInput.UnmatchedEndGroupNestedLen # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.UnmatchedStartGroupNestedLen # Should have failed to parse, but didn't.
 Required.Proto3.ProtobufInput.ValidDataMap.BOOL.BOOL.Default.ProtobufOutput # Output was not equivalent to reference message: deleted: map_bool_bool[false]: false
 Required.Proto3.ProtobufInput.ValidDataMap.BOOL.BOOL.DuplicateKey.ProtobufOutput # Output was not equivalent to reference message: deleted: map_bool_bool[true]: true
 Required.Proto3.ProtobufInput.ValidDataMap.BOOL.BOOL.DuplicateKeyInMapEntry.ProtobufOutput # Output was not equivalent to reference message: deleted: map_bool_bool[true]: true
@@ -375,8 +370,6 @@ Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[2].ProtobufOutput # Output wa
 Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[3].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: NEG
 Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[4].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: NEG
 Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[5].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAR
-Required.Proto3.ProtobufInput.ValidDataScalar.MESSAGE[0].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_message: { }
-Required.Proto3.ProtobufInput.ValidDataScalar.MESSAGE[1].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_message: { a: 1234 }
 Required.Proto3.ProtobufInput.ValidDataScalar.SINT32[4].ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataScalar.UINT32[5].ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataScalar.UINT32[6].ProtobufOutput # Failed to parse input or produce output.

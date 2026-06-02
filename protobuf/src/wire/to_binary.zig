@@ -62,13 +62,15 @@ fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigT
     }
 }
 
+const WriteMessageError = error{ OutOfMemory, JoinWithoutFork };
+
 /// Encodes all fields of msg into bw.
 ///
 /// Each FieldMetadata carries a `field_index` pointing into std.meta.fields(T)
 /// and an optional `oneof_variant` for oneof members. This decouples the
 /// metadata array order from the struct field order, allowing N oneof entries
 /// to share a single struct field (the `?union(enum)`).
-fn writeMessage(bw: *BinaryWriter, msg: anytype) !void {
+fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
     const T = @TypeOf(msg);
     const struct_fields = std.meta.fields(T);
 
@@ -85,7 +87,7 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) !void {
                         if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
                             switch (field_meta.kind) {
                                 .scalar => |sc| {
-                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
+                                    try bw.tag(field_meta.number, comptime scalarWireType(sc.scalar));
                                     try writeScalar(bw, sc.scalar, payload);
                                 },
                                 else => {},
@@ -123,6 +125,15 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) !void {
                                 }
                             },
                         }
+                    }
+                },
+                .message_field => {
+                    const opt = @field(msg, field_name); // ?*Child
+                    if (opt) |child_ptr| {
+                        try bw.tag(@intCast(field_meta.number), .length_delimited);
+                        try bw.fork();
+                        try writeMessage(bw, child_ptr.*);
+                        try bw.join();
                     }
                 },
                 else => {},
@@ -211,5 +222,17 @@ test "oneof with regular field combined" {
     try expectToBinary(
         FakeOneofMessage{ .some_field = 7, .my_oneof = .{ .a_uint32 = 5 } },
         &.{ 0x08, 0x07, 0x10, 0x05 },
+    );
+}
+
+test "message field non-null encodes length-delimited submessage" {
+    // message_field: field number 5, wire type length_delimited
+    // tag = (5 << 3) | 2 = 0x2a, length = 5
+    // Bar.value ("foo"): field number 1, wire type length_delimited
+    // tag = (1 << 3) | 2 = 0x0a, length = 3, 'f', 'o', 'o'
+    var bar = FakeMessageFoo.Bar{ .value = "foo" };
+    try expectToBinary(
+        FakeMessageFoo{ .message_field = &bar },
+        &.{ 0x2a, 0x05, 0x0a, 0x03, 'f', 'o', 'o' },
     );
 }

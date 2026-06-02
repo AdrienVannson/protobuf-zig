@@ -58,10 +58,9 @@ fn generateMessage(
     try f.writeLine(.{ "pub const ", safe_name, " = struct {" });
     f.indent();
 
-    // Plain scalar struct fields (scalar, not in a oneof).
+    // Plain scalar/message struct fields (not in a oneof).
     for (msg.fields) |*field| {
-        if (field.kind != .scalar) continue;
-        if (field.kind.scalar.oneof != null) continue;
+        if (!isPlainScalar(field) and !isPlainMessage(field)) continue;
         try generateField(f, field);
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
@@ -78,10 +77,9 @@ fn generateMessage(
         try generateEnum(f, e);
     }
 
-    // Plain scalar field getters.
+    // Plain scalar field getters (message fields have no getter).
     for (msg.fields) |*field| {
-        if (field.kind != .scalar) continue;
-        if (field.kind.scalar.oneof != null) continue;
+        if (!isPlainScalar(field)) continue;
         try generateFieldGetter(f, field);
     }
     // Oneof variant getters.
@@ -144,21 +142,31 @@ fn generateMessageMetadata(
 
     var field_index: u32 = 0;
 
-    // Plain scalar fields (not in a oneof).
+    // Plain scalar/message fields (not in a oneof) — must mirror the struct field loop.
     for (msg.fields) |*field| {
-        if (field.kind != .scalar) continue;
-        if (field.kind.scalar.oneof != null) continue;
-        try f.writeLine(.{
-            ".{ .number = ",
-            field.number,
-            ", .field_index = ",
-            field_index,
-            ", .kind = .{ .scalar = .{ .scalar = .",
-            @tagName(field.kind.scalar.scalar),
-            " } } }, // ",
-            field.name,
-        });
-        field_index += 1;
+        if (isPlainScalar(field)) {
+            try f.writeLine(.{
+                ".{ .number = ",
+                field.number,
+                ", .field_index = ",
+                field_index,
+                ", .kind = .{ .scalar = .{ .scalar = .",
+                @tagName(field.kind.scalar.scalar),
+                " } } }, // ",
+                field.name,
+            });
+            field_index += 1;
+        } else if (isPlainMessage(field)) {
+            try f.writeLine(.{
+                ".{ .number = ",
+                field.number,
+                ", .field_index = ",
+                field_index,
+                ", .kind = .{ .message_field = .{} } }, // ",
+                field.name,
+            });
+            field_index += 1;
+        }
     }
 
     // Oneof variant entries — all variants of a group share the same field_index.
@@ -192,7 +200,17 @@ fn generateField(
     field: *const protobuf.DescField,
 ) !void {
     // field.local_name is already keyword-escaped by the descriptor builder.
-    try f.writeLine(.{ field.local_name, ": ?", scalarZigType(field.kind.scalar.scalar), " = null," });
+    switch (field.kind) {
+        .scalar => |sc| {
+            try f.writeLine(.{ field.local_name, ": ?", scalarZigType(sc.scalar), " = null," });
+        },
+        .message_field => |mf| {
+            const type_name = try messageZigTypeName(f.alloc, mf.message);
+            defer f.alloc.free(type_name);
+            try f.writeLine(.{ field.local_name, ": ?*", type_name, " = null," });
+        },
+        else => unreachable,
+    }
 }
 
 fn generateOneofField(
@@ -252,6 +270,44 @@ fn generateFieldGetter(
     try f.writeLine(.{ "return self.", field.local_name, " orelse ", default, ";" });
     f.unindent();
     try f.writeLine("}");
+}
+
+/// Returns true for a non-oneof scalar field (emitted as a plain struct field).
+fn isPlainScalar(field: *const protobuf.DescField) bool {
+    return field.kind == .scalar and field.kind.scalar.oneof == null;
+}
+
+/// Returns true for a non-oneof, same-file singular message field.
+/// Cross-file message fields are skipped (consistent with other unsupported kinds).
+fn isPlainMessage(field: *const protobuf.DescField) bool {
+    if (field.kind != .message_field) return false;
+    if (field.kind.message_field.oneof != null) return false;
+    // Only same-file references are supported; cross-file ones are silently skipped.
+    return field.kind.message_field.message.file == field.parent.file;
+}
+
+/// Builds the dotted Zig path for a message type as seen from the file root.
+///
+/// Walks the parent chain to handle nested messages, e.g. "Outer.Inner".
+fn messageZigTypeName(alloc: std.mem.Allocator, msg: *const protobuf.DescMessage) ![]u8 {
+    // Collect path components from the message up to the top-level.
+    var parts: std.ArrayList([]u8) = .{};
+    defer {
+        for (parts.items) |p| alloc.free(p);
+        parts.deinit(alloc);
+    }
+
+    var cur: ?*const protobuf.DescMessage = msg;
+    while (cur) |m| {
+        const escaped = try escapeZigKeyword(alloc, m.local_name);
+        try parts.append(alloc, escaped);
+        cur = m.parent;
+    }
+
+    // Reverse so we get outermost first.
+    std.mem.reverse([]u8, parts.items);
+
+    return std.mem.join(alloc, ".", parts.items);
 }
 
 fn scalarZigType(t: protobuf.ScalarType) []const u8 {
