@@ -64,6 +64,43 @@ fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigT
 
 const WriteMessageError = error{ OutOfMemory, JoinWithoutFork };
 
+fn writeMessageField(bw: *BinaryWriter, comptime number: u32, child: anytype) WriteMessageError!void {
+    try bw.tag(number, .length_delimited);
+    try bw.fork();
+    try writeMessage(bw, child);
+    try bw.join();
+}
+
+fn writeListField(
+    bw: *BinaryWriter,
+    list: anytype,
+    comptime list_meta: anytype,
+    comptime number: u32,
+) WriteMessageError!void {
+    if (list.items.len == 0) return;
+    switch (comptime list_meta.element) {
+        .scalar => |sc| {
+            if (comptime list_meta.is_packed) {
+                try bw.tag(number, .length_delimited);
+                try bw.fork();
+                for (list.items) |v| try writeScalar(bw, sc, v);
+                try bw.join();
+            } else {
+                for (list.items) |v| {
+                    try bw.tag(number, comptime scalarWireType(sc));
+                    try writeScalar(bw, sc, v);
+                }
+            }
+        },
+        .message => {
+            for (list.items) |child_ptr| {
+                try writeMessageField(bw, number, child_ptr.*);
+            }
+        },
+        .enum_type => {},
+    }
+}
+
 /// Encodes all fields of msg into bw.
 ///
 /// Each FieldMetadata carries a `field_index` pointing into std.meta.fields(T)
@@ -128,14 +165,11 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
                     }
                 },
                 .message_field => {
-                    const opt = @field(msg, field_name); // ?*Child
-                    if (opt) |child_ptr| {
-                        try bw.tag(@intCast(field_meta.number), .length_delimited);
-                        try bw.fork();
-                        try writeMessage(bw, child_ptr.*);
-                        try bw.join();
+                    if (@field(msg, field_name)) |child_ptr| {
+                        try writeMessageField(bw, field_meta.number, child_ptr.*);
                     }
                 },
+                .list => |list_meta| try writeListField(bw, @field(msg, field_name), list_meta, field_meta.number),
                 else => {},
             }
         }
@@ -234,5 +268,42 @@ test "message field non-null encodes length-delimited submessage" {
     try expectToBinary(
         FakeMessageFoo{ .message_field = &bar },
         &.{ 0x2a, 0x05, 0x0a, 0x03, 'f', 'o', 'o' },
+    );
+}
+
+test "repeated string field one element encodes tag length bytes" {
+    // repeated_field: field number 4, wire type length_delimited
+    // tag = (4 << 3) | 2 = 0x22, length = 3, "foo"
+    var list: std.ArrayListUnmanaged([]const u8) = .{};
+    defer list.deinit(testing.allocator);
+    try list.append(testing.allocator, "foo");
+    try expectToBinary(FakeMessageFoo{ .repeated_field = list }, &.{ 0x22, 0x03, 'f', 'o', 'o' });
+}
+
+test "repeated string field two elements encodes both" {
+    // first: tag 0x22, length 3, "foo"
+    // second: tag 0x22, length 2, "hi"
+    var list: std.ArrayListUnmanaged([]const u8) = .{};
+    defer list.deinit(testing.allocator);
+    try list.append(testing.allocator, "foo");
+    try list.append(testing.allocator, "hi");
+    try expectToBinary(
+        FakeMessageFoo{ .repeated_field = list },
+        &.{ 0x22, 0x03, 'f', 'o', 'o', 0x22, 0x02, 'h', 'i' },
+    );
+}
+
+test "repeated float field packed encodes length-delimited blob" {
+    // repeated_float_field: field number 12, wire type length_delimited (packed)
+    // tag = (12 << 3) | 2 = 0x62, length = 8, two f32 values
+    // 1.0 as f32 little-endian: 0x00 0x00 0x80 0x3f
+    // 2.0 as f32 little-endian: 0x00 0x00 0x00 0x40
+    var list: std.ArrayListUnmanaged(f32) = .{};
+    defer list.deinit(testing.allocator);
+    try list.append(testing.allocator, 1.0);
+    try list.append(testing.allocator, 2.0);
+    try expectToBinary(
+        FakeMessageFoo{ .repeated_float_field = list },
+        &.{ 0x62, 0x08, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40 },
     );
 }

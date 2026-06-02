@@ -58,9 +58,9 @@ fn generateMessage(
     try f.writeLine(.{ "pub const ", safe_name, " = struct {" });
     f.indent();
 
-    // Plain scalar/message struct fields (not in a oneof).
+    // Plain scalar/message/list struct fields (not in a oneof).
     for (msg.fields) |*field| {
-        if (!isPlainScalar(field) and !isPlainMessage(field)) continue;
+        if (!isPlainScalar(field) and !isPlainMessage(field) and !isPlainList(field)) continue;
         try generateField(f, field);
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
@@ -142,7 +142,7 @@ fn generateMessageMetadata(
 
     var field_index: u32 = 0;
 
-    // Plain scalar/message fields (not in a oneof) — must mirror the struct field loop.
+    // Plain scalar/message/list fields (not in a oneof) — must mirror the struct field loop.
     for (msg.fields) |*field| {
         if (isPlainScalar(field)) {
             try f.writeLine(.{
@@ -165,6 +165,37 @@ fn generateMessageMetadata(
                 ", .kind = .{ .message_field = .{} } }, // ",
                 field.name,
             });
+            field_index += 1;
+        } else if (isPlainList(field)) {
+            const list = field.kind.list;
+            const packed_suffix: []const u8 = if (list.is_packed) ", .is_packed = true" else "";
+            switch (list.element) {
+                .scalar => |sc| {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .",
+                        @tagName(sc),
+                        " }",
+                        packed_suffix,
+                        " } } }, // ",
+                        field.name,
+                    });
+                },
+                .message => {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // ",
+                        field.name,
+                    });
+                },
+                else => unreachable, // filtered by isPlainList
+            }
             field_index += 1;
         }
     }
@@ -208,6 +239,19 @@ fn generateField(
             const type_name = try messageZigTypeName(f.alloc, mf.message);
             defer f.alloc.free(type_name);
             try f.writeLine(.{ field.local_name, ": ?*", type_name, " = null," });
+        },
+        .list => |list| {
+            switch (list.element) {
+                .scalar => |sc| {
+                    try f.writeLine(.{ field.local_name, ": std.ArrayListUnmanaged(", scalarZigType(sc), ") = .{}," });
+                },
+                .message => |m| {
+                    const type_name = try messageZigTypeName(f.alloc, m);
+                    defer f.alloc.free(type_name);
+                    try f.writeLine(.{ field.local_name, ": std.ArrayListUnmanaged(*", type_name, ") = .{}," });
+                },
+                else => unreachable, // filtered by isPlainList
+            }
         },
         else => unreachable,
     }
@@ -284,6 +328,17 @@ fn isPlainMessage(field: *const protobuf.DescField) bool {
     if (field.kind.message_field.oneof != null) return false;
     // Only same-file references are supported; cross-file ones are silently skipped.
     return field.kind.message_field.message.file == field.parent.file;
+}
+
+/// Returns true for a repeated scalar or same-file repeated message field.
+/// Repeated enum elements and map fields are skipped (not yet supported).
+fn isPlainList(field: *const protobuf.DescField) bool {
+    if (field.kind != .list) return false;
+    return switch (field.kind.list.element) {
+        .scalar => true,
+        .message => |m| m.file == field.parent.file,
+        .enum_type => false,
+    };
 }
 
 /// Builds the dotted Zig path for a message type as seen from the file root.

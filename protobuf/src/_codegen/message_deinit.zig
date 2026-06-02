@@ -45,6 +45,23 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
                         allocator.destroy(child_ptr);
                     }
                 },
+                .list => |kind| {
+                    switch (comptime kind.element) {
+                        .scalar => |sc| {
+                            if (comptime sc == .string or sc == .bytes) {
+                                for (@field(msg, member_name).items) |s| allocator.free(s);
+                            }
+                        },
+                        .message => {
+                            for (@field(msg, member_name).items) |child_ptr| {
+                                child_ptr.deinit(allocator);
+                                allocator.destroy(child_ptr);
+                            }
+                        },
+                        .enum_type => {},
+                    }
+                    @field(msg, member_name).deinit(allocator);
+                },
                 else => {},
             }
         }

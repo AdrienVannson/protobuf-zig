@@ -7,7 +7,9 @@ const _metadata = _codegen.metadata;
 
 pub const Api = struct {
     name: ?[]const u8 = null,
+    methods: std.ArrayListUnmanaged(*Method) = .{},
     version: ?[]const u8 = null,
+    mixins: std.ArrayListUnmanaged(*Mixin) = .{},
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -29,8 +31,10 @@ pub const Api = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 4, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // version
-            .{ .number = 8, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // methods
+            .{ .number = 4, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // version
+            .{ .number = 6, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // mixins
+            .{ .number = 8, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };

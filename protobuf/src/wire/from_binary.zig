@@ -65,6 +65,42 @@ const ReadMessageError = error{
     IntegerOverflow,
 };
 
+fn readListField(
+    reader: *BinaryReader,
+    field_ptr: anytype,
+    comptime list_meta: anytype,
+    wire_type: WireType,
+    allocator: std.mem.Allocator,
+) ReadMessageError!void {
+    switch (comptime list_meta.element) {
+        .scalar => |sc| {
+            // Packed repeated field
+            if (wire_type == .length_delimited and
+                comptime (sc != .string and sc != .bytes))
+            {
+                try reader.fork();
+                while (reader.remainingInScope() > 0) {
+                    try field_ptr.*.append(allocator, try readScalar(reader, sc));
+                }
+                try reader.join();
+            } else {
+                try field_ptr.*.append(allocator, try readScalar(reader, sc));
+            }
+        },
+        .message => {
+            const Child = comptime std.meta.Child(std.meta.Child(@TypeOf(field_ptr.*.items)));
+            const p = try allocator.create(Child);
+            p.* = .{};
+            errdefer allocator.destroy(p);
+            try reader.fork();
+            try readMessage(reader, p, allocator);
+            try reader.join();
+            try field_ptr.*.append(allocator, p);
+        },
+        .enum_type => try skipField(reader, wire_type),
+    }
+}
+
 fn readMessageField(reader: *BinaryReader, field_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
     const FieldType = @TypeOf(field_ptr.*); // ?*Child
     const Child = std.meta.Child(std.meta.Child(FieldType));
@@ -110,6 +146,7 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                         }
                     },
                     .message_field => try readMessageField(reader, &@field(msg.*, field_name), allocator),
+                    .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, tag.wire_type, allocator),
                     else => try skipField(reader, tag.wire_type),
                 }
             }
@@ -196,4 +233,47 @@ test "message field decoded" {
     try from_binary(&msg, &.{ 0x2a, 0x05, 0x0a, 0x03, 'f', 'o', 'o' }, testing.allocator);
     try testing.expect(msg.message_field != null);
     try testing.expectEqualStrings("foo", msg.message_field.?.value.?);
+}
+
+test "repeated string field unpacked single element decoded" {
+    // repeated_field: field number 4, wire type length_delimited
+    // tag = (4 << 3) | 2 = 0x22, length = 3, "foo"
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x22, 0x03, 'f', 'o', 'o' }, testing.allocator);
+    try testing.expectEqual(@as(usize, 1), msg.repeated_field.items.len);
+    try testing.expectEqualStrings("foo", msg.repeated_field.items[0]);
+}
+
+test "repeated string field unpacked two elements decoded" {
+    // repeated_field: field number 4, two occurrences
+    // first: tag 0x22, length 3, "foo"
+    // second: tag 0x22, length 2, "hi"
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x22, 0x03, 'f', 'o', 'o', 0x22, 0x02, 'h', 'i' }, testing.allocator);
+    try testing.expectEqual(@as(usize, 2), msg.repeated_field.items.len);
+    try testing.expectEqualStrings("foo", msg.repeated_field.items[0]);
+    try testing.expectEqualStrings("hi", msg.repeated_field.items[1]);
+}
+
+test "repeated float field packed decoded" {
+    // repeated_float_field: field number 12, wire type length_delimited (packed)
+    // tag = (12 << 3) | 2 = 0x62, length = 8 (two f32 values)
+    // 1.0 as f32 little-endian: 0x00 0x00 0x80 0x3f
+    // 2.0 as f32 little-endian: 0x00 0x00 0x00 0x40
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x62, 0x08, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40 }, testing.allocator);
+    try testing.expectEqual(@as(usize, 2), msg.repeated_float_field.items.len);
+    try testing.expectEqual(@as(f32, 1.0), msg.repeated_float_field.items[0]);
+    try testing.expectEqual(@as(f32, 2.0), msg.repeated_float_field.items[1]);
+}
+
+test "repeated float field packed empty blob decoded" {
+    // tag = 0x62, length = 0 (empty packed blob)
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x62, 0x00 }, testing.allocator);
+    try testing.expectEqual(@as(usize, 0), msg.repeated_float_field.items.len);
 }

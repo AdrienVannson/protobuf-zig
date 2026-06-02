@@ -6,18 +6,30 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const FileDescriptorSet = struct {
+    file: std.ArrayListUnmanaged(*FileDescriptorProto) = .{},
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
+        },
     };
 };
 
 pub const FileDescriptorProto = struct {
     name: ?[]const u8 = null,
     package: ?[]const u8 = null,
+    dependency: std.ArrayListUnmanaged([]const u8) = .{},
+    public_dependency: std.ArrayListUnmanaged(i32) = .{},
+    weak_dependency: std.ArrayListUnmanaged(i32) = .{},
+    option_dependency: std.ArrayListUnmanaged([]const u8) = .{},
+    message_type: std.ArrayListUnmanaged(*DescriptorProto) = .{},
+    enum_type: std.ArrayListUnmanaged(*EnumDescriptorProto) = .{},
+    service: std.ArrayListUnmanaged(*ServiceDescriptorProto) = .{},
+    extension: std.ArrayListUnmanaged(*FieldDescriptorProto) = .{},
     options: ?*FileOptions = null,
     source_code_info: ?*SourceCodeInfo = null,
     syntax: ?[]const u8 = null,
@@ -42,16 +54,32 @@ pub const FileDescriptorProto = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // package
-            .{ .number = 8, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 9, .field_index = 3, .kind = .{ .message_field = .{} } }, // source_code_info
-            .{ .number = 12, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // syntax
+            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // dependency
+            .{ .number = 10, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // public_dependency
+            .{ .number = 11, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // weak_dependency
+            .{ .number = 15, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // option_dependency
+            .{ .number = 4, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // message_type
+            .{ .number = 5, .field_index = 7, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
+            .{ .number = 6, .field_index = 8, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // service
+            .{ .number = 7, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
+            .{ .number = 8, .field_index = 10, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 9, .field_index = 11, .kind = .{ .message_field = .{} } }, // source_code_info
+            .{ .number = 12, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .string } } }, // syntax
         },
     };
 };
 
 pub const DescriptorProto = struct {
     name: ?[]const u8 = null,
+    field: std.ArrayListUnmanaged(*FieldDescriptorProto) = .{},
+    extension: std.ArrayListUnmanaged(*FieldDescriptorProto) = .{},
+    nested_type: std.ArrayListUnmanaged(*DescriptorProto) = .{},
+    enum_type: std.ArrayListUnmanaged(*EnumDescriptorProto) = .{},
+    extension_range: std.ArrayListUnmanaged(*DescriptorProto.ExtensionRange) = .{},
+    oneof_decl: std.ArrayListUnmanaged(*OneofDescriptorProto) = .{},
     options: ?*MessageOptions = null,
+    reserved_range: std.ArrayListUnmanaged(*DescriptorProto.ReservedRange) = .{},
+    reserved_name: std.ArrayListUnmanaged([]const u8) = .{},
 
     pub const ExtensionRange = struct {
         start: ?i32 = null,
@@ -114,12 +142,22 @@ pub const DescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 7, .field_index = 1, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // field
+            .{ .number = 6, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
+            .{ .number = 3, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // nested_type
+            .{ .number = 4, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
+            .{ .number = 5, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension_range
+            .{ .number = 8, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // oneof_decl
+            .{ .number = 7, .field_index = 7, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 9, .field_index = 8, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
+            .{ .number = 10, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
         },
     };
 };
 
 pub const ExtensionRangeOptions = struct {
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    declaration: std.ArrayListUnmanaged(*ExtensionRangeOptions.Declaration) = .{},
     features: ?*FeatureSet = null,
 
     pub const Declaration = struct {
@@ -176,7 +214,9 @@ pub const ExtensionRangeOptions = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 50, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // declaration
+            .{ .number = 50, .field_index = 2, .kind = .{ .message_field = .{} } }, // features
         },
     };
 };
@@ -294,7 +334,10 @@ pub const OneofDescriptorProto = struct {
 
 pub const EnumDescriptorProto = struct {
     name: ?[]const u8 = null,
+    value: std.ArrayListUnmanaged(*EnumValueDescriptorProto) = .{},
     options: ?*EnumOptions = null,
+    reserved_range: std.ArrayListUnmanaged(*EnumDescriptorProto.EnumReservedRange) = .{},
+    reserved_name: std.ArrayListUnmanaged([]const u8) = .{},
 
     pub const EnumReservedRange = struct {
         start: ?i32 = null,
@@ -331,7 +374,10 @@ pub const EnumDescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 3, .field_index = 1, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // value
+            .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
+            .{ .number = 5, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
         },
     };
 };
@@ -364,6 +410,7 @@ pub const EnumValueDescriptorProto = struct {
 
 pub const ServiceDescriptorProto = struct {
     name: ?[]const u8 = null,
+    method: std.ArrayListUnmanaged(*MethodDescriptorProto) = .{},
     options: ?*ServiceOptions = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -377,7 +424,8 @@ pub const ServiceDescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 3, .field_index = 1, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // method
+            .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
         },
     };
 };
@@ -446,6 +494,7 @@ pub const FileOptions = struct {
     php_metadata_namespace: ?[]const u8 = null,
     ruby_package: ?[]const u8 = null,
     features: ?*FeatureSet = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub const OptimizeMode = enum(i32) {
         SPEED = 1,
@@ -551,6 +600,7 @@ pub const FileOptions = struct {
             .{ .number = 44, .field_index = 16, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_metadata_namespace
             .{ .number = 45, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // ruby_package
             .{ .number = 50, .field_index = 18, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 19, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -562,6 +612,7 @@ pub const MessageOptions = struct {
     map_entry: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
     features: ?*FeatureSet = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub fn getMessageSetWireFormat(self: @This()) bool {
         return self.message_set_wire_format orelse false;
@@ -595,6 +646,7 @@ pub const MessageOptions = struct {
             .{ .number = 7, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // map_entry
             .{ .number = 11, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
             .{ .number = 12, .field_index = 5, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -606,8 +658,10 @@ pub const FieldOptions = struct {
     deprecated: ?bool = null,
     weak: ?bool = null,
     debug_redact: ?bool = null,
+    edition_defaults: std.ArrayListUnmanaged(*FieldOptions.EditionDefault) = .{},
     features: ?*FeatureSet = null,
     feature_support: ?*FieldOptions.FeatureSupport = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub const EditionDefault = struct {
         value: ?[]const u8 = null,
@@ -716,14 +770,17 @@ pub const FieldOptions = struct {
             .{ .number = 3, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 10, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // weak
             .{ .number = 16, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
-            .{ .number = 21, .field_index = 6, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 22, .field_index = 7, .kind = .{ .message_field = .{} } }, // feature_support
+            .{ .number = 20, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // edition_defaults
+            .{ .number = 21, .field_index = 7, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 22, .field_index = 8, .kind = .{ .message_field = .{} } }, // feature_support
+            .{ .number = 999, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
 
 pub const OneofOptions = struct {
     features: ?*FeatureSet = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -732,6 +789,7 @@ pub const OneofOptions = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -741,6 +799,7 @@ pub const EnumOptions = struct {
     deprecated: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
     features: ?*FeatureSet = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub fn getAllowAlias(self: @This()) bool {
         return self.allow_alias orelse false;
@@ -764,6 +823,7 @@ pub const EnumOptions = struct {
             .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 6, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
             .{ .number = 7, .field_index = 3, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -773,6 +833,7 @@ pub const EnumValueOptions = struct {
     features: ?*FeatureSet = null,
     debug_redact: ?bool = null,
     feature_support: ?*FieldOptions.FeatureSupport = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -792,6 +853,7 @@ pub const EnumValueOptions = struct {
             .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
             .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // feature_support
+            .{ .number = 999, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -799,6 +861,7 @@ pub const EnumValueOptions = struct {
 pub const ServiceOptions = struct {
     features: ?*FeatureSet = null,
     deprecated: ?bool = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -812,6 +875,7 @@ pub const ServiceOptions = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 34, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 33, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 999, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -819,6 +883,7 @@ pub const ServiceOptions = struct {
 pub const MethodOptions = struct {
     deprecated: ?bool = null,
     features: ?*FeatureSet = null,
+    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub const IdempotencyLevel = enum(i32) {
         IDEMPOTENCY_UNKNOWN = 0,
@@ -839,11 +904,13 @@ pub const MethodOptions = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 33, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 35, .field_index = 1, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
 
 pub const UninterpretedOption = struct {
+    name: std.ArrayListUnmanaged(*UninterpretedOption.NamePart) = .{},
     identifier_value: ?[]const u8 = null,
     positive_int_value: ?u64 = null,
     negative_int_value: ?i64 = null,
@@ -905,12 +972,13 @@ pub const UninterpretedOption = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 3, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // identifier_value
-            .{ .number = 4, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // positive_int_value
-            .{ .number = 5, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // negative_int_value
-            .{ .number = 6, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .double } } }, // double_value
-            .{ .number = 7, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // string_value
-            .{ .number = 8, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // aggregate_value
+            .{ .number = 2, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // name
+            .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // identifier_value
+            .{ .number = 4, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // positive_int_value
+            .{ .number = 5, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // negative_int_value
+            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .double } } }, // double_value
+            .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // string_value
+            .{ .number = 8, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // aggregate_value
         },
     };
 };
@@ -995,6 +1063,8 @@ pub const FeatureSet = struct {
 };
 
 pub const FeatureSetDefaults = struct {
+    defaults: std.ArrayListUnmanaged(*FeatureSetDefaults.FeatureSetEditionDefault) = .{},
+
     pub const FeatureSetEditionDefault = struct {
         overridable_features: ?*FeatureSet = null,
         fixed_features: ?*FeatureSet = null,
@@ -1016,14 +1086,21 @@ pub const FeatureSetDefaults = struct {
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // defaults
+        },
     };
 };
 
 pub const SourceCodeInfo = struct {
+    location: std.ArrayListUnmanaged(*SourceCodeInfo.Location) = .{},
+
     pub const Location = struct {
+        path: std.ArrayListUnmanaged(i32) = .{},
+        span: std.ArrayListUnmanaged(i32) = .{},
         leading_comments: ?[]const u8 = null,
         trailing_comments: ?[]const u8 = null,
+        leading_detached_comments: std.ArrayListUnmanaged([]const u8) = .{},
 
         pub fn getLeadingComments(self: @This()) []const u8 {
             return self.leading_comments orelse "";
@@ -1039,8 +1116,11 @@ pub const SourceCodeInfo = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 3, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // leading_comments
-                .{ .number = 4, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // trailing_comments
+                .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
+                .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // span
+                .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // leading_comments
+                .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // trailing_comments
+                .{ .number = 6, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // leading_detached_comments
             },
         };
     };
@@ -1050,12 +1130,17 @@ pub const SourceCodeInfo = struct {
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // location
+        },
     };
 };
 
 pub const GeneratedCodeInfo = struct {
+    annotation: std.ArrayListUnmanaged(*GeneratedCodeInfo.Annotation) = .{},
+
     pub const Annotation = struct {
+        path: std.ArrayListUnmanaged(i32) = .{},
         source_file: ?[]const u8 = null,
         begin: ?i32 = null,
         end: ?i32 = null,
@@ -1085,9 +1170,10 @@ pub const GeneratedCodeInfo = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 2, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // source_file
-                .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // begin
-                .{ .number = 4, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
+                .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
+                .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // source_file
+                .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // begin
+                .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
             },
         };
     };
@@ -1097,7 +1183,9 @@ pub const GeneratedCodeInfo = struct {
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // annotation
+        },
     };
 };
 

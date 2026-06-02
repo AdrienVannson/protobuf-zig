@@ -45,90 +45,24 @@ Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.DefaultValue.Protob
 Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: Expect: \240\007\001, but got: 
 Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: Expect: \240\007\001, but got: 
 Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: Expect: \240\007\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \250\006\000\250\006\001\250\006\001\250\006\001\250\006\001\250\006\001
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \250\006\000\250\006\001\250\006\001\250\006\001\250\006\001\250\006\001
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \241\006\000\000\000\000\000\000\000\000\241\006\232\231\231\231\231\231
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \241\006\000\000\000\000\000\000\000\000\241\006\232\231\231\231\231\231
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \260\006\000\260\006\001\260\006\002\260\006\377\377\377\377\377\377\377
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \260\006\000\260\006\001\260\006\002\260\006\377\377\377\377\377\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \375\005\000\000\000\000\375\005\071\060\000\000\375\005\377\377\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \375\005\000\000\000\000\375\005\071\060\000\000\375\005\377\377\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \201\006\000\000\000\000\000\000\000\000\201\006\071\060\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \201\006\000\000\000\000\000\000\000\000\201\006\071\060\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \235\006\000\000\000\000\235\006\315\314\314\075\235\006\055\044\252\003
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \235\006\000\000\000\000\235\006\315\314\314\075\235\006\055\044\252\003
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT32.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \310\005\000\310\005\271\140\310\005\271\140\310\005\271\140\310\005\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \310\005\000\310\005\271\140\310\005\271\140\310\005\271\140\310\005\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT64.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \320\005\000\320\005\271\140\320\005\377\377\377\377\377\377\377\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.INT64.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \320\005\000\320\005\271\140\320\005\377\377\377\377\377\377\377\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \215\006\000\000\000\000\215\006\071\060\000\000\215\006\377\377\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \215\006\000\000\000\000\215\006\071\060\000\000\215\006\377\377\377\177
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \221\006\000\000\000\000\000\000\000\000\221\006\071\060\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \221\006\000\000\000\000\000\000\000\000\221\006\071\060\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \350\005\000\350\005\362\300\001\350\005\376\377\377\377\017\350\005\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \350\005\000\350\005\362\300\001\350\005\376\377\377\377\017\350\005\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT64.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \360\005\000\360\005\362\300\001\360\005\376\377\377\377\377\377\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT64.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \360\005\000\360\005\362\300\001\360\005\376\377\377\377\377\377\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \330\005\000\330\005\271\140\330\005\271\140\330\005\271\140\330\005\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \330\005\000\330\005\271\140\330\005\271\140\330\005\271\140\330\005\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \340\005\000\340\005\271\140\340\005\377\377\377\377\377\377\377\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \340\005\000\340\005\271\140\340\005\377\377\377\377\377\377\377\377\377
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.DefaultOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.PackedOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.UnpackedOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.DefaultOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.PackedOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.UnpackedOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.DefaultOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.PackedOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.UnpackedOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.DefaultOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.PackedOutput.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.UnpackedOutput.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.BOOL[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \150\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.BYTES[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \172\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.DOUBLE[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \141\000\000\000\000\000\000\000\000
@@ -157,21 +91,7 @@ Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.UINT32[8].ProtobufOutput 
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.UINT32[9].ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.UINT64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \040\000
 Required.Proto2.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.BOOL # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.DOUBLE # Should have failed to parse, but didn't.
 Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.ENUM # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.FIXED32 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.FIXED64 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.FLOAT # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.INT32 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.INT64 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.SFIXED32 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.SFIXED64 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.SINT32 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.SINT64 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.UINT32 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.UINT64 # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.RepeatedScalarMessageMerge.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_message.corecursive.repeated_int32[0]: 1234deleted: opt
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.ENUM.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAR
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.SINT32.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.UINT32.ProtobufOutput # Failed to parse input or produce output.
@@ -334,37 +254,12 @@ Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.DefaultValue.ProtobufOutput 
 Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_uint64: 1
 Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_uint64: 1
 Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_uint64: 1
-Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_bool[0]: falsedeleted: repeated_bool[1]: truedeleted: repeated
-Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_bool[0]: falsedeleted: repeated_bool[1]: truedeleted: repeated
-Required.Proto3.ProtobufInput.ValidDataRepeated.BYTES.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_bytes[0]: ""deleted: repeated_bytes[1]: "Hello world!"deleted:
-Required.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_double[0]: 0deleted: repeated_double[1]: 0.1deleted: repeated_
-Required.Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_double[0]: 0deleted: repeated_double[1]: 0.1deleted: repeated_
 Required.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_enum[0]: FOOdeleted: repeated_nested_enum[1]: BARdelete
 Required.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_enum[0]: FOOdeleted: repeated_nested_enum[1]: BARdelete
-Required.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_fixed32[0]: 0deleted: repeated_fixed32[1]: 12345deleted: repea
-Required.Proto3.ProtobufInput.ValidDataRepeated.FIXED32.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_fixed32[0]: 0deleted: repeated_fixed32[1]: 12345deleted: repea
-Required.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_fixed64[0]: 0deleted: repeated_fixed64[1]: 12345deleted: repea
-Required.Proto3.ProtobufInput.ValidDataRepeated.FIXED64.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_fixed64[0]: 0deleted: repeated_fixed64[1]: 12345deleted: repea
-Required.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_float[0]: 0deleted: repeated_float[1]: 0.1deleted: repeated_fl
-Required.Proto3.ProtobufInput.ValidDataRepeated.FLOAT.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_float[0]: 0deleted: repeated_float[1]: 0.1deleted: repeated_fl
-Required.Proto3.ProtobufInput.ValidDataRepeated.INT32.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_int32[0]: 0deleted: repeated_int32[1]: 12345deleted: repeated_
-Required.Proto3.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_int32[0]: 0deleted: repeated_int32[1]: 12345deleted: repeated_
-Required.Proto3.ProtobufInput.ValidDataRepeated.INT64.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_int64[0]: 0deleted: repeated_int64[1]: 12345deleted: repeated_
-Required.Proto3.ProtobufInput.ValidDataRepeated.INT64.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_int64[0]: 0deleted: repeated_int64[1]: 12345deleted: repeated_
-Required.Proto3.ProtobufInput.ValidDataRepeated.MESSAGE.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_message[0]: { }deleted: repeated_nested_message[1]: { a
-Required.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sfixed32[0]: 0deleted: repeated_sfixed32[1]: 12345deleted: rep
-Required.Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sfixed32[0]: 0deleted: repeated_sfixed32[1]: 12345deleted: rep
-Required.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sfixed64[0]: 0deleted: repeated_sfixed64[1]: 12345deleted: rep
-Required.Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sfixed64[0]: 0deleted: repeated_sfixed64[1]: 12345deleted: rep
-Required.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sint32[0]: 0deleted: repeated_sint32[1]: 12345deleted: repeate
-Required.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sint32[0]: 0deleted: repeated_sint32[1]: 12345deleted: repeate
-Required.Proto3.ProtobufInput.ValidDataRepeated.SINT64.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sint64[0]: 0deleted: repeated_sint64[1]: 12345deleted: repeate
-Required.Proto3.ProtobufInput.ValidDataRepeated.SINT64.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_sint64[0]: 0deleted: repeated_sint64[1]: 12345deleted: repeate
-Required.Proto3.ProtobufInput.ValidDataRepeated.STRING.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_string[0]: ""deleted: repeated_string[1]: "Hello world!"delete
-Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_uint32[0]: 0deleted: repeated_uint32[1]: 12345deleted: repeate
-Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_uint32[0]: 0deleted: repeated_uint32[1]: 12345deleted: repeate
-Required.Proto3.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_uint64[0]: 0deleted: repeated_uint64[1]: 12345deleted: repeate
-Required.Proto3.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_uint64[0]: 0deleted: repeated_uint64[1]: 12345deleted: repeate
+Required.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[1].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAR
 Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[2].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAZ
 Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[3].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: NEG

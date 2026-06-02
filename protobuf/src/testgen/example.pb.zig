@@ -57,6 +57,7 @@ pub const Foo = struct {
 
 pub const Bar = struct {
     foo: ?*Foo = null,
+    tags: std.ArrayListUnmanaged([]const u8) = .{},
 
     pub const Nested = struct {
         value: ?i32 = null,
@@ -83,6 +84,7 @@ pub const Bar = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // foo
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // tags
         },
     };
 };
