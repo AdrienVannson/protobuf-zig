@@ -79,13 +79,12 @@ fn generateMessage(
 
     // Plain scalar field getters (message fields have no getter).
     for (msg.fields) |*field| {
-        if (!isPlainScalar(field)) continue;
-        try generateFieldGetter(f, field);
-    }
-    // Plain enum field getters.
-    for (msg.fields) |*field| {
-        if (!isPlainEnum(field)) continue;
-        try generateEnumFieldGetter(f, field);
+        if (isPlainScalar(field)) {
+            try generateFieldGetter(f, field);
+        }
+        if (isPlainEnum(field)) {
+            try generateEnumFieldGetter(f, field);
+        }
     }
     // Oneof variant getters.
     for (msg.oneofs) |*oneof| {

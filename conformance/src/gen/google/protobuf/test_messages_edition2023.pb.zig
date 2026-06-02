@@ -219,20 +219,20 @@ pub const TestAllTypesEdition2023 = struct {
         return self.optional_bytes orelse "";
     }
 
-    pub fn getOptionalStringPiece(self: @This()) []const u8 {
-        return self.optional_string_piece orelse "";
-    }
-
-    pub fn getOptionalCord(self: @This()) []const u8 {
-        return self.optional_cord orelse "";
-    }
-
     pub fn getOptionalNestedEnum(self: @This()) TestAllTypesEdition2023.NestedEnum {
         return self.optional_nested_enum orelse @enumFromInt(0);
     }
 
     pub fn getOptionalForeignEnum(self: @This()) ForeignEnumEdition2023 {
         return self.optional_foreign_enum orelse @enumFromInt(0);
+    }
+
+    pub fn getOptionalStringPiece(self: @This()) []const u8 {
+        return self.optional_string_piece orelse "";
+    }
+
+    pub fn getOptionalCord(self: @This()) []const u8 {
+        return self.optional_cord orelse "";
     }
 
     pub fn getOneofUint32(self: @This()) u32 {

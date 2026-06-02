@@ -17,12 +17,12 @@ pub const Type = struct {
         return self.name orelse "";
     }
 
-    pub fn getEdition(self: @This()) []const u8 {
-        return self.edition orelse "";
-    }
-
     pub fn getSyntax(self: @This()) Syntax {
         return self.syntax orelse @enumFromInt(0);
+    }
+
+    pub fn getEdition(self: @This()) []const u8 {
+        return self.edition orelse "";
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -84,6 +84,14 @@ pub const Field = struct {
         _,
     };
 
+    pub fn getKind(self: @This()) Field.Kind {
+        return self.kind orelse @enumFromInt(0);
+    }
+
+    pub fn getCardinality(self: @This()) Field.Cardinality {
+        return self.cardinality orelse @enumFromInt(0);
+    }
+
     pub fn getNumber(self: @This()) i32 {
         return self.number orelse 0;
     }
@@ -110,14 +118,6 @@ pub const Field = struct {
 
     pub fn getDefaultValue(self: @This()) []const u8 {
         return self.default_value orelse "";
-    }
-
-    pub fn getKind(self: @This()) Field.Kind {
-        return self.kind orelse @enumFromInt(0);
-    }
-
-    pub fn getCardinality(self: @This()) Field.Cardinality {
-        return self.cardinality orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -151,12 +151,12 @@ pub const Enum = struct {
         return self.name orelse "";
     }
 
-    pub fn getEdition(self: @This()) []const u8 {
-        return self.edition orelse "";
-    }
-
     pub fn getSyntax(self: @This()) Syntax {
         return self.syntax orelse @enumFromInt(0);
+    }
+
+    pub fn getEdition(self: @This()) []const u8 {
+        return self.edition orelse "";
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

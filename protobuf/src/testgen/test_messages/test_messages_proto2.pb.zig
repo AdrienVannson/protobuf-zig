@@ -337,6 +337,14 @@ pub const TestAllTypesProto2 = struct {
         return self.optional_bytes orelse "";
     }
 
+    pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto2.NestedEnum {
+        return self.optional_nested_enum orelse @enumFromInt(0);
+    }
+
+    pub fn getOptionalForeignEnum(self: @This()) ForeignEnumProto2 {
+        return self.optional_foreign_enum orelse @enumFromInt(0);
+    }
+
     pub fn getOptionalStringPiece(self: @This()) []const u8 {
         return self.optional_string_piece orelse "";
     }
@@ -475,14 +483,6 @@ pub const TestAllTypesProto2 = struct {
 
     pub fn getFieldName18(self: @This()) i32 {
         return self.Field_name18__ orelse 0;
-    }
-
-    pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto2.NestedEnum {
-        return self.optional_nested_enum orelse @enumFromInt(0);
-    }
-
-    pub fn getOptionalForeignEnum(self: @This()) ForeignEnumProto2 {
-        return self.optional_foreign_enum orelse @enumFromInt(0);
     }
 
     pub fn getOneofUint32(self: @This()) u32 {
@@ -1025,6 +1025,14 @@ pub const TestAllRequiredTypesProto2 = struct {
         return self.required_bytes orelse "";
     }
 
+    pub fn getRequiredNestedEnum(self: @This()) TestAllRequiredTypesProto2.NestedEnum {
+        return self.required_nested_enum orelse @enumFromInt(0);
+    }
+
+    pub fn getRequiredForeignEnum(self: @This()) ForeignEnumProto2 {
+        return self.required_foreign_enum orelse @enumFromInt(0);
+    }
+
     pub fn getRequiredStringPiece(self: @This()) []const u8 {
         return self.required_string_piece orelse "";
     }
@@ -1091,14 +1099,6 @@ pub const TestAllRequiredTypesProto2 = struct {
 
     pub fn getDefaultBytes(self: @This()) []const u8 {
         return self.default_bytes orelse "";
-    }
-
-    pub fn getRequiredNestedEnum(self: @This()) TestAllRequiredTypesProto2.NestedEnum {
-        return self.required_nested_enum orelse @enumFromInt(0);
-    }
-
-    pub fn getRequiredForeignEnum(self: @This()) ForeignEnumProto2 {
-        return self.required_foreign_enum orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

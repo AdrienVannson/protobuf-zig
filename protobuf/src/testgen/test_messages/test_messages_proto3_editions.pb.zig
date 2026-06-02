@@ -201,6 +201,18 @@ pub const TestAllTypesProto3 = struct {
         return self.optional_bytes orelse "";
     }
 
+    pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto3.NestedEnum {
+        return self.optional_nested_enum orelse @enumFromInt(0);
+    }
+
+    pub fn getOptionalForeignEnum(self: @This()) ForeignEnum {
+        return self.optional_foreign_enum orelse @enumFromInt(0);
+    }
+
+    pub fn getOptionalAliasedEnum(self: @This()) TestAllTypesProto3.AliasedEnum {
+        return self.optional_aliased_enum orelse @enumFromInt(0);
+    }
+
     pub fn getOptionalStringPiece(self: @This()) []const u8 {
         return self.optional_string_piece orelse "";
     }
@@ -279,18 +291,6 @@ pub const TestAllTypesProto3 = struct {
 
     pub fn getFieldName18(self: @This()) i32 {
         return self.Field_name18__ orelse 0;
-    }
-
-    pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto3.NestedEnum {
-        return self.optional_nested_enum orelse @enumFromInt(0);
-    }
-
-    pub fn getOptionalForeignEnum(self: @This()) ForeignEnum {
-        return self.optional_foreign_enum orelse @enumFromInt(0);
-    }
-
-    pub fn getOptionalAliasedEnum(self: @This()) TestAllTypesProto3.AliasedEnum {
-        return self.optional_aliased_enum orelse @enumFromInt(0);
     }
 
     pub fn getOneofUint32(self: @This()) u32 {

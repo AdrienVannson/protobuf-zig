@@ -22,12 +22,12 @@ pub const CppFeatures = struct {
         return self.legacy_closed_enum orelse false;
     }
 
-    pub fn getEnumNameUsesStringView(self: @This()) bool {
-        return self.enum_name_uses_string_view orelse false;
-    }
-
     pub fn getStringType(self: @This()) CppFeatures.StringType {
         return self.string_type orelse @enumFromInt(0);
+    }
+
+    pub fn getEnumNameUsesStringView(self: @This()) bool {
+        return self.enum_name_uses_string_view orelse false;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

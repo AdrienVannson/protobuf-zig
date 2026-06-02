@@ -62,20 +62,20 @@ pub const ConformanceRequest = struct {
         text_payload: []const u8,
     } = null,
 
-    pub fn getMessageType(self: @This()) []const u8 {
-        return self.message_type orelse "";
-    }
-
-    pub fn getPrintUnknownFields(self: @This()) bool {
-        return self.print_unknown_fields orelse false;
-    }
-
     pub fn getRequestedOutputFormat(self: @This()) WireFormat {
         return self.requested_output_format orelse @enumFromInt(0);
     }
 
+    pub fn getMessageType(self: @This()) []const u8 {
+        return self.message_type orelse "";
+    }
+
     pub fn getTestCategory(self: @This()) TestCategory {
         return self.test_category orelse @enumFromInt(0);
+    }
+
+    pub fn getPrintUnknownFields(self: @This()) bool {
+        return self.print_unknown_fields orelse false;
     }
 
     pub fn getProtobufPayload(self: @This()) []const u8 {

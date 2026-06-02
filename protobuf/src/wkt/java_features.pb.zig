@@ -41,16 +41,16 @@ pub const JavaFeatures = struct {
         return self.legacy_closed_enum orelse false;
     }
 
+    pub fn getUtf8Validation(self: @This()) JavaFeatures.Utf8Validation {
+        return self.utf8_validation orelse @enumFromInt(0);
+    }
+
     pub fn getLargeEnum(self: @This()) bool {
         return self.large_enum orelse false;
     }
 
     pub fn getUseOldOuterClassnameDefault(self: @This()) bool {
         return self.use_old_outer_classname_default orelse false;
-    }
-
-    pub fn getUtf8Validation(self: @This()) JavaFeatures.Utf8Validation {
-        return self.utf8_validation orelse @enumFromInt(0);
     }
 
     pub fn getNestInFileClass(self: @This()) JavaFeatures.NestInFileClassFeature.NestInFileClass {

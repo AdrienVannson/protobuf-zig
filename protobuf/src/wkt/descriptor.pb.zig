@@ -289,6 +289,14 @@ pub const FieldDescriptorProto = struct {
         return self.number orelse 0;
     }
 
+    pub fn getLabel(self: @This()) FieldDescriptorProto.Label {
+        return self.label orelse @enumFromInt(0);
+    }
+
+    pub fn getType(self: @This()) FieldDescriptorProto.Type {
+        return self.type orelse @enumFromInt(0);
+    }
+
     pub fn getTypeName(self: @This()) []const u8 {
         return self.type_name orelse "";
     }
@@ -311,14 +319,6 @@ pub const FieldDescriptorProto = struct {
 
     pub fn getProto3Optional(self: @This()) bool {
         return self.proto3_optional orelse false;
-    }
-
-    pub fn getLabel(self: @This()) FieldDescriptorProto.Label {
-        return self.label orelse @enumFromInt(0);
-    }
-
-    pub fn getType(self: @This()) FieldDescriptorProto.Type {
-        return self.type orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -560,6 +560,10 @@ pub const FileOptions = struct {
         return self.java_string_check_utf8 orelse false;
     }
 
+    pub fn getOptimizeFor(self: @This()) FileOptions.OptimizeMode {
+        return self.optimize_for orelse @enumFromInt(0);
+    }
+
     pub fn getGoPackage(self: @This()) []const u8 {
         return self.go_package orelse "";
     }
@@ -610,10 +614,6 @@ pub const FileOptions = struct {
 
     pub fn getRubyPackage(self: @This()) []const u8 {
         return self.ruby_package orelse "";
-    }
-
-    pub fn getOptimizeFor(self: @This()) FileOptions.OptimizeMode {
-        return self.optimize_for orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -713,12 +713,12 @@ pub const FieldOptions = struct {
         edition: ?Edition = null,
         value: ?[]const u8 = null,
 
-        pub fn getValue(self: @This()) []const u8 {
-            return self.value orelse "";
-        }
-
         pub fn getEdition(self: @This()) Edition {
             return self.edition orelse @enumFromInt(0);
+        }
+
+        pub fn getValue(self: @This()) []const u8 {
+            return self.value orelse "";
         }
 
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -739,16 +739,16 @@ pub const FieldOptions = struct {
         deprecation_warning: ?[]const u8 = null,
         edition_removed: ?Edition = null,
 
-        pub fn getDeprecationWarning(self: @This()) []const u8 {
-            return self.deprecation_warning orelse "";
-        }
-
         pub fn getEditionIntroduced(self: @This()) Edition {
             return self.edition_introduced orelse @enumFromInt(0);
         }
 
         pub fn getEditionDeprecated(self: @This()) Edition {
             return self.edition_deprecated orelse @enumFromInt(0);
+        }
+
+        pub fn getDeprecationWarning(self: @This()) []const u8 {
+            return self.deprecation_warning orelse "";
         }
 
         pub fn getEditionRemoved(self: @This()) Edition {
@@ -804,8 +804,16 @@ pub const FieldOptions = struct {
         _,
     };
 
+    pub fn getCtype(self: @This()) FieldOptions.CType {
+        return self.ctype orelse @enumFromInt(0);
+    }
+
     pub fn getPacked(self: @This()) bool {
         return self.@"packed" orelse false;
+    }
+
+    pub fn getJstype(self: @This()) FieldOptions.JSType {
+        return self.jstype orelse @enumFromInt(0);
     }
 
     pub fn getLazy(self: @This()) bool {
@@ -826,14 +834,6 @@ pub const FieldOptions = struct {
 
     pub fn getDebugRedact(self: @This()) bool {
         return self.debug_redact orelse false;
-    }
-
-    pub fn getCtype(self: @This()) FieldOptions.CType {
-        return self.ctype orelse @enumFromInt(0);
-    }
-
-    pub fn getJstype(self: @This()) FieldOptions.JSType {
-        return self.jstype orelse @enumFromInt(0);
     }
 
     pub fn getRetention(self: @This()) FieldOptions.OptionRetention {
