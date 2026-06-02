@@ -146,8 +146,10 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
 
                 switch (field_meta.kind) {
                     .scalar => |sc| {
-                        if (comptime field_meta.oneof_variant != null) {
-                            try skipField(reader, tag.wire_type);
+                        if (comptime field_meta.oneof_variant) |variant| {
+                            const field_ptr = &@field(msg.*, field_name);
+                            const Union = comptime std.meta.Child(@TypeOf(field_ptr.*));
+                            field_ptr.* = @unionInit(Union, variant, try readScalar(reader, sc.scalar));
                         } else {
                             if (comptime (sc.scalar == .string or sc.scalar == .bytes) and
                                 field_meta.presence != .implicit)

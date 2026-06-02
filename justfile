@@ -109,5 +109,5 @@ docs-serve: docs
 
 # Run protobuf conformance tests (not part of 'test')
 conformance:
-    cd conformance && zig build -Doptimize=ReleaseFast -Dprotobuf_version={{protobuf_version}}
+    cd conformance && zig build -Doptimize=ReleaseFast
     just conformance-runner --enforce_recommended --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance

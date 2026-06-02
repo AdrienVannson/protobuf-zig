@@ -1,12 +1,10 @@
 const std = @import("std");
-// Paths match zig-protobuf's package-based output (not file-based).
-const conformance_pb = @import("generated_old_lib/conformance.pb.zig");
+const conformance_pb = @import("gen_conformance");
 const gen_proto3 = @import("gen_proto3");
-const our_proto = @import("our_protobuf");
+const protobuf = @import("protobuf");
 
 const ConformanceRequest = conformance_pb.ConformanceRequest;
 const ConformanceResponse = conformance_pb.ConformanceResponse;
-const FailureSet = conformance_pb.FailureSet;
 
 pub fn main() !void {
     var gpa: std.heap.GeneralPurposeAllocator(.{}) = .init;
@@ -34,16 +32,14 @@ pub fn main() !void {
         if (bytes_read != request_len) return error.UnexpectedEof;
 
         // Decode ConformanceRequest.
-        var req_reader: std.Io.Reader = .fixed(request_bytes);
-        var request = try ConformanceRequest.decode(&req_reader, alloc);
+        var request: ConformanceRequest = .{};
+        try protobuf.from_binary(&request, request_bytes, alloc);
 
         // Build response.
         const response = handleRequest(&request, alloc);
 
         // Encode ConformanceResponse.
-        var w: std.Io.Writer.Allocating = .init(alloc);
-        try response.encode(&w.writer, alloc);
-        const response_bytes = w.written();
+        const response_bytes = try protobuf.to_binary(alloc, response);
 
         // Write 4-byte LE length + response bytes.
         var out_len_buf: [4]u8 = undefined;
@@ -57,8 +53,8 @@ pub fn main() !void {
 // runner to abort (rather than record a failure) when certain response types
 // are returned.  Returning an empty protobuf payload is the safe sentinel.
 fn isUnknownOrderingCrashCase(request: *const ConformanceRequest) bool {
-    if (request.test_category != .BINARY_TEST) return false;
-    if (request.requested_output_format != .PROTOBUF) return false;
+    if (request.getTestCategory() != .BINARY_TEST) return false;
+    if (request.getRequestedOutputFormat() != .PROTOBUF) return false;
 
     const known_types = [_][]const u8{
         "protobuf_test_messages.proto3.TestAllTypesProto3",
@@ -68,7 +64,7 @@ fn isUnknownOrderingCrashCase(request: *const ConformanceRequest) bool {
     };
     var found_type = false;
     for (known_types) |t| {
-        if (std.mem.eql(u8, request.message_type, t)) {
+        if (std.mem.eql(u8, request.getMessageType(), t)) {
             found_type = true;
             break;
         }
@@ -95,9 +91,9 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) Conform
     }
 
     // Dispatch proto3 binary roundtrip.
-    if (std.mem.eql(u8, request.message_type, "protobuf_test_messages.proto3.TestAllTypesProto3")) {
+    if (std.mem.eql(u8, request.getMessageType(), "protobuf_test_messages.proto3.TestAllTypesProto3")) {
         // Only handle binary protobuf output; skip JSON, text, etc.
-        if (request.requested_output_format != .PROTOBUF) {
+        if (request.getRequestedOutputFormat() != .PROTOBUF) {
             return .{ .result = .{ .skipped = "non-binary output format not supported" } };
         }
         const payload = if (request.payload) |p| switch (p) {
@@ -113,10 +109,10 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) Conform
 
 fn roundTrip(payload: []const u8, alloc: std.mem.Allocator) ConformanceResponse {
     var msg: gen_proto3.TestAllTypesProto3 = .{};
-    our_proto.from_binary(&msg, payload, alloc) catch |err| {
+    protobuf.from_binary(&msg, payload, alloc) catch |err| {
         return .{ .result = .{ .parse_error = @errorName(err) } };
     };
-    const encoded = our_proto.to_binary(alloc, msg) catch |err| {
+    const encoded = protobuf.to_binary(alloc, msg) catch |err| {
         return .{ .result = .{ .serialize_error = @errorName(err) } };
     };
     return .{ .result = .{ .protobuf_payload = encoded } };
