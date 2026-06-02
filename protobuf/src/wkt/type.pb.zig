@@ -4,12 +4,15 @@
 const std = @import("std");
 const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
+const _google_protobuf_source_context = @import("source_context.pb.zig");
+const _google_protobuf_any = @import("any.pb.zig");
 
 pub const Type = struct {
     name: ?[]const u8 = null,
     fields: std.ArrayListUnmanaged(*Field) = .{},
     oneofs: std.ArrayListUnmanaged([]const u8) = .{},
     options: std.ArrayListUnmanaged(*Option) = .{},
+    source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
     edition: ?[]const u8 = null,
 
@@ -35,8 +38,9 @@ pub const Type = struct {
             .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
             .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
             .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 6, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
-            .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 5, .field_index = 4, .kind = .{ .message_field = .{} } }, // source_context
+            .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
+            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };
@@ -144,6 +148,7 @@ pub const Enum = struct {
     name: ?[]const u8 = null,
     enumvalue: std.ArrayListUnmanaged(*EnumValue) = .{},
     options: std.ArrayListUnmanaged(*Option) = .{},
+    source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
     edition: ?[]const u8 = null,
 
@@ -168,8 +173,9 @@ pub const Enum = struct {
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
             .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 5, .field_index = 3, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
-            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // source_context
+            .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
+            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };
@@ -202,6 +208,7 @@ pub const EnumValue = struct {
 
 pub const Option = struct {
     name: ?[]const u8 = null,
+    value: ?*_google_protobuf_any.Any = null,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -214,6 +221,7 @@ pub const Option = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // value
         },
     };
 };

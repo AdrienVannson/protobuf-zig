@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package main;
+
+import "import/import_dep.proto";
+
+message ImportMain {
+    dep.DepMsg single = 1;
+    dep.DepEnum kind = 2;
+    repeated dep.DepMsg many = 3;
+    repeated dep.DepEnum kinds = 4;
+}

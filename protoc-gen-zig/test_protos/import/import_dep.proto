@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package dep;
+
+message DepMsg {
+    string label = 1;
+}
+
+enum DepEnum {
+    DEP_UNSPECIFIED = 0;
+    DEP_A = 1;
+    DEP_B = 2;
+}
