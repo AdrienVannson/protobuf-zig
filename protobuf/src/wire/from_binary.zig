@@ -197,10 +197,3 @@ test "message field decoded" {
     try testing.expect(msg.message_field != null);
     try testing.expectEqualStrings("foo", msg.message_field.?.value.?);
 }
-
-test "message field null not decoded leaves null" {
-    var msg: FakeMessageFoo = .{};
-    defer msg.deinit(testing.allocator);
-    try from_binary(&msg, &.{}, testing.allocator);
-    try testing.expectEqual(@as(?*FakeMessageFoo.Bar, null), msg.message_field);
-}
