@@ -14,6 +14,7 @@ pub fn generateFile(
     try f.writeLine(.{ "// Source: ", desc_file.name });
     try f.emptyLine();
 
+    // TODO make sure this is always correct
     if (desc_file.messages.len > 0) {
         try f.writeLine("const std = @import(\"std\");");
         try f.writeLine("const _codegen = @import(\"protobuf\")._codegen;");
@@ -50,6 +51,7 @@ fn generateMessage(
     f: *GeneratedFile,
     msg: *const protobuf.DescMessage,
 ) !void {
+    // TODO escape directly local_name
     const safe_name = try escapeZigKeyword(f.alloc, msg.local_name);
     defer f.alloc.free(safe_name);
 
@@ -103,6 +105,7 @@ fn generateEnum(
     f: *GeneratedFile,
     e: *const protobuf.DescEnum,
 ) !void {
+    // TODO escape directly local_name
     const safe_name = try escapeZigKeyword(f.alloc, e.local_name);
     defer f.alloc.free(safe_name);
 
@@ -141,7 +144,7 @@ fn generateMessageMetadata(
 
     var field_index: u32 = 0;
 
-    // Phase 1: plain scalar fields (not in a oneof).
+    // Plain scalar fields (not in a oneof).
     for (msg.fields) |*field| {
         if (field.kind != .scalar) continue;
         if (field.kind.scalar.oneof != null) continue;
@@ -158,7 +161,7 @@ fn generateMessageMetadata(
         field_index += 1;
     }
 
-    // Phase 2: oneof variant entries — all variants of a group share the same field_index.
+    // Oneof variant entries — all variants of a group share the same field_index.
     for (msg.oneofs) |*oneof| {
         for (oneof.fields) |field_ptr| {
             if (field_ptr.kind != .scalar) continue;
