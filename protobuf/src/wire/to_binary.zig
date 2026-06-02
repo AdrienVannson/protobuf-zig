@@ -87,7 +87,7 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
                         if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
                             switch (field_meta.kind) {
                                 .scalar => |sc| {
-                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
+                                    try bw.tag(field_meta.number, comptime scalarWireType(sc.scalar));
                                     try writeScalar(bw, sc.scalar, payload);
                                 },
                                 else => {},
