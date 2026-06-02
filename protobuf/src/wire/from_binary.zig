@@ -53,11 +53,23 @@ fn skipField(reader: *BinaryReader, wire_type: WireType) !void {
     }
 }
 
+const ReadMessageError = error{
+    UnexpectedEof,
+    InvalidVarint,
+    InvalidFieldNumber,
+    InvalidWireType,
+    UnsupportedWireType,
+    OutOfMemory,
+    JoinWithoutFork,
+    UnconsumedBytes,
+    IntegerOverflow,
+};
+
 /// Decodes all fields of msg from the current scope of reader.
 ///
 /// Operates on whatever scope is currently active (the full message for a top-level
 /// call, or a forked submessage scope for nested messages).
-fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator) !void {
+fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
     const T = std.meta.Child(@TypeOf(msg));
     const struct_fields = std.meta.fields(T);
 

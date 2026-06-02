@@ -62,13 +62,15 @@ fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigT
     }
 }
 
+const WriteMessageError = error{ OutOfMemory, JoinWithoutFork };
+
 /// Encodes all fields of msg into bw.
 ///
 /// Each FieldMetadata carries a `field_index` pointing into std.meta.fields(T)
 /// and an optional `oneof_variant` for oneof members. This decouples the
 /// metadata array order from the struct field order, allowing N oneof entries
 /// to share a single struct field (the `?union(enum)`).
-fn writeMessage(bw: *BinaryWriter, msg: anytype) !void {
+fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
     const T = @TypeOf(msg);
     const struct_fields = std.meta.fields(T);
 
