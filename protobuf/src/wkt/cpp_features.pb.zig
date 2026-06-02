@@ -7,6 +7,7 @@ const _metadata = _codegen.metadata;
 
 pub const CppFeatures = struct {
     legacy_closed_enum: ?bool = null,
+    string_type: ?CppFeatures.StringType = null,
     enum_name_uses_string_view: ?bool = null,
 
     pub const StringType = enum(i32) {
@@ -21,6 +22,10 @@ pub const CppFeatures = struct {
         return self.legacy_closed_enum orelse false;
     }
 
+    pub fn getStringType(self: @This()) CppFeatures.StringType {
+        return self.string_type orelse @enumFromInt(0);
+    }
+
     pub fn getEnumNameUsesStringView(self: @This()) bool {
         return self.enum_name_uses_string_view orelse false;
     }
@@ -32,7 +37,8 @@ pub const CppFeatures = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_closed_enum
-            .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // enum_name_uses_string_view
+            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // string_type
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // enum_name_uses_string_view
         },
     };
 };

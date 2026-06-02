@@ -23,6 +23,8 @@ message Foo {
 message Bar {
   Foo foo = 1;
   repeated string tags = 2;
+  Color color = 3;
+  repeated Color colors = 4;
 
   message Nested {
     int32 value = 1;

@@ -41,6 +41,8 @@ pub const TestAllTypesEdition2023 = struct {
     optional_bytes: ?[]const u8 = null,
     optional_nested_message: ?*TestAllTypesEdition2023.NestedMessage = null,
     optional_foreign_message: ?*ForeignMessageEdition2023 = null,
+    optional_nested_enum: ?TestAllTypesEdition2023.NestedEnum = null,
+    optional_foreign_enum: ?ForeignEnumEdition2023 = null,
     optional_string_piece: ?[]const u8 = null,
     optional_cord: ?[]const u8 = null,
     recursive_message: ?*TestAllTypesEdition2023 = null,
@@ -61,6 +63,8 @@ pub const TestAllTypesEdition2023 = struct {
     repeated_bytes: std.ArrayListUnmanaged([]const u8) = .{},
     repeated_nested_message: std.ArrayListUnmanaged(*TestAllTypesEdition2023.NestedMessage) = .{},
     repeated_foreign_message: std.ArrayListUnmanaged(*ForeignMessageEdition2023) = .{},
+    repeated_nested_enum: std.ArrayListUnmanaged(TestAllTypesEdition2023.NestedEnum) = .{},
+    repeated_foreign_enum: std.ArrayListUnmanaged(ForeignEnumEdition2023) = .{},
     repeated_string_piece: std.ArrayListUnmanaged([]const u8) = .{},
     repeated_cord: std.ArrayListUnmanaged([]const u8) = .{},
     packed_int32: std.ArrayListUnmanaged(i32) = .{},
@@ -76,6 +80,7 @@ pub const TestAllTypesEdition2023 = struct {
     packed_float: std.ArrayListUnmanaged(f32) = .{},
     packed_double: std.ArrayListUnmanaged(f64) = .{},
     packed_bool: std.ArrayListUnmanaged(bool) = .{},
+    packed_nested_enum: std.ArrayListUnmanaged(TestAllTypesEdition2023.NestedEnum) = .{},
     unpacked_int32: std.ArrayListUnmanaged(i32) = .{},
     unpacked_int64: std.ArrayListUnmanaged(i64) = .{},
     unpacked_uint32: std.ArrayListUnmanaged(u32) = .{},
@@ -89,6 +94,7 @@ pub const TestAllTypesEdition2023 = struct {
     unpacked_float: std.ArrayListUnmanaged(f32) = .{},
     unpacked_double: std.ArrayListUnmanaged(f64) = .{},
     unpacked_bool: std.ArrayListUnmanaged(bool) = .{},
+    unpacked_nested_enum: std.ArrayListUnmanaged(TestAllTypesEdition2023.NestedEnum) = .{},
     groupliketype: ?*TestAllTypesEdition2023.GroupLikeType = null,
     delimited_field: ?*TestAllTypesEdition2023.GroupLikeType = null,
     oneof_field: ?union(enum) {
@@ -213,6 +219,14 @@ pub const TestAllTypesEdition2023 = struct {
         return self.optional_bytes orelse "";
     }
 
+    pub fn getOptionalNestedEnum(self: @This()) TestAllTypesEdition2023.NestedEnum {
+        return self.optional_nested_enum orelse @enumFromInt(0);
+    }
+
+    pub fn getOptionalForeignEnum(self: @This()) ForeignEnumEdition2023 {
+        return self.optional_foreign_enum orelse @enumFromInt(0);
+    }
+
     pub fn getOptionalStringPiece(self: @This()) []const u8 {
         return self.optional_string_piece orelse "";
     }
@@ -293,63 +307,69 @@ pub const TestAllTypesEdition2023 = struct {
             .{ .number = 15, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // optional_bytes
             .{ .number = 18, .field_index = 15, .kind = .{ .message_field = .{} } }, // optional_nested_message
             .{ .number = 19, .field_index = 16, .kind = .{ .message_field = .{} } }, // optional_foreign_message
-            .{ .number = 24, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string_piece
-            .{ .number = 25, .field_index = 18, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_cord
-            .{ .number = 27, .field_index = 19, .kind = .{ .message_field = .{} } }, // recursive_message
-            .{ .number = 31, .field_index = 20, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // repeated_int32
-            .{ .number = 32, .field_index = 21, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int64 } } } }, // repeated_int64
-            .{ .number = 33, .field_index = 22, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint32 } } } }, // repeated_uint32
-            .{ .number = 34, .field_index = 23, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint64 } } } }, // repeated_uint64
-            .{ .number = 35, .field_index = 24, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint32 } } } }, // repeated_sint32
-            .{ .number = 36, .field_index = 25, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint64 } } } }, // repeated_sint64
-            .{ .number = 37, .field_index = 26, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed32 } } } }, // repeated_fixed32
-            .{ .number = 38, .field_index = 27, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed64 } } } }, // repeated_fixed64
-            .{ .number = 39, .field_index = 28, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed32 } } } }, // repeated_sfixed32
-            .{ .number = 40, .field_index = 29, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed64 } } } }, // repeated_sfixed64
-            .{ .number = 41, .field_index = 30, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float } } } }, // repeated_float
-            .{ .number = 42, .field_index = 31, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .double } } } }, // repeated_double
-            .{ .number = 43, .field_index = 32, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bool } } } }, // repeated_bool
-            .{ .number = 44, .field_index = 33, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_string
-            .{ .number = 45, .field_index = 34, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bytes } } } }, // repeated_bytes
-            .{ .number = 48, .field_index = 35, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_nested_message
-            .{ .number = 49, .field_index = 36, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_foreign_message
-            .{ .number = 54, .field_index = 37, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_string_piece
-            .{ .number = 55, .field_index = 38, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_cord
-            .{ .number = 75, .field_index = 39, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // packed_int32
-            .{ .number = 76, .field_index = 40, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int64 } } } }, // packed_int64
-            .{ .number = 77, .field_index = 41, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint32 } } } }, // packed_uint32
-            .{ .number = 78, .field_index = 42, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint64 } } } }, // packed_uint64
-            .{ .number = 79, .field_index = 43, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint32 } } } }, // packed_sint32
-            .{ .number = 80, .field_index = 44, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint64 } } } }, // packed_sint64
-            .{ .number = 81, .field_index = 45, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed32 } } } }, // packed_fixed32
-            .{ .number = 82, .field_index = 46, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed64 } } } }, // packed_fixed64
-            .{ .number = 83, .field_index = 47, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed32 } } } }, // packed_sfixed32
-            .{ .number = 84, .field_index = 48, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed64 } } } }, // packed_sfixed64
-            .{ .number = 85, .field_index = 49, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float } } } }, // packed_float
-            .{ .number = 86, .field_index = 50, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .double } } } }, // packed_double
-            .{ .number = 87, .field_index = 51, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bool } } } }, // packed_bool
-            .{ .number = 89, .field_index = 52, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // unpacked_int32
-            .{ .number = 90, .field_index = 53, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int64 } } } }, // unpacked_int64
-            .{ .number = 91, .field_index = 54, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint32 } } } }, // unpacked_uint32
-            .{ .number = 92, .field_index = 55, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint64 } } } }, // unpacked_uint64
-            .{ .number = 93, .field_index = 56, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint32 } } } }, // unpacked_sint32
-            .{ .number = 94, .field_index = 57, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint64 } } } }, // unpacked_sint64
-            .{ .number = 95, .field_index = 58, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed32 } } } }, // unpacked_fixed32
-            .{ .number = 96, .field_index = 59, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed64 } } } }, // unpacked_fixed64
-            .{ .number = 97, .field_index = 60, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed32 } } } }, // unpacked_sfixed32
-            .{ .number = 98, .field_index = 61, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed64 } } } }, // unpacked_sfixed64
-            .{ .number = 99, .field_index = 62, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float } } } }, // unpacked_float
-            .{ .number = 100, .field_index = 63, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .double } } } }, // unpacked_double
-            .{ .number = 101, .field_index = 64, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bool } } } }, // unpacked_bool
-            .{ .number = 201, .field_index = 65, .kind = .{ .message_field = .{} } }, // groupliketype
-            .{ .number = 202, .field_index = 66, .kind = .{ .message_field = .{} } }, // delimited_field
-            .{ .number = 111, .field_index = 67, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
-            .{ .number = 113, .field_index = 67, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
-            .{ .number = 114, .field_index = 67, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
-            .{ .number = 115, .field_index = 67, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
-            .{ .number = 116, .field_index = 67, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
-            .{ .number = 117, .field_index = 67, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
-            .{ .number = 118, .field_index = 67, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
+            .{ .number = 21, .field_index = 17, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optional_nested_enum
+            .{ .number = 22, .field_index = 18, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optional_foreign_enum
+            .{ .number = 24, .field_index = 19, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string_piece
+            .{ .number = 25, .field_index = 20, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_cord
+            .{ .number = 27, .field_index = 21, .kind = .{ .message_field = .{} } }, // recursive_message
+            .{ .number = 31, .field_index = 22, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // repeated_int32
+            .{ .number = 32, .field_index = 23, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int64 } } } }, // repeated_int64
+            .{ .number = 33, .field_index = 24, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint32 } } } }, // repeated_uint32
+            .{ .number = 34, .field_index = 25, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint64 } } } }, // repeated_uint64
+            .{ .number = 35, .field_index = 26, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint32 } } } }, // repeated_sint32
+            .{ .number = 36, .field_index = 27, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint64 } } } }, // repeated_sint64
+            .{ .number = 37, .field_index = 28, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed32 } } } }, // repeated_fixed32
+            .{ .number = 38, .field_index = 29, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed64 } } } }, // repeated_fixed64
+            .{ .number = 39, .field_index = 30, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed32 } } } }, // repeated_sfixed32
+            .{ .number = 40, .field_index = 31, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed64 } } } }, // repeated_sfixed64
+            .{ .number = 41, .field_index = 32, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float } } } }, // repeated_float
+            .{ .number = 42, .field_index = 33, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .double } } } }, // repeated_double
+            .{ .number = 43, .field_index = 34, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bool } } } }, // repeated_bool
+            .{ .number = 44, .field_index = 35, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_string
+            .{ .number = 45, .field_index = 36, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bytes } } } }, // repeated_bytes
+            .{ .number = 48, .field_index = 37, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_nested_message
+            .{ .number = 49, .field_index = 38, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_foreign_message
+            .{ .number = 51, .field_index = 39, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // repeated_nested_enum
+            .{ .number = 52, .field_index = 40, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // repeated_foreign_enum
+            .{ .number = 54, .field_index = 41, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_string_piece
+            .{ .number = 55, .field_index = 42, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // repeated_cord
+            .{ .number = 75, .field_index = 43, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // packed_int32
+            .{ .number = 76, .field_index = 44, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int64 } } } }, // packed_int64
+            .{ .number = 77, .field_index = 45, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint32 } } } }, // packed_uint32
+            .{ .number = 78, .field_index = 46, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint64 } } } }, // packed_uint64
+            .{ .number = 79, .field_index = 47, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint32 } } } }, // packed_sint32
+            .{ .number = 80, .field_index = 48, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint64 } } } }, // packed_sint64
+            .{ .number = 81, .field_index = 49, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed32 } } } }, // packed_fixed32
+            .{ .number = 82, .field_index = 50, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed64 } } } }, // packed_fixed64
+            .{ .number = 83, .field_index = 51, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed32 } } } }, // packed_sfixed32
+            .{ .number = 84, .field_index = 52, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed64 } } } }, // packed_sfixed64
+            .{ .number = 85, .field_index = 53, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float } } } }, // packed_float
+            .{ .number = 86, .field_index = 54, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .double } } } }, // packed_double
+            .{ .number = 87, .field_index = 55, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bool } } } }, // packed_bool
+            .{ .number = 88, .field_index = 56, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // packed_nested_enum
+            .{ .number = 89, .field_index = 57, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // unpacked_int32
+            .{ .number = 90, .field_index = 58, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int64 } } } }, // unpacked_int64
+            .{ .number = 91, .field_index = 59, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint32 } } } }, // unpacked_uint32
+            .{ .number = 92, .field_index = 60, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .uint64 } } } }, // unpacked_uint64
+            .{ .number = 93, .field_index = 61, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint32 } } } }, // unpacked_sint32
+            .{ .number = 94, .field_index = 62, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sint64 } } } }, // unpacked_sint64
+            .{ .number = 95, .field_index = 63, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed32 } } } }, // unpacked_fixed32
+            .{ .number = 96, .field_index = 64, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .fixed64 } } } }, // unpacked_fixed64
+            .{ .number = 97, .field_index = 65, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed32 } } } }, // unpacked_sfixed32
+            .{ .number = 98, .field_index = 66, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .sfixed64 } } } }, // unpacked_sfixed64
+            .{ .number = 99, .field_index = 67, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float } } } }, // unpacked_float
+            .{ .number = 100, .field_index = 68, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .double } } } }, // unpacked_double
+            .{ .number = 101, .field_index = 69, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .bool } } } }, // unpacked_bool
+            .{ .number = 102, .field_index = 70, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // unpacked_nested_enum
+            .{ .number = 201, .field_index = 71, .kind = .{ .message_field = .{} } }, // groupliketype
+            .{ .number = 202, .field_index = 72, .kind = .{ .message_field = .{} } }, // delimited_field
+            .{ .number = 111, .field_index = 73, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
+            .{ .number = 113, .field_index = 73, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
+            .{ .number = 114, .field_index = 73, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
+            .{ .number = 115, .field_index = 73, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
+            .{ .number = 116, .field_index = 73, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
+            .{ .number = 117, .field_index = 73, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
+            .{ .number = 118, .field_index = 73, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
         },
     };
 };

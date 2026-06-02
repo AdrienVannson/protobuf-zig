@@ -33,6 +33,7 @@ pub const FileDescriptorProto = struct {
     options: ?*FileOptions = null,
     source_code_info: ?*SourceCodeInfo = null,
     syntax: ?[]const u8 = null,
+    edition: ?Edition = null,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -44,6 +45,10 @@ pub const FileDescriptorProto = struct {
 
     pub fn getSyntax(self: @This()) []const u8 {
         return self.syntax orelse "";
+    }
+
+    pub fn getEdition(self: @This()) Edition {
+        return self.edition orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -65,6 +70,7 @@ pub const FileDescriptorProto = struct {
             .{ .number = 8, .field_index = 10, .kind = .{ .message_field = .{} } }, // options
             .{ .number = 9, .field_index = 11, .kind = .{ .message_field = .{} } }, // source_code_info
             .{ .number = 12, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .string } } }, // syntax
+            .{ .number = 14, .field_index = 13, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition
         },
     };
 };
@@ -80,6 +86,7 @@ pub const DescriptorProto = struct {
     options: ?*MessageOptions = null,
     reserved_range: std.ArrayListUnmanaged(*DescriptorProto.ReservedRange) = .{},
     reserved_name: std.ArrayListUnmanaged([]const u8) = .{},
+    visibility: ?SymbolVisibility = null,
 
     pub const ExtensionRange = struct {
         start: ?i32 = null,
@@ -135,6 +142,10 @@ pub const DescriptorProto = struct {
         return self.name orelse "";
     }
 
+    pub fn getVisibility(self: @This()) SymbolVisibility {
+        return self.visibility orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
@@ -151,6 +162,7 @@ pub const DescriptorProto = struct {
             .{ .number = 7, .field_index = 7, .kind = .{ .message_field = .{} } }, // options
             .{ .number = 9, .field_index = 8, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
             .{ .number = 10, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
+            .{ .number = 11, .field_index = 10, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
         },
     };
 };
@@ -159,6 +171,7 @@ pub const ExtensionRangeOptions = struct {
     uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
     declaration: std.ArrayListUnmanaged(*ExtensionRangeOptions.Declaration) = .{},
     features: ?*FeatureSet = null,
+    verification: ?ExtensionRangeOptions.VerificationState = null,
 
     pub const Declaration = struct {
         number: ?i32 = null,
@@ -208,6 +221,10 @@ pub const ExtensionRangeOptions = struct {
         _,
     };
 
+    pub fn getVerification(self: @This()) ExtensionRangeOptions.VerificationState {
+        return self.verification orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
@@ -217,6 +234,7 @@ pub const ExtensionRangeOptions = struct {
             .{ .number = 999, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
             .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // declaration
             .{ .number = 50, .field_index = 2, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 3, .field_index = 3, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // verification
         },
     };
 };
@@ -224,6 +242,8 @@ pub const ExtensionRangeOptions = struct {
 pub const FieldDescriptorProto = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
+    label: ?FieldDescriptorProto.Label = null,
+    type: ?FieldDescriptorProto.Type = null,
     type_name: ?[]const u8 = null,
     extendee: ?[]const u8 = null,
     default_value: ?[]const u8 = null,
@@ -269,6 +289,14 @@ pub const FieldDescriptorProto = struct {
         return self.number orelse 0;
     }
 
+    pub fn getLabel(self: @This()) FieldDescriptorProto.Label {
+        return self.label orelse @enumFromInt(0);
+    }
+
+    pub fn getType(self: @This()) FieldDescriptorProto.Type {
+        return self.type orelse @enumFromInt(0);
+    }
+
     pub fn getTypeName(self: @This()) []const u8 {
         return self.type_name orelse "";
     }
@@ -301,13 +329,15 @@ pub const FieldDescriptorProto = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
-            .{ .number = 6, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_name
-            .{ .number = 2, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // extendee
-            .{ .number = 7, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
-            .{ .number = 9, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
-            .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
-            .{ .number = 8, .field_index = 7, .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 17, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .bool } } }, // proto3_optional
+            .{ .number = 4, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // label
+            .{ .number = 5, .field_index = 3, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // type
+            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_name
+            .{ .number = 2, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // extendee
+            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
+            .{ .number = 9, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
+            .{ .number = 10, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
+            .{ .number = 8, .field_index = 9, .kind = .{ .message_field = .{} } }, // options
+            .{ .number = 17, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .bool } } }, // proto3_optional
         },
     };
 };
@@ -338,6 +368,7 @@ pub const EnumDescriptorProto = struct {
     options: ?*EnumOptions = null,
     reserved_range: std.ArrayListUnmanaged(*EnumDescriptorProto.EnumReservedRange) = .{},
     reserved_name: std.ArrayListUnmanaged([]const u8) = .{},
+    visibility: ?SymbolVisibility = null,
 
     pub const EnumReservedRange = struct {
         start: ?i32 = null,
@@ -367,6 +398,10 @@ pub const EnumDescriptorProto = struct {
         return self.name orelse "";
     }
 
+    pub fn getVisibility(self: @This()) SymbolVisibility {
+        return self.visibility orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
@@ -378,6 +413,7 @@ pub const EnumDescriptorProto = struct {
             .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
             .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
             .{ .number = 5, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
+            .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
         },
     };
 };
@@ -480,6 +516,7 @@ pub const FileOptions = struct {
     java_multiple_files: ?bool = null,
     java_generate_equals_and_hash: ?bool = null,
     java_string_check_utf8: ?bool = null,
+    optimize_for: ?FileOptions.OptimizeMode = null,
     go_package: ?[]const u8 = null,
     cc_generic_services: ?bool = null,
     java_generic_services: ?bool = null,
@@ -521,6 +558,10 @@ pub const FileOptions = struct {
 
     pub fn getJavaStringCheckUtf8(self: @This()) bool {
         return self.java_string_check_utf8 orelse false;
+    }
+
+    pub fn getOptimizeFor(self: @This()) FileOptions.OptimizeMode {
+        return self.optimize_for orelse @enumFromInt(0);
     }
 
     pub fn getGoPackage(self: @This()) []const u8 {
@@ -586,21 +627,22 @@ pub const FileOptions = struct {
             .{ .number = 10, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_multiple_files
             .{ .number = 20, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_generate_equals_and_hash
             .{ .number = 27, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_string_check_utf8
-            .{ .number = 11, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // go_package
-            .{ .number = 16, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool } } }, // cc_generic_services
-            .{ .number = 17, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_generic_services
-            .{ .number = 18, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .bool } } }, // py_generic_services
-            .{ .number = 23, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
-            .{ .number = 31, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .bool } } }, // cc_enable_arenas
-            .{ .number = 36, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .string } } }, // objc_class_prefix
-            .{ .number = 37, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .string } } }, // csharp_namespace
-            .{ .number = 39, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string } } }, // swift_prefix
-            .{ .number = 40, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_class_prefix
-            .{ .number = 41, .field_index = 15, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_namespace
-            .{ .number = 44, .field_index = 16, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_metadata_namespace
-            .{ .number = 45, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // ruby_package
-            .{ .number = 50, .field_index = 18, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 19, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 9, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optimize_for
+            .{ .number = 11, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // go_package
+            .{ .number = 16, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool } } }, // cc_generic_services
+            .{ .number = 17, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_generic_services
+            .{ .number = 18, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .bool } } }, // py_generic_services
+            .{ .number = 23, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 31, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .bool } } }, // cc_enable_arenas
+            .{ .number = 36, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .string } } }, // objc_class_prefix
+            .{ .number = 37, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string } } }, // csharp_namespace
+            .{ .number = 39, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .string } } }, // swift_prefix
+            .{ .number = 40, .field_index = 15, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_class_prefix
+            .{ .number = 41, .field_index = 16, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_namespace
+            .{ .number = 44, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_metadata_namespace
+            .{ .number = 45, .field_index = 18, .kind = .{ .scalar = .{ .scalar = .string } } }, // ruby_package
+            .{ .number = 50, .field_index = 19, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 20, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -652,19 +694,28 @@ pub const MessageOptions = struct {
 };
 
 pub const FieldOptions = struct {
+    ctype: ?FieldOptions.CType = null,
     @"packed": ?bool = null,
+    jstype: ?FieldOptions.JSType = null,
     lazy: ?bool = null,
     unverified_lazy: ?bool = null,
     deprecated: ?bool = null,
     weak: ?bool = null,
     debug_redact: ?bool = null,
+    retention: ?FieldOptions.OptionRetention = null,
+    targets: std.ArrayListUnmanaged(FieldOptions.OptionTargetType) = .{},
     edition_defaults: std.ArrayListUnmanaged(*FieldOptions.EditionDefault) = .{},
     features: ?*FeatureSet = null,
     feature_support: ?*FieldOptions.FeatureSupport = null,
     uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
     pub const EditionDefault = struct {
+        edition: ?Edition = null,
         value: ?[]const u8 = null,
+
+        pub fn getEdition(self: @This()) Edition {
+            return self.edition orelse @enumFromInt(0);
+        }
 
         pub fn getValue(self: @This()) []const u8 {
             return self.value orelse "";
@@ -676,16 +727,32 @@ pub const FieldOptions = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 2, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // value
+                .{ .number = 3, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition
+                .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // value
             },
         };
     };
 
     pub const FeatureSupport = struct {
+        edition_introduced: ?Edition = null,
+        edition_deprecated: ?Edition = null,
         deprecation_warning: ?[]const u8 = null,
+        edition_removed: ?Edition = null,
+
+        pub fn getEditionIntroduced(self: @This()) Edition {
+            return self.edition_introduced orelse @enumFromInt(0);
+        }
+
+        pub fn getEditionDeprecated(self: @This()) Edition {
+            return self.edition_deprecated orelse @enumFromInt(0);
+        }
 
         pub fn getDeprecationWarning(self: @This()) []const u8 {
             return self.deprecation_warning orelse "";
+        }
+
+        pub fn getEditionRemoved(self: @This()) Edition {
+            return self.edition_removed orelse @enumFromInt(0);
         }
 
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -694,7 +761,10 @@ pub const FieldOptions = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 3, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // deprecation_warning
+                .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition_introduced
+                .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition_deprecated
+                .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // deprecation_warning
+                .{ .number = 4, .field_index = 3, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition_removed
             },
         };
     };
@@ -734,8 +804,16 @@ pub const FieldOptions = struct {
         _,
     };
 
+    pub fn getCtype(self: @This()) FieldOptions.CType {
+        return self.ctype orelse @enumFromInt(0);
+    }
+
     pub fn getPacked(self: @This()) bool {
         return self.@"packed" orelse false;
+    }
+
+    pub fn getJstype(self: @This()) FieldOptions.JSType {
+        return self.jstype orelse @enumFromInt(0);
     }
 
     pub fn getLazy(self: @This()) bool {
@@ -758,22 +836,30 @@ pub const FieldOptions = struct {
         return self.debug_redact orelse false;
     }
 
+    pub fn getRetention(self: @This()) FieldOptions.OptionRetention {
+        return self.retention orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 2, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
-            .{ .number = 5, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // lazy
-            .{ .number = 15, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // unverified_lazy
-            .{ .number = 3, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
-            .{ .number = 10, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // weak
-            .{ .number = 16, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
-            .{ .number = 20, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // edition_defaults
-            .{ .number = 21, .field_index = 7, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 22, .field_index = 8, .kind = .{ .message_field = .{} } }, // feature_support
-            .{ .number = 999, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // ctype
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
+            .{ .number = 6, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // jstype
+            .{ .number = 5, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // lazy
+            .{ .number = 15, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // unverified_lazy
+            .{ .number = 3, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool } } }, // weak
+            .{ .number = 16, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
+            .{ .number = 17, .field_index = 8, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // retention
+            .{ .number = 19, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // targets
+            .{ .number = 20, .field_index = 10, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // edition_defaults
+            .{ .number = 21, .field_index = 11, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 22, .field_index = 12, .kind = .{ .message_field = .{} } }, // feature_support
+            .{ .number = 999, .field_index = 13, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -882,6 +968,7 @@ pub const ServiceOptions = struct {
 
 pub const MethodOptions = struct {
     deprecated: ?bool = null,
+    idempotency_level: ?MethodOptions.IdempotencyLevel = null,
     features: ?*FeatureSet = null,
     uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
 
@@ -896,6 +983,10 @@ pub const MethodOptions = struct {
         return self.deprecated orelse false;
     }
 
+    pub fn getIdempotencyLevel(self: @This()) MethodOptions.IdempotencyLevel {
+        return self.idempotency_level orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
@@ -903,8 +994,9 @@ pub const MethodOptions = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 33, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
-            .{ .number = 35, .field_index = 1, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 34, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // idempotency_level
+            .{ .number = 35, .field_index = 2, .kind = .{ .message_field = .{} } }, // features
+            .{ .number = 999, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -984,6 +1076,15 @@ pub const UninterpretedOption = struct {
 };
 
 pub const FeatureSet = struct {
+    field_presence: ?FeatureSet.FieldPresence = null,
+    enum_type: ?FeatureSet.EnumType = null,
+    repeated_field_encoding: ?FeatureSet.RepeatedFieldEncoding = null,
+    utf8_validation: ?FeatureSet.Utf8Validation = null,
+    message_encoding: ?FeatureSet.MessageEncoding = null,
+    json_format: ?FeatureSet.JsonFormat = null,
+    enforce_naming_style: ?FeatureSet.EnforceNamingStyle = null,
+    default_symbol_visibility: ?FeatureSet.VisibilityFeature.DefaultSymbolVisibility = null,
+
     pub const VisibilityFeature = struct {
         pub const DefaultSymbolVisibility = enum(i32) {
             DEFAULT_SYMBOL_VISIBILITY_UNKNOWN = 0,
@@ -1053,21 +1154,69 @@ pub const FeatureSet = struct {
         _,
     };
 
+    pub fn getFieldPresence(self: @This()) FeatureSet.FieldPresence {
+        return self.field_presence orelse @enumFromInt(0);
+    }
+
+    pub fn getEnumType(self: @This()) FeatureSet.EnumType {
+        return self.enum_type orelse @enumFromInt(0);
+    }
+
+    pub fn getRepeatedFieldEncoding(self: @This()) FeatureSet.RepeatedFieldEncoding {
+        return self.repeated_field_encoding orelse @enumFromInt(0);
+    }
+
+    pub fn getUtf8Validation(self: @This()) FeatureSet.Utf8Validation {
+        return self.utf8_validation orelse @enumFromInt(0);
+    }
+
+    pub fn getMessageEncoding(self: @This()) FeatureSet.MessageEncoding {
+        return self.message_encoding orelse @enumFromInt(0);
+    }
+
+    pub fn getJsonFormat(self: @This()) FeatureSet.JsonFormat {
+        return self.json_format orelse @enumFromInt(0);
+    }
+
+    pub fn getEnforceNamingStyle(self: @This()) FeatureSet.EnforceNamingStyle {
+        return self.enforce_naming_style orelse @enumFromInt(0);
+    }
+
+    pub fn getDefaultSymbolVisibility(self: @This()) FeatureSet.VisibilityFeature.DefaultSymbolVisibility {
+        return self.default_symbol_visibility orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // field_presence
+            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // enum_type
+            .{ .number = 3, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // repeated_field_encoding
+            .{ .number = 4, .field_index = 3, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // utf8_validation
+            .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // message_encoding
+            .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // json_format
+            .{ .number = 7, .field_index = 6, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // enforce_naming_style
+            .{ .number = 8, .field_index = 7, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // default_symbol_visibility
+        },
     };
 };
 
 pub const FeatureSetDefaults = struct {
     defaults: std.ArrayListUnmanaged(*FeatureSetDefaults.FeatureSetEditionDefault) = .{},
+    minimum_edition: ?Edition = null,
+    maximum_edition: ?Edition = null,
 
     pub const FeatureSetEditionDefault = struct {
+        edition: ?Edition = null,
         overridable_features: ?*FeatureSet = null,
         fixed_features: ?*FeatureSet = null,
+
+        pub fn getEdition(self: @This()) Edition {
+            return self.edition orelse @enumFromInt(0);
+        }
 
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
@@ -1075,11 +1224,20 @@ pub const FeatureSetDefaults = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 4, .field_index = 0, .kind = .{ .message_field = .{} } }, // overridable_features
-                .{ .number = 5, .field_index = 1, .kind = .{ .message_field = .{} } }, // fixed_features
+                .{ .number = 3, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition
+                .{ .number = 4, .field_index = 1, .kind = .{ .message_field = .{} } }, // overridable_features
+                .{ .number = 5, .field_index = 2, .kind = .{ .message_field = .{} } }, // fixed_features
             },
         };
     };
+
+    pub fn getMinimumEdition(self: @This()) Edition {
+        return self.minimum_edition orelse @enumFromInt(0);
+    }
+
+    pub fn getMaximumEdition(self: @This()) Edition {
+        return self.maximum_edition orelse @enumFromInt(0);
+    }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -1088,6 +1246,8 @@ pub const FeatureSetDefaults = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // defaults
+            .{ .number = 4, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // minimum_edition
+            .{ .number = 5, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // maximum_edition
         },
     };
 };
@@ -1144,6 +1304,7 @@ pub const GeneratedCodeInfo = struct {
         source_file: ?[]const u8 = null,
         begin: ?i32 = null,
         end: ?i32 = null,
+        semantic: ?GeneratedCodeInfo.Annotation.Semantic = null,
 
         pub const Semantic = enum(i32) {
             NONE = 0,
@@ -1164,6 +1325,10 @@ pub const GeneratedCodeInfo = struct {
             return self.end orelse 0;
         }
 
+        pub fn getSemantic(self: @This()) GeneratedCodeInfo.Annotation.Semantic {
+            return self.semantic orelse @enumFromInt(0);
+        }
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
@@ -1174,6 +1339,7 @@ pub const GeneratedCodeInfo = struct {
                 .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // source_file
                 .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // begin
                 .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
+                .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // semantic
             },
         };
     };

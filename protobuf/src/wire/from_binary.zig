@@ -97,7 +97,19 @@ fn readListField(
             try reader.join();
             try field_ptr.*.append(allocator, p);
         },
-        .enum_type => try skipField(reader, wire_type),
+        .enum_type => {
+            const Elem = comptime std.meta.Child(@TypeOf(field_ptr.*.items));
+            if (wire_type == .length_delimited) {
+                // Packed repeated enum.
+                try reader.fork();
+                while (reader.remainingInScope() > 0) {
+                    try field_ptr.*.append(allocator, @as(Elem, @enumFromInt(try reader.int32())));
+                }
+                try reader.join();
+            } else {
+                try field_ptr.*.append(allocator, @as(Elem, @enumFromInt(try reader.int32())));
+            }
+        },
     }
 }
 
@@ -144,6 +156,9 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                             }
                             @field(msg.*, field_name) = try readScalar(reader, sc.scalar);
                         }
+                    },
+                    .enum_field => {
+                        @field(msg.*, field_name) = @enumFromInt(try reader.int32());
                     },
                     .message_field => try readMessageField(reader, &@field(msg.*, field_name), allocator),
                     .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, tag.wire_type, allocator),
@@ -255,6 +270,41 @@ test "repeated string field unpacked two elements decoded" {
     try testing.expectEqual(@as(usize, 2), msg.repeated_field.items.len);
     try testing.expectEqualStrings("foo", msg.repeated_field.items[0]);
     try testing.expectEqualStrings("hi", msg.repeated_field.items[1]);
+}
+
+test "singular enum field decoded" {
+    // color_field: field number 10, varint: tag = 0x50, color_green = 2 = 0x02
+    try expectFromBinary(FakeMessageFoo, FakeMessageFoo{ .color_field = .color_green }, &.{ 0x50, 0x02 });
+}
+
+test "singular enum field unknown value decoded" {
+    // An unknown varint value (99) must round-trip via the non-exhaustive enum tag.
+    // tag = 0x50, value 99 = 0x63
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x50, 0x63 }, testing.allocator);
+    try testing.expectEqual(@as(i32, 99), @intFromEnum(msg.color_field.?));
+}
+
+test "repeated packed enum field decoded" {
+    // repeated_color_field: field number 13, packed: tag = 0x6a, length = 2, color_red=1, color_green=2
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x6a, 0x02, 0x01, 0x02 }, testing.allocator);
+    try testing.expectEqual(@as(usize, 2), msg.repeated_color_field.items.len);
+    try testing.expectEqual(FakeMessageFoo.Color.color_red, msg.repeated_color_field.items[0]);
+    try testing.expectEqual(FakeMessageFoo.Color.color_green, msg.repeated_color_field.items[1]);
+}
+
+test "repeated unpacked enum field decoded" {
+    // Two unpacked occurrences of field number 13 (varint): tag=0x68, value, tag=0x68, value
+    // tag = (13 << 3) | 0 = 0x68
+    var msg: FakeMessageFoo = .{};
+    defer msg.deinit(testing.allocator);
+    try from_binary(&msg, &.{ 0x68, 0x01, 0x68, 0x02 }, testing.allocator);
+    try testing.expectEqual(@as(usize, 2), msg.repeated_color_field.items.len);
+    try testing.expectEqual(FakeMessageFoo.Color.color_red, msg.repeated_color_field.items[0]);
+    try testing.expectEqual(FakeMessageFoo.Color.color_green, msg.repeated_color_field.items[1]);
 }
 
 test "repeated float field packed decoded" {

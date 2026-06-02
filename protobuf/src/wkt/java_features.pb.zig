@@ -7,8 +7,10 @@ const _metadata = _codegen.metadata;
 
 pub const JavaFeatures = struct {
     legacy_closed_enum: ?bool = null,
+    utf8_validation: ?JavaFeatures.Utf8Validation = null,
     large_enum: ?bool = null,
     use_old_outer_classname_default: ?bool = null,
+    nest_in_file_class: ?JavaFeatures.NestInFileClassFeature.NestInFileClass = null,
 
     pub const NestInFileClassFeature = struct {
         pub const NestInFileClass = enum(i32) {
@@ -39,12 +41,20 @@ pub const JavaFeatures = struct {
         return self.legacy_closed_enum orelse false;
     }
 
+    pub fn getUtf8Validation(self: @This()) JavaFeatures.Utf8Validation {
+        return self.utf8_validation orelse @enumFromInt(0);
+    }
+
     pub fn getLargeEnum(self: @This()) bool {
         return self.large_enum orelse false;
     }
 
     pub fn getUseOldOuterClassnameDefault(self: @This()) bool {
         return self.use_old_outer_classname_default orelse false;
+    }
+
+    pub fn getNestInFileClass(self: @This()) JavaFeatures.NestInFileClassFeature.NestInFileClass {
+        return self.nest_in_file_class orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -54,8 +64,10 @@ pub const JavaFeatures = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_closed_enum
-            .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // large_enum
-            .{ .number = 4, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // use_old_outer_classname_default
+            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // utf8_validation
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // large_enum
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // use_old_outer_classname_default
+            .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // nest_in_file_class
         },
     };
 };
