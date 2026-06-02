@@ -74,6 +74,7 @@ fn readListField(
 ) ReadMessageError!void {
     switch (comptime list_meta.element) {
         .scalar => |sc| {
+            // Packed repeated field
             if (wire_type == .length_delimited and
                 comptime (sc != .string and sc != .bytes))
             {
