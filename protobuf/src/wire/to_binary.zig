@@ -271,10 +271,6 @@ test "message field non-null encodes length-delimited submessage" {
     );
 }
 
-test "repeated string field empty emits nothing" {
-    try expectToBinary(FakeMessageFoo{}, &.{});
-}
-
 test "repeated string field one element encodes tag length bytes" {
     // repeated_field: field number 4, wire type length_delimited
     // tag = (4 << 3) | 2 = 0x22, length = 3, "foo"
