@@ -5,12 +5,14 @@ const descriptor = @import("descriptor.zig");
 const to_binary_mod = @import("wire/to_binary.zig");
 const from_binary_mod = @import("wire/from_binary.zig");
 
+// TODO move under `descriptor`?
 pub const WireType = tag.WireType;
 pub const Tag = tag.Tag;
 pub const ScalarType = descriptor.ScalarType;
-pub const FieldPresence = descriptor.FieldPresence;
+pub const SupportedEdition = descriptor.SupportedEdition;
+pub const SupportedFieldPresence = descriptor.SupportedFieldPresence;
 pub const DefaultValue = descriptor.DefaultValue;
-pub const DescMember = descriptor.DescMember;
+pub const DescMessageMember = descriptor.DescMessageMember;
 pub const DescElementType = descriptor.DescElementType;
 pub const DescComments = descriptor.DescComments;
 pub const DescFile = descriptor.DescFile;

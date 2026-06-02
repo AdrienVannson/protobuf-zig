@@ -2,7 +2,7 @@ const descriptor = @import("../descriptor.zig");
 
 pub const ScalarType = descriptor.ScalarType;
 pub const DefaultValue = descriptor.DefaultValue;
-pub const FieldPresence = descriptor.FieldPresence;
+pub const SupportedFieldPresence = descriptor.SupportedFieldPresence;
 
 pub const FieldMetadataElementType = union(enum) {
     scalar: ScalarType,
@@ -37,7 +37,7 @@ pub const FieldMetadata = struct {
     number: u32,
     field_index: u16,
     oneof_variant: ?[]const u8 = null,
-    presence: FieldPresence = .explicit,
+    presence: SupportedFieldPresence = .explicit,
     kind: FieldMetadataKind,
 };
 

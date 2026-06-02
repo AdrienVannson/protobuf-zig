@@ -342,7 +342,7 @@ fn scalarDefaultLiteral(t: FieldType) []const u8 {
     };
 }
 
-fn escapeZigKeyword(alloc: std.mem.Allocator, name: []const u8) ![]u8 {
+pub fn escapeZigKeyword(alloc: std.mem.Allocator, name: []const u8) ![]u8 {
     if (std.zig.Token.keywords.has(name)) {
         return std.fmt.allocPrint(alloc, "@\"{s}\"", .{name});
     }
@@ -373,7 +373,7 @@ fn emitDescriptorBytes(
     try f.writeLine("\";");
 }
 
-fn toCamelCase(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
+pub fn toCamelCase(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
     var out: std.ArrayList(u8) = .{};
     try out.ensureTotalCapacity(alloc, snake.len);
     var upper_next = true;
