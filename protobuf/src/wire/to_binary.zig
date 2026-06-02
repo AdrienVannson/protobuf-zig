@@ -64,6 +64,13 @@ fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigT
 
 const WriteMessageError = error{ OutOfMemory, JoinWithoutFork };
 
+fn writeMessageField(bw: *BinaryWriter, comptime number: u32, child: anytype) WriteMessageError!void {
+    try bw.tag(number, .length_delimited);
+    try bw.fork();
+    try writeMessage(bw, child);
+    try bw.join();
+}
+
 fn writeListField(
     bw: *BinaryWriter,
     list: anytype,
@@ -87,10 +94,7 @@ fn writeListField(
         },
         .message => {
             for (list.items) |child_ptr| {
-                try bw.tag(number, .length_delimited);
-                try bw.fork();
-                try writeMessage(bw, child_ptr.*);
-                try bw.join();
+                try writeMessageField(bw, number, child_ptr.*);
             }
         },
         .enum_type => {},
@@ -161,12 +165,8 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
                     }
                 },
                 .message_field => {
-                    const opt = @field(msg, field_name); // ?*Child
-                    if (opt) |child_ptr| {
-                        try bw.tag(@intCast(field_meta.number), .length_delimited);
-                        try bw.fork();
-                        try writeMessage(bw, child_ptr.*);
-                        try bw.join();
+                    if (@field(msg, field_name)) |child_ptr| {
+                        try writeMessageField(bw, field_meta.number, child_ptr.*);
                     }
                 },
                 .list => |list_meta| try writeListField(bw, @field(msg, field_name), list_meta, field_meta.number),
