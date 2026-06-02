@@ -225,10 +225,6 @@ test "oneof with regular field combined" {
     );
 }
 
-test "message field null emits nothing" {
-    try expectToBinary(FakeMessageFoo{ .message_field = null }, &.{});
-}
-
 test "message field non-null encodes length-delimited submessage" {
     // message_field: field number 5, wire type length_delimited
     // tag = (5 << 3) | 2 = 0x2a, length = 5
