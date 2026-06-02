@@ -45,12 +45,6 @@ Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.DefaultValue.Protob
 Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: Expect: \240\007\001, but got: 
 Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: Expect: \240\007\001, but got: 
 Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.UINT64.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: Expect: \240\007\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \260\006\000\260\006\001\260\006\002\260\006\377\377\377\377\377\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
-Recommended.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.UnpackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \260\006\000\260\006\001\260\006\002\260\006\377\377\377\377\377\377\377
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.DefaultOutput.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.PackedOutput.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.UnpackedOutput.ProtobufOutput # Failed to parse input or produce output.
@@ -66,11 +60,7 @@ Recommended.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.Unpacked
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.BOOL[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \150\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.BYTES[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \172\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.DOUBLE[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \141\000\000\000\000\000\000\000\000
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[1].ProtobufOutput # Output was not equivalent to reference message: Expect: \250\001\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[2].ProtobufOutput # Output was not equivalent to reference message: Expect: \250\001\002, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[3].ProtobufOutput # Output was not equivalent to reference message: Expect: \250\001\377\377\377\377\377\377\377\377\377\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[4].ProtobufOutput # Output was not equivalent to reference message: Expect: \250\001\377\377\377\377\377\377\377\377\377\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[5].ProtobufOutput # Output was not equivalent to reference message: Expect: \250\001\001, but got: 
+Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \250\001\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.FIXED32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \075\000\000\000\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.FIXED64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \101\000\000\000\000\000\000\000\000
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.FLOAT[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \135\000\000\000\000
@@ -91,8 +81,6 @@ Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.UINT32[8].ProtobufOutput 
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.UINT32[9].ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.UINT64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \040\000
 Required.Proto2.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
-Required.Proto3.ProtobufInput.PrematureEofInPackedFieldValue.ENUM # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.ENUM.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAR
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.SINT32.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.UINT32.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
@@ -254,17 +242,10 @@ Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.DefaultValue.ProtobufOutput 
 Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_uint64: 1
 Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_uint64: 1
 Required.Proto3.ProtobufInput.ValidDataOneof.UINT64.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_uint64: 1
-Required.Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_enum[0]: FOOdeleted: repeated_nested_enum[1]: BARdelete
-Required.Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_enum[0]: FOOdeleted: repeated_nested_enum[1]: BARdelete
 Required.Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[1].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAR
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[2].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAZ
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[3].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: NEG
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[4].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: NEG
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[5].ProtobufOutput # Output was not equivalent to reference message: deleted: optional_nested_enum: BAR
 Required.Proto3.ProtobufInput.ValidDataScalar.SINT32[4].ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataScalar.UINT32[5].ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataScalar.UINT32[6].ProtobufOutput # Failed to parse input or produce output.

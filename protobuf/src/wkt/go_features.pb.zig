@@ -7,6 +7,8 @@ const _metadata = _codegen.metadata;
 
 pub const GoFeatures = struct {
     legacy_unmarshal_json_enum: ?bool = null,
+    api_level: ?GoFeatures.APILevel = null,
+    strip_enum_prefix: ?GoFeatures.StripEnumPrefix = null,
 
     pub const APILevel = enum(i32) {
         API_LEVEL_UNSPECIFIED = 0,
@@ -28,6 +30,14 @@ pub const GoFeatures = struct {
         return self.legacy_unmarshal_json_enum orelse false;
     }
 
+    pub fn getApiLevel(self: @This()) GoFeatures.APILevel {
+        return self.api_level orelse @enumFromInt(0);
+    }
+
+    pub fn getStripEnumPrefix(self: @This()) GoFeatures.StripEnumPrefix {
+        return self.strip_enum_prefix orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
@@ -35,6 +45,8 @@ pub const GoFeatures = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_unmarshal_json_enum
+            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // api_level
+            .{ .number = 3, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // strip_enum_prefix
         },
     };
 };

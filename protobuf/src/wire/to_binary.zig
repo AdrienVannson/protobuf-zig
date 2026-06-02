@@ -97,7 +97,19 @@ fn writeListField(
                 try writeMessageField(bw, number, child_ptr.*);
             }
         },
-        .enum_type => {},
+        .enum_type => {
+            if (comptime list_meta.is_packed) {
+                try bw.tag(number, .length_delimited);
+                try bw.fork();
+                for (list.items) |v| try bw.int32(@intFromEnum(v));
+                try bw.join();
+            } else {
+                for (list.items) |v| {
+                    try bw.tag(number, .varint);
+                    try bw.int32(@intFromEnum(v));
+                }
+            }
+        },
     }
 }
 
@@ -170,6 +182,12 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
                     }
                 },
                 .list => |list_meta| try writeListField(bw, @field(msg, field_name), list_meta, field_meta.number),
+                .enum_field => {
+                    if (@field(msg, field_name)) |value| {
+                        try bw.tag(field_meta.number, .varint);
+                        try bw.int32(@intFromEnum(value));
+                    }
+                },
                 else => {},
             }
         }
@@ -291,6 +309,37 @@ test "repeated string field two elements encodes both" {
         FakeMessageFoo{ .repeated_field = list },
         &.{ 0x22, 0x03, 'f', 'o', 'o', 0x22, 0x02, 'h', 'i' },
     );
+}
+
+test "singular enum field null emits nothing" {
+    try expectToBinary(FakeMessageFoo{}, &.{});
+}
+
+test "singular enum field non-null encodes tag and varint" {
+    // color_field: field number 10, wire type varint
+    // tag = (10 << 3) | 0 = 0x50, color_green = 2 = 0x02
+    try expectToBinary(FakeMessageFoo{ .color_field = .color_green }, &.{ 0x50, 0x02 });
+}
+
+test "singular enum field negative value encodes tag and varint" {
+    // color_unknown has number 0, which encodes as a zero varint (omitted by implicit presence rules).
+    // We test color_red (1) directly to verify the tag and value.
+    // tag = 0x50, color_red = 1 = 0x01
+    try expectToBinary(FakeMessageFoo{ .color_field = .color_red }, &.{ 0x50, 0x01 });
+}
+
+test "repeated packed enum field empty emits nothing" {
+    try expectToBinary(FakeMessageFoo{}, &.{});
+}
+
+test "repeated packed enum field two elements encodes length-delimited blob" {
+    // repeated_color_field: field number 13, wire type length_delimited (packed)
+    // tag = (13 << 3) | 2 = 0x6a, length = 2 (color_red=1 + color_green=2 each 1 byte)
+    var list: std.ArrayListUnmanaged(FakeMessageFoo.Color) = .{};
+    defer list.deinit(testing.allocator);
+    try list.append(testing.allocator, .color_red);
+    try list.append(testing.allocator, .color_green);
+    try expectToBinary(FakeMessageFoo{ .repeated_color_field = list }, &.{ 0x6a, 0x02, 0x01, 0x02 });
 }
 
 test "repeated float field packed encodes length-delimited blob" {

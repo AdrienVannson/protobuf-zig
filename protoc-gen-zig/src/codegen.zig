@@ -58,9 +58,9 @@ fn generateMessage(
     try f.writeLine(.{ "pub const ", safe_name, " = struct {" });
     f.indent();
 
-    // Plain scalar/message/list struct fields (not in a oneof).
+    // Plain scalar/message/list/enum struct fields (not in a oneof).
     for (msg.fields) |*field| {
-        if (!isPlainScalar(field) and !isPlainMessage(field) and !isPlainList(field)) continue;
+        if (!isPlainScalar(field) and !isPlainMessage(field) and !isPlainList(field) and !isPlainEnum(field)) continue;
         try generateField(f, field);
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
@@ -81,6 +81,11 @@ fn generateMessage(
     for (msg.fields) |*field| {
         if (!isPlainScalar(field)) continue;
         try generateFieldGetter(f, field);
+    }
+    // Plain enum field getters.
+    for (msg.fields) |*field| {
+        if (!isPlainEnum(field)) continue;
+        try generateEnumFieldGetter(f, field);
     }
     // Oneof variant getters.
     for (msg.oneofs) |*oneof| {
@@ -110,7 +115,12 @@ fn generateEnum(
     try f.writeLine(.{ "pub const ", safe_name, " = enum(i32) {" });
     f.indent();
 
-    for (e.values) |*v| {
+    for (e.values, 0..) |*v, i| {
+        // Skip alias values (allow_alias enums declare multiple names for the same number).
+        // Zig rejects duplicate enum tag values; emit only the first occurrence of each number.
+        if (e.value.get(v.number)) |first_idx| {
+            if (first_idx != i) continue;
+        }
         const safe_value_name = try escapeZigKeyword(f.alloc, v.local_name);
         defer f.alloc.free(safe_value_name);
         try f.writeLine(.{ safe_value_name, " = ", v.number, "," });
@@ -166,6 +176,19 @@ fn generateMessageMetadata(
                 field.name,
             });
             field_index += 1;
+        } else if (isPlainEnum(field)) {
+            const default = field.kind.enum_field.default_value orelse 0;
+            try f.writeLine(.{
+                ".{ .number = ",
+                field.number,
+                ", .field_index = ",
+                field_index,
+                ", .kind = .{ .enum_field = .{ .default_value = ",
+                default,
+                " } } }, // ",
+                field.name,
+            });
+            field_index += 1;
         } else if (isPlainList(field)) {
             const list = field.kind.list;
             const packed_suffix: []const u8 = if (list.is_packed) ", .is_packed = true" else "";
@@ -194,7 +217,18 @@ fn generateMessageMetadata(
                         field.name,
                     });
                 },
-                else => unreachable, // filtered by isPlainList
+                .enum_type => {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} }",
+                        packed_suffix,
+                        " } } }, // ",
+                        field.name,
+                    });
+                },
             }
             field_index += 1;
         }
@@ -240,6 +274,11 @@ fn generateField(
             defer f.alloc.free(type_name);
             try f.writeLine(.{ field.local_name, ": ?*", type_name, " = null," });
         },
+        .enum_field => |ef| {
+            const type_name = try enumZigTypeName(f.alloc, ef.enum_type);
+            defer f.alloc.free(type_name);
+            try f.writeLine(.{ field.local_name, ": ?", type_name, " = null," });
+        },
         .list => |list| {
             switch (list.element) {
                 .scalar => |sc| {
@@ -250,7 +289,11 @@ fn generateField(
                     defer f.alloc.free(type_name);
                     try f.writeLine(.{ field.local_name, ": std.ArrayListUnmanaged(*", type_name, ") = .{}," });
                 },
-                else => unreachable, // filtered by isPlainList
+                .enum_type => |e| {
+                    const type_name = try enumZigTypeName(f.alloc, e);
+                    defer f.alloc.free(type_name);
+                    try f.writeLine(.{ field.local_name, ": std.ArrayListUnmanaged(", type_name, ") = .{}," });
+                },
             }
         },
         else => unreachable,
@@ -330,15 +373,22 @@ fn isPlainMessage(field: *const protobuf.DescField) bool {
     return field.kind.message_field.message.file == field.parent.file;
 }
 
-/// Returns true for a repeated scalar or same-file repeated message field.
-/// Repeated enum elements and map fields are skipped (not yet supported).
+/// Returns true for a repeated scalar, same-file repeated message, or same-file repeated enum field.
+/// Map fields are skipped (not yet supported).
 fn isPlainList(field: *const protobuf.DescField) bool {
     if (field.kind != .list) return false;
     return switch (field.kind.list.element) {
         .scalar => true,
         .message => |m| m.file == field.parent.file,
-        .enum_type => false,
+        .enum_type => |e| e.file == field.parent.file,
     };
+}
+
+/// Returns true for a non-oneof, same-file singular enum field.
+fn isPlainEnum(field: *const protobuf.DescField) bool {
+    if (field.kind != .enum_field) return false;
+    if (field.kind.enum_field.oneof != null) return false;
+    return field.kind.enum_field.enum_type.file == field.parent.file;
 }
 
 /// Builds the dotted Zig path for a message type as seen from the file root.
@@ -363,6 +413,41 @@ fn messageZigTypeName(alloc: std.mem.Allocator, msg: *const protobuf.DescMessage
     std.mem.reverse([]u8, parts.items);
 
     return std.mem.join(alloc, ".", parts.items);
+}
+
+/// Builds the dotted Zig path for an enum type as seen from the file root.
+///
+/// Mirrors messageZigTypeName: walks the parent message chain (if any) then appends
+/// the enum's own local_name, e.g. "Outer.MyEnum" for a nested enum.
+fn enumZigTypeName(alloc: std.mem.Allocator, e: *const protobuf.DescEnum) ![]u8 {
+    const safe_name = try escapeZigKeyword(alloc, e.local_name);
+    if (e.parent) |parent_msg| {
+        defer alloc.free(safe_name);
+        const parent_path = try messageZigTypeName(alloc, parent_msg);
+        defer alloc.free(parent_path);
+        return std.fmt.allocPrint(alloc, "{s}.{s}", .{ parent_path, safe_name });
+    }
+    return safe_name;
+}
+
+fn generateEnumFieldGetter(
+    f: *GeneratedFile,
+    field: *const protobuf.DescField,
+) !void {
+    const field_name_camel = try toCamelCase(f.alloc, field.name);
+    defer f.alloc.free(field_name_camel);
+
+    const zig_type = try enumZigTypeName(f.alloc, field.kind.enum_field.enum_type);
+    defer f.alloc.free(zig_type);
+
+    const default = field.kind.enum_field.default_value orelse 0;
+
+    try f.emptyLine();
+    try f.writeLine(.{ "pub fn get", field_name_camel, "(self: @This()) ", zig_type, " {" });
+    f.indent();
+    try f.writeLine(.{ "return self.", field.local_name, " orelse @enumFromInt(", default, ");" });
+    f.unindent();
+    try f.writeLine("}");
 }
 
 fn scalarZigType(t: protobuf.ScalarType) []const u8 {

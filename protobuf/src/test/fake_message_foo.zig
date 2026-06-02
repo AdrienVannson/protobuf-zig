@@ -11,6 +11,7 @@ pub const FakeMessageFoo = struct {
     color_field: ?Color = null,
     float_field: ?f32 = null,
     repeated_float_field: std.ArrayListUnmanaged(f32) = .{},
+    repeated_color_field: std.ArrayListUnmanaged(Color) = .{},
 
     pub const _desc = metadata.MessageMetadata{
         .fields = &[_]metadata.FieldMetadata{
@@ -23,6 +24,7 @@ pub const FakeMessageFoo = struct {
             .{ .number = 10, .field_index = 6, .kind = .{ .enum_field = .{} } }, // color_field
             .{ .number = 11, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .float } } }, // float_field
             .{ .number = 12, .field_index = 8, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .float }, .is_packed = true } } }, // repeated_float_field
+            .{ .number = 13, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // repeated_color_field
         },
     };
 
@@ -34,6 +36,7 @@ pub const FakeMessageFoo = struct {
             allocator.destroy(m);
         }
         self.repeated_float_field.deinit(allocator);
+        self.repeated_color_field.deinit(allocator);
     }
 
     pub const Bar = struct {
@@ -54,6 +57,7 @@ pub const FakeMessageFoo = struct {
         color_unknown = 0,
         color_red = 1,
         color_green = 2,
+        _,
     };
 };
 

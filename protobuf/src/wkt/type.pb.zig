@@ -10,6 +10,7 @@ pub const Type = struct {
     fields: std.ArrayListUnmanaged(*Field) = .{},
     oneofs: std.ArrayListUnmanaged([]const u8) = .{},
     options: std.ArrayListUnmanaged(*Option) = .{},
+    syntax: ?Syntax = null,
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -18,6 +19,10 @@ pub const Type = struct {
 
     pub fn getEdition(self: @This()) []const u8 {
         return self.edition orelse "";
+    }
+
+    pub fn getSyntax(self: @This()) Syntax {
+        return self.syntax orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -30,12 +35,15 @@ pub const Type = struct {
             .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
             .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
             .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 7, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 6, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
+            .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };
 
 pub const Field = struct {
+    kind: ?Field.Kind = null,
+    cardinality: ?Field.Cardinality = null,
     number: ?i32 = null,
     name: ?[]const u8 = null,
     type_url: ?[]const u8 = null,
@@ -104,20 +112,30 @@ pub const Field = struct {
         return self.default_value orelse "";
     }
 
+    pub fn getKind(self: @This()) Field.Kind {
+        return self.kind orelse @enumFromInt(0);
+    }
+
+    pub fn getCardinality(self: @This()) Field.Cardinality {
+        return self.cardinality orelse @enumFromInt(0);
+    }
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 3, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
-            .{ .number = 4, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 6, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_url
-            .{ .number = 7, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
-            .{ .number = 8, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
-            .{ .number = 9, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
-            .{ .number = 11, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
+            .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // kind
+            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // cardinality
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_url
+            .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
+            .{ .number = 8, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
+            .{ .number = 9, .field_index = 7, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 10, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
+            .{ .number = 11, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
         },
     };
 };
@@ -126,6 +144,7 @@ pub const Enum = struct {
     name: ?[]const u8 = null,
     enumvalue: std.ArrayListUnmanaged(*EnumValue) = .{},
     options: std.ArrayListUnmanaged(*Option) = .{},
+    syntax: ?Syntax = null,
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -134,6 +153,10 @@ pub const Enum = struct {
 
     pub fn getEdition(self: @This()) []const u8 {
         return self.edition orelse "";
+    }
+
+    pub fn getSyntax(self: @This()) Syntax {
+        return self.syntax orelse @enumFromInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -145,7 +168,8 @@ pub const Enum = struct {
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
             .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 6, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 5, .field_index = 3, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
+            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };
