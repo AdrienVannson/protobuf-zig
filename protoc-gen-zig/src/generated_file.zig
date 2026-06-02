@@ -101,6 +101,10 @@ pub const GeneratedFile = struct {
 // Tests
 // ---------------------------------------------------------------------------
 
+test {
+    _ = @import("desc_file_from_proto.zig");
+}
+
 const testing = std.testing;
 
 fn expectContents(f: *GeneratedFile, expected: []const u8) !void {

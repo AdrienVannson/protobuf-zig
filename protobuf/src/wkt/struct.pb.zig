@@ -6,24 +6,6 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Struct = struct {
-    pub const FieldsEntry = struct {
-        key: ?[]const u8 = null,
-
-        pub fn getKey(self: @This()) []const u8 {
-            return self.key orelse "";
-        }
-
-        pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
-            _codegen.deinit_message(self, allocator);
-        }
-
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // key
-            },
-        };
-    };
-
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
