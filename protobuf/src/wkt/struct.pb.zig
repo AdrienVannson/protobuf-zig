@@ -57,12 +57,16 @@ pub const Value = struct {
 };
 
 pub const ListValue = struct {
+    values: std.ArrayListUnmanaged(*Value) = .{},
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // values
+        },
     };
 };
 

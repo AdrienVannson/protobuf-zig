@@ -7,6 +7,9 @@ const _metadata = _codegen.metadata;
 
 pub const Type = struct {
     name: ?[]const u8 = null,
+    fields: std.ArrayListUnmanaged(*Field) = .{},
+    oneofs: std.ArrayListUnmanaged([]const u8) = .{},
+    options: std.ArrayListUnmanaged(*Option) = .{},
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -24,7 +27,10 @@ pub const Type = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 7, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
+            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
+            .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 7, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };
@@ -35,6 +41,7 @@ pub const Field = struct {
     type_url: ?[]const u8 = null,
     oneof_index: ?i32 = null,
     @"packed": ?bool = null,
+    options: std.ArrayListUnmanaged(*Option) = .{},
     json_name: ?[]const u8 = null,
     default_value: ?[]const u8 = null,
 
@@ -108,14 +115,17 @@ pub const Field = struct {
             .{ .number = 6, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_url
             .{ .number = 7, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
             .{ .number = 8, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
-            .{ .number = 10, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
-            .{ .number = 11, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
+            .{ .number = 9, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
+            .{ .number = 11, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
         },
     };
 };
 
 pub const Enum = struct {
     name: ?[]const u8 = null,
+    enumvalue: std.ArrayListUnmanaged(*EnumValue) = .{},
+    options: std.ArrayListUnmanaged(*Option) = .{},
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -133,7 +143,9 @@ pub const Enum = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 6, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
+            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 6, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };
@@ -141,6 +153,7 @@ pub const Enum = struct {
 pub const EnumValue = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
+    options: std.ArrayListUnmanaged(*Option) = .{},
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -158,6 +171,7 @@ pub const EnumValue = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
+            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
         },
     };
 };
