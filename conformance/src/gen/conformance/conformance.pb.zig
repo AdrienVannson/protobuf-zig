@@ -47,6 +47,7 @@ pub const FailureSet = struct {
 
 pub const ConformanceRequest = struct {
     message_type: ?[]const u8 = null,
+    jspb_encoding_options: ?*JspbEncodingConfig = null,
     print_unknown_fields: ?bool = null,
     payload: ?union(enum) {
         protobuf_payload: []const u8,
@@ -98,11 +99,12 @@ pub const ConformanceRequest = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 4, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // message_type
-            .{ .number = 9, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // print_unknown_fields
-            .{ .number = 1, .field_index = 2, .oneof_variant = "protobuf_payload", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // protobuf_payload
-            .{ .number = 2, .field_index = 2, .oneof_variant = "json_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_payload
-            .{ .number = 7, .field_index = 2, .oneof_variant = "jspb_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // jspb_payload
-            .{ .number = 8, .field_index = 2, .oneof_variant = "text_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
+            .{ .number = 6, .field_index = 1, .kind = .{ .message_field = .{} } }, // jspb_encoding_options
+            .{ .number = 9, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // print_unknown_fields
+            .{ .number = 1, .field_index = 3, .oneof_variant = "protobuf_payload", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // protobuf_payload
+            .{ .number = 2, .field_index = 3, .oneof_variant = "json_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_payload
+            .{ .number = 7, .field_index = 3, .oneof_variant = "jspb_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // jspb_payload
+            .{ .number = 8, .field_index = 3, .oneof_variant = "text_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
         },
     };
 };

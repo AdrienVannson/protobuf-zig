@@ -39,6 +39,12 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
                         if (@field(msg, member_name)) |s| allocator.free(s);
                     }
                 },
+                .message_field => {
+                    if (@field(msg, member_name)) |child_ptr| {
+                        child_ptr.deinit(allocator);
+                        allocator.destroy(child_ptr);
+                    }
+                },
                 else => {},
             }
         }

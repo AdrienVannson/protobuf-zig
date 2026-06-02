@@ -39,8 +39,13 @@ pub const TestAllTypesEdition2023 = struct {
     optional_bool: ?bool = null,
     optional_string: ?[]const u8 = null,
     optional_bytes: ?[]const u8 = null,
+    optional_nested_message: ?*TestAllTypesEdition2023.NestedMessage = null,
+    optional_foreign_message: ?*ForeignMessageEdition2023 = null,
     optional_string_piece: ?[]const u8 = null,
     optional_cord: ?[]const u8 = null,
+    recursive_message: ?*TestAllTypesEdition2023 = null,
+    groupliketype: ?*TestAllTypesEdition2023.GroupLikeType = null,
+    delimited_field: ?*TestAllTypesEdition2023.GroupLikeType = null,
     oneof_field: ?union(enum) {
         oneof_uint32: u32,
         oneof_string: []const u8,
@@ -53,6 +58,7 @@ pub const TestAllTypesEdition2023 = struct {
 
     pub const NestedMessage = struct {
         a: ?i32 = null,
+        corecursive: ?*TestAllTypesEdition2023 = null,
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -65,6 +71,7 @@ pub const TestAllTypesEdition2023 = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
                 .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // a
+                .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // corecursive
             },
         };
     };
@@ -239,15 +246,20 @@ pub const TestAllTypesEdition2023 = struct {
             .{ .number = 13, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .bool } } }, // optional_bool
             .{ .number = 14, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string
             .{ .number = 15, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // optional_bytes
-            .{ .number = 24, .field_index = 15, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string_piece
-            .{ .number = 25, .field_index = 16, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_cord
-            .{ .number = 111, .field_index = 17, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
-            .{ .number = 113, .field_index = 17, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
-            .{ .number = 114, .field_index = 17, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
-            .{ .number = 115, .field_index = 17, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
-            .{ .number = 116, .field_index = 17, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
-            .{ .number = 117, .field_index = 17, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
-            .{ .number = 118, .field_index = 17, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
+            .{ .number = 18, .field_index = 15, .kind = .{ .message_field = .{} } }, // optional_nested_message
+            .{ .number = 19, .field_index = 16, .kind = .{ .message_field = .{} } }, // optional_foreign_message
+            .{ .number = 24, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string_piece
+            .{ .number = 25, .field_index = 18, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_cord
+            .{ .number = 27, .field_index = 19, .kind = .{ .message_field = .{} } }, // recursive_message
+            .{ .number = 201, .field_index = 20, .kind = .{ .message_field = .{} } }, // groupliketype
+            .{ .number = 202, .field_index = 21, .kind = .{ .message_field = .{} } }, // delimited_field
+            .{ .number = 111, .field_index = 22, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
+            .{ .number = 113, .field_index = 22, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
+            .{ .number = 114, .field_index = 22, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
+            .{ .number = 115, .field_index = 22, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
+            .{ .number = 116, .field_index = 22, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
+            .{ .number = 117, .field_index = 22, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
+            .{ .number = 118, .field_index = 22, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
         },
     };
 };
