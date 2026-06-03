@@ -47,6 +47,5 @@ test {
     _ = @import("wire/from_binary.zig");
     _ = @import("_codegen/message_deinit.zig");
     _ = @import("wkt.zig");
-    _ = @import("test/fake_message_foo.zig");
     _ = @import("test/descriptor_roundtrip_test.zig");
 }
