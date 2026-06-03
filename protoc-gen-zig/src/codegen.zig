@@ -1,5 +1,4 @@
 const std = @import("std");
-const descriptor = @import("protobuf").wkt.descriptor;
 const protobuf = @import("protobuf");
 const GeneratedFile = @import("generated_file.zig").GeneratedFile;
 
@@ -8,7 +7,7 @@ const ImportTable = std.AutoArrayHashMap(*const protobuf.DescFile, []const u8);
 pub fn generateFile(
     alloc: std.mem.Allocator,
     desc_file: *const protobuf.DescFile,
-    file_proto: *const descriptor.FileDescriptorProto,
+    file_proto: *const protobuf.wkt.descriptor.FileDescriptorProto,
 ) ![]u8 {
     var f = GeneratedFile.init(alloc);
 
@@ -529,7 +528,7 @@ pub fn escapeZigKeyword(alloc: std.mem.Allocator, name: []const u8) ![]u8 {
 
 fn emitDescriptorBytes(
     f: *GeneratedFile,
-    file: *const descriptor.FileDescriptorProto,
+    file: *const protobuf.wkt.descriptor.FileDescriptorProto,
     alloc: std.mem.Allocator,
 ) !void {
     // Strip source_code_info before encoding
