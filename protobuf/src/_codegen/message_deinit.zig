@@ -37,8 +37,12 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
                 .scalar => |kind| {
                     if (comptime (kind.scalar == .string or kind.scalar == .bytes)) {
                         if (comptime kind.presence == .implicit) {
-                            // Non-optional field; freeing the empty "" default is a no-op.
-                            allocator.free(@field(msg, member_name));
+                            // Non-optional field: free it only when it no longer points
+                            // at its compile-time default, i.e. it was replaced by a heap
+                            // allocation.
+                            const s = @field(msg, member_name);
+                            const default: []const u8 = comptime members[fi].defaultValue().?;
+                            if (s.ptr != default.ptr) allocator.free(s);
                         } else {
                             if (@field(msg, member_name)) |s| allocator.free(s);
                         }
