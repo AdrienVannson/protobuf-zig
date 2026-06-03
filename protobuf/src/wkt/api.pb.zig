@@ -4,12 +4,17 @@
 const std = @import("std");
 const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
+const _google_protobuf_source_context = @import("source_context.pb.zig");
+const _google_protobuf_type = @import("type.pb.zig");
 
 pub const Api = struct {
     name: ?[]const u8 = null,
     methods: std.ArrayListUnmanaged(*Method) = .{},
+    options: std.ArrayListUnmanaged(*_google_protobuf_type.Option) = .{},
     version: ?[]const u8 = null,
+    source_context: ?*_google_protobuf_source_context.SourceContext = null,
     mixins: std.ArrayListUnmanaged(*Mixin) = .{},
+    syntax: ?_google_protobuf_type.Syntax = null,
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -18,6 +23,10 @@ pub const Api = struct {
 
     pub fn getVersion(self: @This()) []const u8 {
         return self.version orelse "";
+    }
+
+    pub fn getSyntax(self: @This()) _google_protobuf_type.Syntax {
+        return self.syntax orelse @enumFromInt(0);
     }
 
     pub fn getEdition(self: @This()) []const u8 {
@@ -32,9 +41,12 @@ pub const Api = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // methods
-            .{ .number = 4, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // version
-            .{ .number = 6, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // mixins
-            .{ .number = 8, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // version
+            .{ .number = 5, .field_index = 4, .kind = .{ .message_field = .{} } }, // source_context
+            .{ .number = 6, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // mixins
+            .{ .number = 7, .field_index = 6, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
+            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };
@@ -45,6 +57,8 @@ pub const Method = struct {
     request_streaming: ?bool = null,
     response_type_url: ?[]const u8 = null,
     response_streaming: ?bool = null,
+    options: std.ArrayListUnmanaged(*_google_protobuf_type.Option) = .{},
+    syntax: ?_google_protobuf_type.Syntax = null,
     edition: ?[]const u8 = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -67,6 +81,10 @@ pub const Method = struct {
         return self.response_streaming orelse false;
     }
 
+    pub fn getSyntax(self: @This()) _google_protobuf_type.Syntax {
+        return self.syntax orelse @enumFromInt(0);
+    }
+
     pub fn getEdition(self: @This()) []const u8 {
         return self.edition orelse "";
     }
@@ -82,7 +100,9 @@ pub const Method = struct {
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // request_streaming
             .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // response_type_url
             .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // response_streaming
-            .{ .number = 8, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 6, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 7, .field_index = 6, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
+            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
         },
     };
 };

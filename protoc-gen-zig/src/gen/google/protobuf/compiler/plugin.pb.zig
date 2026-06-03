@@ -4,6 +4,7 @@
 const std = @import("std");
 const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
+const _google_protobuf_descriptor = @import("protobuf").wkt.descriptor;
 
 pub const Version = struct {
     major: ?i32 = null,
@@ -44,6 +45,8 @@ pub const Version = struct {
 pub const CodeGeneratorRequest = struct {
     file_to_generate: std.ArrayListUnmanaged([]const u8) = .{},
     parameter: ?[]const u8 = null,
+    proto_file: std.ArrayListUnmanaged(*_google_protobuf_descriptor.FileDescriptorProto) = .{},
+    source_file_descriptors: std.ArrayListUnmanaged(*_google_protobuf_descriptor.FileDescriptorProto) = .{},
     compiler_version: ?*Version = null,
 
     pub fn getParameter(self: @This()) []const u8 {
@@ -58,7 +61,9 @@ pub const CodeGeneratorRequest = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // file_to_generate
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // parameter
-            .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // compiler_version
+            .{ .number = 15, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // proto_file
+            .{ .number = 17, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // source_file_descriptors
+            .{ .number = 3, .field_index = 4, .kind = .{ .message_field = .{} } }, // compiler_version
         },
     };
 };
@@ -74,6 +79,7 @@ pub const CodeGeneratorResponse = struct {
         name: ?[]const u8 = null,
         insertion_point: ?[]const u8 = null,
         content: ?[]const u8 = null,
+        generated_code_info: ?*_google_protobuf_descriptor.GeneratedCodeInfo = null,
 
         pub fn getName(self: @This()) []const u8 {
             return self.name orelse "";
@@ -96,6 +102,7 @@ pub const CodeGeneratorResponse = struct {
                 .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
                 .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // insertion_point
                 .{ .number = 15, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // content
+                .{ .number = 16, .field_index = 3, .kind = .{ .message_field = .{} } }, // generated_code_info
             },
         };
     };

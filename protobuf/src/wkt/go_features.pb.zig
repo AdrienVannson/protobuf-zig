@@ -4,6 +4,7 @@
 const std = @import("std");
 const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
+const _google_protobuf_descriptor = @import("descriptor.pb.zig");
 
 pub const GoFeatures = struct {
     legacy_unmarshal_json_enum: ?bool = null,
