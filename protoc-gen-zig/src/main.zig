@@ -73,8 +73,5 @@ pub fn main(init: std.process.Init) !void {
     // Encode response and write to stdout
     const encoded = try protobuf.to_binary(alloc, response);
     defer alloc.free(encoded);
-    var stdout_buf: [4096]u8 = undefined;
-    var stdout_writer = std.Io.File.stdout().writerStreaming(io, &stdout_buf);
-    try stdout_writer.interface.writeAll(encoded);
-    try stdout_writer.flush();
+    try std.Io.File.stdout().writeStreamingAll(io, encoded);
 }

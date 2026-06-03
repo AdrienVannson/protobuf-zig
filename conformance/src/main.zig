@@ -7,13 +7,10 @@ const ConformanceRequest = conformance_pb.ConformanceRequest;
 const ConformanceResponse = conformance_pb.ConformanceResponse;
 
 pub fn main(init: std.process.Init) !void {
-    const base_alloc = init.gpa;
-    const io = init.io;
-
     var stdin_buf: [4096]u8 = undefined;
-    var stdin_reader = std.Io.File.stdin().readerStreaming(io, &stdin_buf);
+    var stdin_reader = std.Io.File.stdin().readerStreaming(init.io, &stdin_buf);
     var stdout_buf: [4096]u8 = undefined;
-    var stdout_writer = std.Io.File.stdout().writerStreaming(io, &stdout_buf);
+    var stdout_writer = std.Io.File.stdout().writerStreaming(init.io, &stdout_buf);
 
     while (true) {
         // Read 4-byte little-endian request length; EOF here means clean shutdown.
@@ -21,7 +18,7 @@ pub fn main(init: std.process.Init) !void {
         stdin_reader.interface.readSliceAll(&len_buf) catch break;
         const request_len = std.mem.readInt(u32, &len_buf, .little);
 
-        var arena = std.heap.ArenaAllocator.init(base_alloc);
+        var arena = std.heap.ArenaAllocator.init(init.gpa);
         defer arena.deinit();
         const alloc = arena.allocator();
 
