@@ -35,9 +35,9 @@ pub const Type = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
-            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
-            .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
+            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
+            .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
             .{ .number = 5, .field_index = 4, .kind = .{ .message_field = .{} } }, // source_context
             .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
             .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
@@ -137,7 +137,7 @@ pub const Field = struct {
             .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_url
             .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
             .{ .number = 8, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
-            .{ .number = 9, .field_index = 7, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 9, .field_index = 7, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
             .{ .number = 10, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
             .{ .number = 11, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
         },
@@ -171,8 +171,8 @@ pub const Enum = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
-            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
+            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
             .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // source_context
             .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
             .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
@@ -201,7 +201,7 @@ pub const EnumValue = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
-            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
         },
     };
 };

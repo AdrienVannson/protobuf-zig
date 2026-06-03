@@ -65,7 +65,7 @@ pub const ListValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // values
+            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // values
         },
     };
 };

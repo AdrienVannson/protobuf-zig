@@ -13,13 +13,16 @@ pub const FieldMetadataElementType = union(enum) {
 pub const FieldMetadataKind = union(enum) {
     scalar: struct {
         scalar: ScalarType,
+        presence: SupportedFieldPresence = .explicit,
         // Declared default value, if any. Defaults to null (no explicit default).
         default_value: ?DefaultValue = null,
     },
     message_field: struct {
         delimited_encoding: bool = false,
+        presence: SupportedFieldPresence = .explicit,
     },
     enum_field: struct {
+        presence: SupportedFieldPresence = .explicit,
         default_value: i32 = 0,
     },
     list: struct {
@@ -37,7 +40,6 @@ pub const FieldMetadata = struct {
     number: u32,
     field_index: u16,
     oneof_variant: ?[]const u8 = null,
-    presence: SupportedFieldPresence = .explicit,
     kind: FieldMetadataKind,
 };
 

@@ -152,7 +152,7 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                             field_ptr.* = @unionInit(Union, variant, try readScalar(reader, sc.scalar));
                         } else {
                             if (comptime (sc.scalar == .string or sc.scalar == .bytes) and
-                                field_meta.presence != .implicit)
+                                sc.presence != .implicit)
                             {
                                 if (@field(msg.*, field_name)) |old| allocator.free(old);
                             }

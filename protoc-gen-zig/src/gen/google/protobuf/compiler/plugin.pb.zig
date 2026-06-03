@@ -59,10 +59,10 @@ pub const CodeGeneratorRequest = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // file_to_generate
+            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // file_to_generate
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // parameter
-            .{ .number = 15, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // proto_file
-            .{ .number = 17, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // source_file_descriptors
+            .{ .number = 15, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // proto_file
+            .{ .number = 17, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // source_file_descriptors
             .{ .number = 3, .field_index = 4, .kind = .{ .message_field = .{} } }, // compiler_version
         },
     };
@@ -140,7 +140,7 @@ pub const CodeGeneratorResponse = struct {
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // supported_features
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // minimum_edition
             .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // maximum_edition
-            .{ .number = 15, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
+            .{ .number = 15, .field_index = 4, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
         },
     };
 };
