@@ -2,8 +2,8 @@
 // TODO: rewrite properly
 
 const std = @import("std");
-const descriptor = @import("our_protobuf").wkt.descriptor;
-const protobuf = @import("our_protobuf");
+const descriptor = @import("protobuf").wkt.descriptor;
+const protobuf = @import("protobuf");
 
 const FieldType = descriptor.FieldDescriptorProto.Type;
 

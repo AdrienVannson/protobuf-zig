@@ -1,6 +1,6 @@
 const std = @import("std");
-const descriptor = @import("our_protobuf").wkt.descriptor;
-const protobuf = @import("our_protobuf");
+const descriptor = @import("protobuf").wkt.descriptor;
+const protobuf = @import("protobuf");
 const GeneratedFile = @import("generated_file.zig").GeneratedFile;
 
 const ImportTable = std.AutoArrayHashMap(*const protobuf.DescFile, []const u8);

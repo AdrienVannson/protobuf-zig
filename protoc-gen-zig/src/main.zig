@@ -2,7 +2,7 @@ const std = @import("std");
 const plugin = @import("gen/google/protobuf/compiler/plugin.pb.zig");
 const codegen = @import("codegen.zig");
 const desc_file_from_proto = @import("desc_file_from_proto.zig");
-const protobuf = @import("our_protobuf");
+const protobuf = @import("protobuf");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};

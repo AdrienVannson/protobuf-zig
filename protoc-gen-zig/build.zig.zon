@@ -4,7 +4,7 @@
     .version = "0.0.0",
     .minimum_zig_version = "0.15.0",
     .dependencies = .{
-        .our_protobuf = .{
+        .protobuf = .{
             .path = "../protobuf",
         },
     },
