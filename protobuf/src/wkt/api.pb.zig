@@ -9,11 +9,11 @@ const _google_protobuf_type = @import("type.pb.zig");
 
 pub const Api = struct {
     name: ?[]const u8 = null,
-    methods: std.ArrayListUnmanaged(*Method) = .{},
-    options: std.ArrayListUnmanaged(*_google_protobuf_type.Option) = .{},
+    methods: std.ArrayList(*Method) = .empty,
+    options: std.ArrayList(*_google_protobuf_type.Option) = .empty,
     version: ?[]const u8 = null,
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
-    mixins: std.ArrayListUnmanaged(*Mixin) = .{},
+    mixins: std.ArrayList(*Mixin) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
     edition: ?[]const u8 = null,
 
@@ -57,7 +57,7 @@ pub const Method = struct {
     request_streaming: ?bool = null,
     response_type_url: ?[]const u8 = null,
     response_streaming: ?bool = null,
-    options: std.ArrayListUnmanaged(*_google_protobuf_type.Option) = .{},
+    options: std.ArrayList(*_google_protobuf_type.Option) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
     edition: ?[]const u8 = null,
 

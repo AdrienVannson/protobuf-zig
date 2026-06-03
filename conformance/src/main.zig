@@ -6,20 +6,19 @@ const protobuf = @import("protobuf");
 const ConformanceRequest = conformance_pb.ConformanceRequest;
 const ConformanceResponse = conformance_pb.ConformanceResponse;
 
-pub fn main() !void {
-    var gpa: std.heap.GeneralPurposeAllocator(.{}) = .init;
-    defer _ = gpa.deinit();
-    const base_alloc = gpa.allocator();
+pub fn main(init: std.process.Init) !void {
+    const base_alloc = init.gpa;
+    const io = init.io;
 
-    const stdin = std.fs.File.stdin();
-    const stdout = std.fs.File.stdout();
+    var stdin_buf: [4096]u8 = undefined;
+    var stdin_reader = std.Io.File.stdin().readerStreaming(io, &stdin_buf);
+    var stdout_buf: [4096]u8 = undefined;
+    var stdout_writer = std.Io.File.stdout().writerStreaming(io, &stdout_buf);
 
     while (true) {
-        // Read 4-byte little-endian request length.
+        // Read 4-byte little-endian request length; EOF here means clean shutdown.
         var len_buf: [4]u8 = undefined;
-        const n = try stdin.readAll(&len_buf);
-        if (n == 0) break; // clean EOF
-        if (n != 4) return error.UnexpectedEof;
+        stdin_reader.interface.readSliceAll(&len_buf) catch break;
         const request_len = std.mem.readInt(u32, &len_buf, .little);
 
         var arena = std.heap.ArenaAllocator.init(base_alloc);
@@ -28,8 +27,7 @@ pub fn main() !void {
 
         // Read request bytes.
         const request_bytes = try alloc.alloc(u8, request_len);
-        const bytes_read = try stdin.readAll(request_bytes);
-        if (bytes_read != request_len) return error.UnexpectedEof;
+        try stdin_reader.interface.readSliceAll(request_bytes);
 
         // Decode ConformanceRequest.
         var request: ConformanceRequest = .{};
@@ -44,8 +42,9 @@ pub fn main() !void {
         // Write 4-byte LE length + response bytes.
         var out_len_buf: [4]u8 = undefined;
         std.mem.writeInt(u32, &out_len_buf, @intCast(response_bytes.len), .little);
-        try stdout.writeAll(&out_len_buf);
-        try stdout.writeAll(response_bytes);
+        try stdout_writer.interface.writeAll(&out_len_buf);
+        try stdout_writer.interface.writeAll(response_bytes);
+        try stdout_writer.flush();
     }
 }
 

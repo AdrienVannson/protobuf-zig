@@ -292,7 +292,7 @@ test "message field non-null encodes length-delimited submessage" {
 test "repeated string field one element encodes tag length bytes" {
     // repeated_field: field number 4, wire type length_delimited
     // tag = (4 << 3) | 2 = 0x22, length = 3, "foo"
-    var list: std.ArrayListUnmanaged([]const u8) = .{};
+    var list: std.ArrayList([]const u8) = .empty;
     defer list.deinit(testing.allocator);
     try list.append(testing.allocator, "foo");
     try expectToBinary(FakeMessageFoo{ .repeated_field = list }, &.{ 0x22, 0x03, 'f', 'o', 'o' });
@@ -301,7 +301,7 @@ test "repeated string field one element encodes tag length bytes" {
 test "repeated string field two elements encodes both" {
     // first: tag 0x22, length 3, "foo"
     // second: tag 0x22, length 2, "hi"
-    var list: std.ArrayListUnmanaged([]const u8) = .{};
+    var list: std.ArrayList([]const u8) = .empty;
     defer list.deinit(testing.allocator);
     try list.append(testing.allocator, "foo");
     try list.append(testing.allocator, "hi");
@@ -314,7 +314,7 @@ test "repeated string field two elements encodes both" {
 test "repeated packed enum field two elements encodes length-delimited blob" {
     // repeated_color_field: field number 13, wire type length_delimited (packed)
     // tag = (13 << 3) | 2 = 0x6a, length = 2 (color_red=1 + color_green=2 each 1 byte)
-    var list: std.ArrayListUnmanaged(FakeMessageFoo.Color) = .{};
+    var list: std.ArrayList(FakeMessageFoo.Color) = .empty;
     defer list.deinit(testing.allocator);
     try list.append(testing.allocator, .color_red);
     try list.append(testing.allocator, .color_green);
@@ -326,7 +326,7 @@ test "repeated float field packed encodes length-delimited blob" {
     // tag = (12 << 3) | 2 = 0x62, length = 8, two f32 values
     // 1.0 as f32 little-endian: 0x00 0x00 0x80 0x3f
     // 2.0 as f32 little-endian: 0x00 0x00 0x00 0x40
-    var list: std.ArrayListUnmanaged(f32) = .{};
+    var list: std.ArrayList(f32) = .empty;
     defer list.deinit(testing.allocator);
     try list.append(testing.allocator, 1.0);
     try list.append(testing.allocator, 2.0);

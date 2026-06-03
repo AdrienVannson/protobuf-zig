@@ -6,7 +6,7 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const FileDescriptorSet = struct {
-    file: std.ArrayListUnmanaged(*FileDescriptorProto) = .{},
+    file: std.ArrayList(*FileDescriptorProto) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -22,14 +22,14 @@ pub const FileDescriptorSet = struct {
 pub const FileDescriptorProto = struct {
     name: ?[]const u8 = null,
     package: ?[]const u8 = null,
-    dependency: std.ArrayListUnmanaged([]const u8) = .{},
-    public_dependency: std.ArrayListUnmanaged(i32) = .{},
-    weak_dependency: std.ArrayListUnmanaged(i32) = .{},
-    option_dependency: std.ArrayListUnmanaged([]const u8) = .{},
-    message_type: std.ArrayListUnmanaged(*DescriptorProto) = .{},
-    enum_type: std.ArrayListUnmanaged(*EnumDescriptorProto) = .{},
-    service: std.ArrayListUnmanaged(*ServiceDescriptorProto) = .{},
-    extension: std.ArrayListUnmanaged(*FieldDescriptorProto) = .{},
+    dependency: std.ArrayList([]const u8) = .empty,
+    public_dependency: std.ArrayList(i32) = .empty,
+    weak_dependency: std.ArrayList(i32) = .empty,
+    option_dependency: std.ArrayList([]const u8) = .empty,
+    message_type: std.ArrayList(*DescriptorProto) = .empty,
+    enum_type: std.ArrayList(*EnumDescriptorProto) = .empty,
+    service: std.ArrayList(*ServiceDescriptorProto) = .empty,
+    extension: std.ArrayList(*FieldDescriptorProto) = .empty,
     options: ?*FileOptions = null,
     source_code_info: ?*SourceCodeInfo = null,
     syntax: ?[]const u8 = null,
@@ -77,15 +77,15 @@ pub const FileDescriptorProto = struct {
 
 pub const DescriptorProto = struct {
     name: ?[]const u8 = null,
-    field: std.ArrayListUnmanaged(*FieldDescriptorProto) = .{},
-    extension: std.ArrayListUnmanaged(*FieldDescriptorProto) = .{},
-    nested_type: std.ArrayListUnmanaged(*DescriptorProto) = .{},
-    enum_type: std.ArrayListUnmanaged(*EnumDescriptorProto) = .{},
-    extension_range: std.ArrayListUnmanaged(*DescriptorProto.ExtensionRange) = .{},
-    oneof_decl: std.ArrayListUnmanaged(*OneofDescriptorProto) = .{},
+    field: std.ArrayList(*FieldDescriptorProto) = .empty,
+    extension: std.ArrayList(*FieldDescriptorProto) = .empty,
+    nested_type: std.ArrayList(*DescriptorProto) = .empty,
+    enum_type: std.ArrayList(*EnumDescriptorProto) = .empty,
+    extension_range: std.ArrayList(*DescriptorProto.ExtensionRange) = .empty,
+    oneof_decl: std.ArrayList(*OneofDescriptorProto) = .empty,
     options: ?*MessageOptions = null,
-    reserved_range: std.ArrayListUnmanaged(*DescriptorProto.ReservedRange) = .{},
-    reserved_name: std.ArrayListUnmanaged([]const u8) = .{},
+    reserved_range: std.ArrayList(*DescriptorProto.ReservedRange) = .empty,
+    reserved_name: std.ArrayList([]const u8) = .empty,
     visibility: ?SymbolVisibility = null,
 
     pub const ExtensionRange = struct {
@@ -168,8 +168,8 @@ pub const DescriptorProto = struct {
 };
 
 pub const ExtensionRangeOptions = struct {
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
-    declaration: std.ArrayListUnmanaged(*ExtensionRangeOptions.Declaration) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    declaration: std.ArrayList(*ExtensionRangeOptions.Declaration) = .empty,
     features: ?*FeatureSet = null,
     verification: ?ExtensionRangeOptions.VerificationState = null,
 
@@ -364,10 +364,10 @@ pub const OneofDescriptorProto = struct {
 
 pub const EnumDescriptorProto = struct {
     name: ?[]const u8 = null,
-    value: std.ArrayListUnmanaged(*EnumValueDescriptorProto) = .{},
+    value: std.ArrayList(*EnumValueDescriptorProto) = .empty,
     options: ?*EnumOptions = null,
-    reserved_range: std.ArrayListUnmanaged(*EnumDescriptorProto.EnumReservedRange) = .{},
-    reserved_name: std.ArrayListUnmanaged([]const u8) = .{},
+    reserved_range: std.ArrayList(*EnumDescriptorProto.EnumReservedRange) = .empty,
+    reserved_name: std.ArrayList([]const u8) = .empty,
     visibility: ?SymbolVisibility = null,
 
     pub const EnumReservedRange = struct {
@@ -446,7 +446,7 @@ pub const EnumValueDescriptorProto = struct {
 
 pub const ServiceDescriptorProto = struct {
     name: ?[]const u8 = null,
-    method: std.ArrayListUnmanaged(*MethodDescriptorProto) = .{},
+    method: std.ArrayList(*MethodDescriptorProto) = .empty,
     options: ?*ServiceOptions = null,
 
     pub fn getName(self: @This()) []const u8 {
@@ -531,7 +531,7 @@ pub const FileOptions = struct {
     php_metadata_namespace: ?[]const u8 = null,
     ruby_package: ?[]const u8 = null,
     features: ?*FeatureSet = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub const OptimizeMode = enum(i32) {
         SPEED = 1,
@@ -654,7 +654,7 @@ pub const MessageOptions = struct {
     map_entry: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
     features: ?*FeatureSet = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub fn getMessageSetWireFormat(self: @This()) bool {
         return self.message_set_wire_format orelse false;
@@ -703,11 +703,11 @@ pub const FieldOptions = struct {
     weak: ?bool = null,
     debug_redact: ?bool = null,
     retention: ?FieldOptions.OptionRetention = null,
-    targets: std.ArrayListUnmanaged(FieldOptions.OptionTargetType) = .{},
-    edition_defaults: std.ArrayListUnmanaged(*FieldOptions.EditionDefault) = .{},
+    targets: std.ArrayList(FieldOptions.OptionTargetType) = .empty,
+    edition_defaults: std.ArrayList(*FieldOptions.EditionDefault) = .empty,
     features: ?*FeatureSet = null,
     feature_support: ?*FieldOptions.FeatureSupport = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub const EditionDefault = struct {
         edition: ?Edition = null,
@@ -866,7 +866,7 @@ pub const FieldOptions = struct {
 
 pub const OneofOptions = struct {
     features: ?*FeatureSet = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -885,7 +885,7 @@ pub const EnumOptions = struct {
     deprecated: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
     features: ?*FeatureSet = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub fn getAllowAlias(self: @This()) bool {
         return self.allow_alias orelse false;
@@ -919,7 +919,7 @@ pub const EnumValueOptions = struct {
     features: ?*FeatureSet = null,
     debug_redact: ?bool = null,
     feature_support: ?*FieldOptions.FeatureSupport = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -947,7 +947,7 @@ pub const EnumValueOptions = struct {
 pub const ServiceOptions = struct {
     features: ?*FeatureSet = null,
     deprecated: ?bool = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -970,7 +970,7 @@ pub const MethodOptions = struct {
     deprecated: ?bool = null,
     idempotency_level: ?MethodOptions.IdempotencyLevel = null,
     features: ?*FeatureSet = null,
-    uninterpreted_option: std.ArrayListUnmanaged(*UninterpretedOption) = .{},
+    uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
 
     pub const IdempotencyLevel = enum(i32) {
         IDEMPOTENCY_UNKNOWN = 0,
@@ -1002,7 +1002,7 @@ pub const MethodOptions = struct {
 };
 
 pub const UninterpretedOption = struct {
-    name: std.ArrayListUnmanaged(*UninterpretedOption.NamePart) = .{},
+    name: std.ArrayList(*UninterpretedOption.NamePart) = .empty,
     identifier_value: ?[]const u8 = null,
     positive_int_value: ?u64 = null,
     negative_int_value: ?i64 = null,
@@ -1205,7 +1205,7 @@ pub const FeatureSet = struct {
 };
 
 pub const FeatureSetDefaults = struct {
-    defaults: std.ArrayListUnmanaged(*FeatureSetDefaults.FeatureSetEditionDefault) = .{},
+    defaults: std.ArrayList(*FeatureSetDefaults.FeatureSetEditionDefault) = .empty,
     minimum_edition: ?Edition = null,
     maximum_edition: ?Edition = null,
 
@@ -1253,14 +1253,14 @@ pub const FeatureSetDefaults = struct {
 };
 
 pub const SourceCodeInfo = struct {
-    location: std.ArrayListUnmanaged(*SourceCodeInfo.Location) = .{},
+    location: std.ArrayList(*SourceCodeInfo.Location) = .empty,
 
     pub const Location = struct {
-        path: std.ArrayListUnmanaged(i32) = .{},
-        span: std.ArrayListUnmanaged(i32) = .{},
+        path: std.ArrayList(i32) = .empty,
+        span: std.ArrayList(i32) = .empty,
         leading_comments: ?[]const u8 = null,
         trailing_comments: ?[]const u8 = null,
-        leading_detached_comments: std.ArrayListUnmanaged([]const u8) = .{},
+        leading_detached_comments: std.ArrayList([]const u8) = .empty,
 
         pub fn getLeadingComments(self: @This()) []const u8 {
             return self.leading_comments orelse "";
@@ -1297,10 +1297,10 @@ pub const SourceCodeInfo = struct {
 };
 
 pub const GeneratedCodeInfo = struct {
-    annotation: std.ArrayListUnmanaged(*GeneratedCodeInfo.Annotation) = .{},
+    annotation: std.ArrayList(*GeneratedCodeInfo.Annotation) = .empty,
 
     pub const Annotation = struct {
-        path: std.ArrayListUnmanaged(i32) = .{},
+        path: std.ArrayList(i32) = .empty,
         source_file: ?[]const u8 = null,
         begin: ?i32 = null,
         end: ?i32 = null,

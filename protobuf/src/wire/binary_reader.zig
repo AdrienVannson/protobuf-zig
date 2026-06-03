@@ -51,7 +51,7 @@ pub const BinaryReader = struct {
             .data = data,
             .pos = 0,
             .end = data.len,
-            .stack = .{},
+            .stack = .empty,
         };
     }
 
@@ -107,9 +107,12 @@ pub const BinaryReader = struct {
             break :blk @intCast(n);
         };
 
-        const wire_type = blk: {
+        const wire_type: WireType = blk: {
             const wire_raw: u3 = @intCast(v & 0x07);
-            break :blk std.meta.intToEnum(WireType, wire_raw) catch return error.InvalidWireType;
+            inline for (std.meta.fields(WireType)) |f| {
+                if (wire_raw == f.value) break :blk @field(WireType, f.name);
+            }
+            return error.InvalidWireType;
         };
 
         return .{ .number = number, .wire_type = wire_type };

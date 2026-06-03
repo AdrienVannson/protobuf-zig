@@ -57,9 +57,9 @@ pub const Foo = struct {
 
 pub const Bar = struct {
     foo: ?*Foo = null,
-    tags: std.ArrayListUnmanaged([]const u8) = .{},
+    tags: std.ArrayList([]const u8) = .empty,
     color: ?Color = null,
-    colors: std.ArrayListUnmanaged(Color) = .{},
+    colors: std.ArrayList(Color) = .empty,
 
     pub const Nested = struct {
         value: ?i32 = null,

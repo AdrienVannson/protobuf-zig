@@ -6,7 +6,7 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const FieldMask = struct {
-    paths: std.ArrayListUnmanaged([]const u8) = .{},
+    paths: std.ArrayList([]const u8) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
