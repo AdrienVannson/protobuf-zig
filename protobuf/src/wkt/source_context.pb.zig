@@ -6,10 +6,10 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const SourceContext = struct {
-    file_name: ?[]const u8 = null,
+    file_name: []const u8 = "",
 
     pub fn getFileName(self: @This()) []const u8 {
-        return self.file_name orelse "";
+        return self.file_name;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -18,7 +18,7 @@ pub const SourceContext = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // file_name
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // file_name
         },
     };
 };

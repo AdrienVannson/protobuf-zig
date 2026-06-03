@@ -8,21 +8,21 @@ const _google_protobuf_source_context = @import("source_context.pb.zig");
 const _google_protobuf_type = @import("type.pb.zig");
 
 pub const Api = struct {
-    name: ?[]const u8 = null,
+    name: []const u8 = "",
     methods: std.ArrayList(*Method) = .empty,
     options: std.ArrayList(*_google_protobuf_type.Option) = .empty,
-    version: ?[]const u8 = null,
+    version: []const u8 = "",
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     mixins: std.ArrayList(*Mixin) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
-    edition: ?[]const u8 = null,
+    edition: []const u8 = "",
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getVersion(self: @This()) []const u8 {
-        return self.version orelse "";
+        return self.version;
     }
 
     pub fn getSyntax(self: @This()) _google_protobuf_type.Syntax {
@@ -30,7 +30,7 @@ pub const Api = struct {
     }
 
     pub fn getEdition(self: @This()) []const u8 {
-        return self.edition orelse "";
+        return self.edition;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -39,46 +39,46 @@ pub const Api = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // methods
             .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // version
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // version
             .{ .number = 5, .field_index = 4, .kind = .{ .message_field = .{} } }, // source_context
             .{ .number = 6, .field_index = 5, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // mixins
-            .{ .number = 7, .field_index = 6, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
-            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 7, .field_index = 6, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
+            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
 };
 
 pub const Method = struct {
-    name: ?[]const u8 = null,
-    request_type_url: ?[]const u8 = null,
-    request_streaming: ?bool = null,
-    response_type_url: ?[]const u8 = null,
-    response_streaming: ?bool = null,
+    name: []const u8 = "",
+    request_type_url: []const u8 = "",
+    request_streaming: bool = false,
+    response_type_url: []const u8 = "",
+    response_streaming: bool = false,
     options: std.ArrayList(*_google_protobuf_type.Option) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
-    edition: ?[]const u8 = null,
+    edition: []const u8 = "",
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getRequestTypeUrl(self: @This()) []const u8 {
-        return self.request_type_url orelse "";
+        return self.request_type_url;
     }
 
     pub fn getRequestStreaming(self: @This()) bool {
-        return self.request_streaming orelse false;
+        return self.request_streaming;
     }
 
     pub fn getResponseTypeUrl(self: @This()) []const u8 {
-        return self.response_type_url orelse "";
+        return self.response_type_url;
     }
 
     pub fn getResponseStreaming(self: @This()) bool {
-        return self.response_streaming orelse false;
+        return self.response_streaming;
     }
 
     pub fn getSyntax(self: @This()) _google_protobuf_type.Syntax {
@@ -86,7 +86,7 @@ pub const Method = struct {
     }
 
     pub fn getEdition(self: @This()) []const u8 {
-        return self.edition orelse "";
+        return self.edition;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -95,28 +95,28 @@ pub const Method = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // request_type_url
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // request_streaming
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // response_type_url
-            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // response_streaming
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // request_type_url
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // request_streaming
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // response_type_url
+            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // response_streaming
             .{ .number = 6, .field_index = 5, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 7, .field_index = 6, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
-            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 7, .field_index = 6, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
+            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
 };
 
 pub const Mixin = struct {
-    name: ?[]const u8 = null,
-    root: ?[]const u8 = null,
+    name: []const u8 = "",
+    root: []const u8 = "",
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getRoot(self: @This()) []const u8 {
-        return self.root orelse "";
+        return self.root;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -125,8 +125,8 @@ pub const Mixin = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // root
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // root
         },
     };
 };

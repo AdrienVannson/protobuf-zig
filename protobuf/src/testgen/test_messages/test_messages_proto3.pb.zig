@@ -12,28 +12,28 @@ const _google_protobuf_timestamp = @import("protobuf").wkt.timestamp;
 const _google_protobuf_wrappers = @import("protobuf").wkt.wrappers;
 
 pub const TestAllTypesProto3 = struct {
-    optional_int32: ?i32 = null,
-    optional_int64: ?i64 = null,
-    optional_uint32: ?u32 = null,
-    optional_uint64: ?u64 = null,
-    optional_sint32: ?i32 = null,
-    optional_sint64: ?i64 = null,
-    optional_fixed32: ?u32 = null,
-    optional_fixed64: ?u64 = null,
-    optional_sfixed32: ?i32 = null,
-    optional_sfixed64: ?i64 = null,
-    optional_float: ?f32 = null,
-    optional_double: ?f64 = null,
-    optional_bool: ?bool = null,
-    optional_string: ?[]const u8 = null,
-    optional_bytes: ?[]const u8 = null,
+    optional_int32: i32 = 0,
+    optional_int64: i64 = 0,
+    optional_uint32: u32 = 0,
+    optional_uint64: u64 = 0,
+    optional_sint32: i32 = 0,
+    optional_sint64: i64 = 0,
+    optional_fixed32: u32 = 0,
+    optional_fixed64: u64 = 0,
+    optional_sfixed32: i32 = 0,
+    optional_sfixed64: i64 = 0,
+    optional_float: f32 = 0.0,
+    optional_double: f64 = 0.0,
+    optional_bool: bool = false,
+    optional_string: []const u8 = "",
+    optional_bytes: []const u8 = "",
     optional_nested_message: ?*TestAllTypesProto3.NestedMessage = null,
     optional_foreign_message: ?*ForeignMessage = null,
     optional_nested_enum: ?TestAllTypesProto3.NestedEnum = null,
     optional_foreign_enum: ?ForeignEnum = null,
     optional_aliased_enum: ?TestAllTypesProto3.AliasedEnum = null,
-    optional_string_piece: ?[]const u8 = null,
-    optional_cord: ?[]const u8 = null,
+    optional_string_piece: []const u8 = "",
+    optional_cord: []const u8 = "",
     recursive_message: ?*TestAllTypesProto3 = null,
     repeated_int32: std.ArrayList(i32) = .empty,
     repeated_int64: std.ArrayList(i64) = .empty,
@@ -116,24 +116,24 @@ pub const TestAllTypesProto3 = struct {
     repeated_any: std.ArrayList(*_google_protobuf_any.Any) = .empty,
     repeated_value: std.ArrayList(*_google_protobuf_struct.Value) = .empty,
     repeated_list_value: std.ArrayList(*_google_protobuf_struct.ListValue) = .empty,
-    fieldname1: ?i32 = null,
-    field_name2: ?i32 = null,
-    _field_name3: ?i32 = null,
-    field__name4_: ?i32 = null,
-    field0name5: ?i32 = null,
-    field_0_name6: ?i32 = null,
-    fieldName7: ?i32 = null,
-    FieldName8: ?i32 = null,
-    field_Name9: ?i32 = null,
-    Field_Name10: ?i32 = null,
-    FIELD_NAME11: ?i32 = null,
-    FIELD_name12: ?i32 = null,
-    __field_name13: ?i32 = null,
-    __Field_name14: ?i32 = null,
-    field__name15: ?i32 = null,
-    field__Name16: ?i32 = null,
-    field_name17__: ?i32 = null,
-    Field_name18__: ?i32 = null,
+    fieldname1: i32 = 0,
+    field_name2: i32 = 0,
+    _field_name3: i32 = 0,
+    field__name4_: i32 = 0,
+    field0name5: i32 = 0,
+    field_0_name6: i32 = 0,
+    fieldName7: i32 = 0,
+    FieldName8: i32 = 0,
+    field_Name9: i32 = 0,
+    Field_Name10: i32 = 0,
+    FIELD_NAME11: i32 = 0,
+    FIELD_name12: i32 = 0,
+    __field_name13: i32 = 0,
+    __Field_name14: i32 = 0,
+    field__name15: i32 = 0,
+    field__Name16: i32 = 0,
+    field_name17__: i32 = 0,
+    Field_name18__: i32 = 0,
     oneof_field: ?union(enum) {
         oneof_uint32: u32,
         oneof_string: []const u8,
@@ -145,11 +145,11 @@ pub const TestAllTypesProto3 = struct {
     } = null,
 
     pub const NestedMessage = struct {
-        a: ?i32 = null,
+        a: i32 = 0,
         corecursive: ?*TestAllTypesProto3 = null,
 
         pub fn getA(self: @This()) i32 {
-            return self.a orelse 0;
+            return self.a;
         }
 
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -158,7 +158,7 @@ pub const TestAllTypesProto3 = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // a
+                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // a
                 .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // corecursive
             },
         };
@@ -180,63 +180,63 @@ pub const TestAllTypesProto3 = struct {
     };
 
     pub fn getOptionalInt32(self: @This()) i32 {
-        return self.optional_int32 orelse 0;
+        return self.optional_int32;
     }
 
     pub fn getOptionalInt64(self: @This()) i64 {
-        return self.optional_int64 orelse 0;
+        return self.optional_int64;
     }
 
     pub fn getOptionalUint32(self: @This()) u32 {
-        return self.optional_uint32 orelse 0;
+        return self.optional_uint32;
     }
 
     pub fn getOptionalUint64(self: @This()) u64 {
-        return self.optional_uint64 orelse 0;
+        return self.optional_uint64;
     }
 
     pub fn getOptionalSint32(self: @This()) i32 {
-        return self.optional_sint32 orelse 0;
+        return self.optional_sint32;
     }
 
     pub fn getOptionalSint64(self: @This()) i64 {
-        return self.optional_sint64 orelse 0;
+        return self.optional_sint64;
     }
 
     pub fn getOptionalFixed32(self: @This()) u32 {
-        return self.optional_fixed32 orelse 0;
+        return self.optional_fixed32;
     }
 
     pub fn getOptionalFixed64(self: @This()) u64 {
-        return self.optional_fixed64 orelse 0;
+        return self.optional_fixed64;
     }
 
     pub fn getOptionalSfixed32(self: @This()) i32 {
-        return self.optional_sfixed32 orelse 0;
+        return self.optional_sfixed32;
     }
 
     pub fn getOptionalSfixed64(self: @This()) i64 {
-        return self.optional_sfixed64 orelse 0;
+        return self.optional_sfixed64;
     }
 
     pub fn getOptionalFloat(self: @This()) f32 {
-        return self.optional_float orelse 0.0;
+        return self.optional_float;
     }
 
     pub fn getOptionalDouble(self: @This()) f64 {
-        return self.optional_double orelse 0.0;
+        return self.optional_double;
     }
 
     pub fn getOptionalBool(self: @This()) bool {
-        return self.optional_bool orelse false;
+        return self.optional_bool;
     }
 
     pub fn getOptionalString(self: @This()) []const u8 {
-        return self.optional_string orelse "";
+        return self.optional_string;
     }
 
     pub fn getOptionalBytes(self: @This()) []const u8 {
-        return self.optional_bytes orelse "";
+        return self.optional_bytes;
     }
 
     pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto3.NestedEnum {
@@ -252,11 +252,11 @@ pub const TestAllTypesProto3 = struct {
     }
 
     pub fn getOptionalStringPiece(self: @This()) []const u8 {
-        return self.optional_string_piece orelse "";
+        return self.optional_string_piece;
     }
 
     pub fn getOptionalCord(self: @This()) []const u8 {
-        return self.optional_cord orelse "";
+        return self.optional_cord;
     }
 
     pub fn getOptionalNullValue(self: @This()) _google_protobuf_struct.NullValue {
@@ -264,75 +264,75 @@ pub const TestAllTypesProto3 = struct {
     }
 
     pub fn getFieldname1(self: @This()) i32 {
-        return self.fieldname1 orelse 0;
+        return self.fieldname1;
     }
 
     pub fn getFieldName2(self: @This()) i32 {
-        return self.field_name2 orelse 0;
+        return self.field_name2;
     }
 
     pub fn getFieldName3(self: @This()) i32 {
-        return self._field_name3 orelse 0;
+        return self._field_name3;
     }
 
     pub fn getFieldName4(self: @This()) i32 {
-        return self.field__name4_ orelse 0;
+        return self.field__name4_;
     }
 
     pub fn getField0name5(self: @This()) i32 {
-        return self.field0name5 orelse 0;
+        return self.field0name5;
     }
 
     pub fn getField0Name6(self: @This()) i32 {
-        return self.field_0_name6 orelse 0;
+        return self.field_0_name6;
     }
 
     pub fn getFieldName7(self: @This()) i32 {
-        return self.fieldName7 orelse 0;
+        return self.fieldName7;
     }
 
     pub fn getFieldName8(self: @This()) i32 {
-        return self.FieldName8 orelse 0;
+        return self.FieldName8;
     }
 
     pub fn getFieldName9(self: @This()) i32 {
-        return self.field_Name9 orelse 0;
+        return self.field_Name9;
     }
 
     pub fn getFieldName10(self: @This()) i32 {
-        return self.Field_Name10 orelse 0;
+        return self.Field_Name10;
     }
 
     pub fn getFIELDNAME11(self: @This()) i32 {
-        return self.FIELD_NAME11 orelse 0;
+        return self.FIELD_NAME11;
     }
 
     pub fn getFIELDName12(self: @This()) i32 {
-        return self.FIELD_name12 orelse 0;
+        return self.FIELD_name12;
     }
 
     pub fn getFieldName13(self: @This()) i32 {
-        return self.__field_name13 orelse 0;
+        return self.__field_name13;
     }
 
     pub fn getFieldName14(self: @This()) i32 {
-        return self.__Field_name14 orelse 0;
+        return self.__Field_name14;
     }
 
     pub fn getFieldName15(self: @This()) i32 {
-        return self.field__name15 orelse 0;
+        return self.field__name15;
     }
 
     pub fn getFieldName16(self: @This()) i32 {
-        return self.field__Name16 orelse 0;
+        return self.field__Name16;
     }
 
     pub fn getFieldName17(self: @This()) i32 {
-        return self.field_name17__ orelse 0;
+        return self.field_name17__;
     }
 
     pub fn getFieldName18(self: @This()) i32 {
-        return self.Field_name18__ orelse 0;
+        return self.Field_name18__;
     }
 
     pub fn getOneofUint32(self: @This()) u32 {
@@ -390,28 +390,28 @@ pub const TestAllTypesProto3 = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // optional_int32
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // optional_int64
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // optional_uint32
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // optional_uint64
-            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .sint32 } } }, // optional_sint32
-            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .sint64 } } }, // optional_sint64
-            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .fixed32 } } }, // optional_fixed32
-            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .fixed64 } } }, // optional_fixed64
-            .{ .number = 9, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .sfixed32 } } }, // optional_sfixed32
-            .{ .number = 10, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .sfixed64 } } }, // optional_sfixed64
-            .{ .number = 11, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .float } } }, // optional_float
-            .{ .number = 12, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .double } } }, // optional_double
-            .{ .number = 13, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .bool } } }, // optional_bool
-            .{ .number = 14, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string
-            .{ .number = 15, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // optional_bytes
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // optional_int32
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int64, .presence = .implicit } } }, // optional_int64
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // optional_uint32
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .uint64, .presence = .implicit } } }, // optional_uint64
+            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .sint32, .presence = .implicit } } }, // optional_sint32
+            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .sint64, .presence = .implicit } } }, // optional_sint64
+            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .fixed32, .presence = .implicit } } }, // optional_fixed32
+            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .fixed64, .presence = .implicit } } }, // optional_fixed64
+            .{ .number = 9, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .sfixed32, .presence = .implicit } } }, // optional_sfixed32
+            .{ .number = 10, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .sfixed64, .presence = .implicit } } }, // optional_sfixed64
+            .{ .number = 11, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .float, .presence = .implicit } } }, // optional_float
+            .{ .number = 12, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .double, .presence = .implicit } } }, // optional_double
+            .{ .number = 13, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // optional_bool
+            .{ .number = 14, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // optional_string
+            .{ .number = 15, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .implicit } } }, // optional_bytes
             .{ .number = 18, .field_index = 15, .kind = .{ .message_field = .{} } }, // optional_nested_message
             .{ .number = 19, .field_index = 16, .kind = .{ .message_field = .{} } }, // optional_foreign_message
-            .{ .number = 21, .field_index = 17, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optional_nested_enum
-            .{ .number = 22, .field_index = 18, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optional_foreign_enum
-            .{ .number = 23, .field_index = 19, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optional_aliased_enum
-            .{ .number = 24, .field_index = 20, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_string_piece
-            .{ .number = 25, .field_index = 21, .kind = .{ .scalar = .{ .scalar = .string } } }, // optional_cord
+            .{ .number = 21, .field_index = 17, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // optional_nested_enum
+            .{ .number = 22, .field_index = 18, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // optional_foreign_enum
+            .{ .number = 23, .field_index = 19, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // optional_aliased_enum
+            .{ .number = 24, .field_index = 20, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // optional_string_piece
+            .{ .number = 25, .field_index = 21, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // optional_cord
             .{ .number = 27, .field_index = 22, .kind = .{ .message_field = .{} } }, // recursive_message
             .{ .number = 31, .field_index = 23, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // repeated_int32
             .{ .number = 32, .field_index = 24, .kind = .{ .list = .{ .element = .{ .scalar = .int64 }, .is_packed = true } } }, // repeated_int64
@@ -486,7 +486,7 @@ pub const TestAllTypesProto3 = struct {
             .{ .number = 304, .field_index = 93, .kind = .{ .message_field = .{} } }, // optional_struct
             .{ .number = 305, .field_index = 94, .kind = .{ .message_field = .{} } }, // optional_any
             .{ .number = 306, .field_index = 95, .kind = .{ .message_field = .{} } }, // optional_value
-            .{ .number = 307, .field_index = 96, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optional_null_value
+            .{ .number = 307, .field_index = 96, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // optional_null_value
             .{ .number = 311, .field_index = 97, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_duration
             .{ .number = 312, .field_index = 98, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_timestamp
             .{ .number = 313, .field_index = 99, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_fieldmask
@@ -494,24 +494,24 @@ pub const TestAllTypesProto3 = struct {
             .{ .number = 315, .field_index = 101, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_any
             .{ .number = 316, .field_index = 102, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_value
             .{ .number = 317, .field_index = 103, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // repeated_list_value
-            .{ .number = 401, .field_index = 104, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // fieldname1
-            .{ .number = 402, .field_index = 105, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_name2
-            .{ .number = 403, .field_index = 106, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // _field_name3
-            .{ .number = 404, .field_index = 107, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__name4_
-            .{ .number = 405, .field_index = 108, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field0name5
-            .{ .number = 406, .field_index = 109, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_0_name6
-            .{ .number = 407, .field_index = 110, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // fieldName7
-            .{ .number = 408, .field_index = 111, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FieldName8
-            .{ .number = 409, .field_index = 112, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_Name9
-            .{ .number = 410, .field_index = 113, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_Name10
-            .{ .number = 411, .field_index = 114, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FIELD_NAME11
-            .{ .number = 412, .field_index = 115, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // FIELD_name12
-            .{ .number = 413, .field_index = 116, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // __field_name13
-            .{ .number = 414, .field_index = 117, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // __Field_name14
-            .{ .number = 415, .field_index = 118, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__name15
-            .{ .number = 416, .field_index = 119, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field__Name16
-            .{ .number = 417, .field_index = 120, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // field_name17__
-            .{ .number = 418, .field_index = 121, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_name18__
+            .{ .number = 401, .field_index = 104, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // fieldname1
+            .{ .number = 402, .field_index = 105, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field_name2
+            .{ .number = 403, .field_index = 106, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // _field_name3
+            .{ .number = 404, .field_index = 107, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field__name4_
+            .{ .number = 405, .field_index = 108, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field0name5
+            .{ .number = 406, .field_index = 109, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field_0_name6
+            .{ .number = 407, .field_index = 110, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // fieldName7
+            .{ .number = 408, .field_index = 111, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // FieldName8
+            .{ .number = 409, .field_index = 112, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field_Name9
+            .{ .number = 410, .field_index = 113, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // Field_Name10
+            .{ .number = 411, .field_index = 114, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // FIELD_NAME11
+            .{ .number = 412, .field_index = 115, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // FIELD_name12
+            .{ .number = 413, .field_index = 116, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // __field_name13
+            .{ .number = 414, .field_index = 117, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // __Field_name14
+            .{ .number = 415, .field_index = 118, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field__name15
+            .{ .number = 416, .field_index = 119, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field__Name16
+            .{ .number = 417, .field_index = 120, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field_name17__
+            .{ .number = 418, .field_index = 121, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // Field_name18__
             .{ .number = 111, .field_index = 122, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
             .{ .number = 113, .field_index = 122, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
             .{ .number = 114, .field_index = 122, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
@@ -524,10 +524,10 @@ pub const TestAllTypesProto3 = struct {
 };
 
 pub const ForeignMessage = struct {
-    c: ?i32 = null,
+    c: i32 = 0,
 
     pub fn getC(self: @This()) i32 {
-        return self.c orelse 0;
+        return self.c;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -536,7 +536,7 @@ pub const ForeignMessage = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // c
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // c
         },
     };
 };

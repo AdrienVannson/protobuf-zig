@@ -521,6 +521,8 @@ fn computePresence(fp: *const descriptor.FieldDescriptorProto, is_proto3: bool) 
     if (label == .LABEL_REQUIRED) return .legacy_required;
     if (label == .LABEL_REPEATED) return .implicit;
     if (fp.oneof_index != null) return .explicit;
+    // Message and group fields always have explicit presence.
+    if (fp.type) |t| if (t == .TYPE_MESSAGE or t == .TYPE_GROUP) return .explicit;
     if (!is_proto3) return .explicit;
     return .implicit;
 }

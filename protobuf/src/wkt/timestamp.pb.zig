@@ -6,15 +6,15 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Timestamp = struct {
-    seconds: ?i64 = null,
-    nanos: ?i32 = null,
+    seconds: i64 = 0,
+    nanos: i32 = 0,
 
     pub fn getSeconds(self: @This()) i64 {
-        return self.seconds orelse 0;
+        return self.seconds;
     }
 
     pub fn getNanos(self: @This()) i32 {
-        return self.nanos orelse 0;
+        return self.nanos;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -23,8 +23,8 @@ pub const Timestamp = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // seconds
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // nanos
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int64, .presence = .implicit } } }, // seconds
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // nanos
         },
     };
 };

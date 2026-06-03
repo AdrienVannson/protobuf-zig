@@ -6,24 +6,24 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Foo = struct {
-    name: ?[]const u8 = null,
-    id: ?i32 = null,
-    @"struct": ?u32 = null,
+    name: []const u8 = "",
+    id: i32 = 0,
+    @"struct": u32 = 0,
     content: ?union(enum) {
         x: i32,
         y: []const u8,
     } = null,
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getId(self: @This()) i32 {
-        return self.id orelse 0;
+        return self.id;
     }
 
     pub fn getStruct(self: @This()) u32 {
-        return self.@"struct" orelse 0;
+        return self.@"struct";
     }
 
     pub fn getX(self: @This()) i32 {
@@ -46,9 +46,9 @@ pub const Foo = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // id
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // struct
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // id
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // struct
             .{ .number = 4, .field_index = 3, .oneof_variant = "x", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // x
             .{ .number = 5, .field_index = 3, .oneof_variant = "y", .kind = .{ .scalar = .{ .scalar = .string } } }, // y
         },
@@ -62,10 +62,10 @@ pub const Bar = struct {
     colors: std.ArrayList(Color) = .empty,
 
     pub const Nested = struct {
-        value: ?i32 = null,
+        value: i32 = 0,
 
         pub fn getValue(self: @This()) i32 {
-            return self.value orelse 0;
+            return self.value;
         }
 
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -74,7 +74,7 @@ pub const Bar = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // value
+                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
             },
         };
     };
@@ -91,7 +91,7 @@ pub const Bar = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // foo
             .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // tags
-            .{ .number = 3, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // color
+            .{ .number = 3, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // color
             .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // colors
         },
     };

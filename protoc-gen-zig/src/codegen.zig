@@ -187,6 +187,7 @@ fn generateMessageMetadata(
                 field_index,
                 ", .kind = .{ .scalar = .{ .scalar = .",
                 @tagName(field.kind.scalar.scalar),
+                presenceClause(field.presence, true),
                 " } } }, // ",
                 field.name,
             });
@@ -197,7 +198,9 @@ fn generateMessageMetadata(
                 field.number,
                 ", .field_index = ",
                 field_index,
-                ", .kind = .{ .message_field = .{} } }, // ",
+                ", .kind = .{ .message_field = .{",
+                presenceClause(field.presence, false),
+                "} } }, // ",
                 field.name,
             });
             field_index += 1;
@@ -210,6 +213,7 @@ fn generateMessageMetadata(
                 field_index,
                 ", .kind = .{ .enum_field = .{ .default_value = ",
                 default,
+                presenceClause(field.presence, true),
                 " } } }, // ",
                 field.name,
             });
@@ -294,7 +298,13 @@ fn generateField(
     // field.local_name is already keyword-escaped by the descriptor builder.
     switch (field.kind) {
         .scalar => |sc| {
-            try f.writeLine(.{ field.local_name, ": ?", scalarZigType(sc.scalar), " = null," });
+            // Implicit presence uses a non-optional field defaulting to the type
+            // zero value; explicit/legacy_required use an optional field.
+            if (field.presence == .implicit) {
+                try f.writeLine(.{ field.local_name, ": ", scalarZigType(sc.scalar), " = ", scalarDefaultLiteral(sc.scalar), "," });
+            } else {
+                try f.writeLine(.{ field.local_name, ": ?", scalarZigType(sc.scalar), " = null," });
+            }
         },
         .message_field => |mf| {
             const type_name = try messageZigTypeName(f.alloc, mf.message, cur_file, imports);
@@ -381,7 +391,12 @@ fn generateFieldGetter(
     try f.emptyLine();
     try f.writeLine(.{ "pub fn get", field_name_camel, "(self: @This()) ", zig_type, " {" });
     f.indent();
-    try f.writeLine(.{ "return self.", field.local_name, " orelse ", default, ";" });
+    // Implicit fields are non-optional, so there is nothing to unwrap.
+    if (field.presence == .implicit) {
+        try f.writeLine(.{ "return self.", field.local_name, ";" });
+    } else {
+        try f.writeLine(.{ "return self.", field.local_name, " orelse ", default, ";" });
+    }
     f.unindent();
     try f.writeLine("}");
 }
@@ -507,6 +522,20 @@ fn scalarZigType(t: protobuf.ScalarType) []const u8 {
         .uint32, .fixed32 => "u32",
         .bool => "bool",
         .string, .bytes => "[]const u8",
+    };
+}
+
+/// Renders the `.presence = ...` clause for a field metadata literal.
+///
+/// Returns "" when presence is `.explicit` (the metadata default, so it is
+/// omitted). When `leading_comma` is true the clause is prefixed with ", " to
+/// follow an existing field (scalar/enum); when false it is wrapped in spaces to
+/// stand alone inside an otherwise-empty struct literal (`.{ .presence = ... }`).
+fn presenceClause(presence: protobuf.SupportedFieldPresence, leading_comma: bool) []const u8 {
+    return switch (presence) {
+        .explicit => "",
+        .implicit => if (leading_comma) ", .presence = .implicit" else " .presence = .implicit ",
+        .legacy_required => if (leading_comma) ", .presence = .legacy_required" else " .presence = .legacy_required ",
     };
 }
 

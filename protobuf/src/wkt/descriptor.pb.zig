@@ -1028,8 +1028,8 @@ pub const UninterpretedOption = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name_part
-                .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // is_extension
+                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .legacy_required } } }, // name_part
+                .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .legacy_required } } }, // is_extension
             },
         };
     };

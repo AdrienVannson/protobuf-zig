@@ -6,15 +6,15 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Any = struct {
-    type_url: ?[]const u8 = null,
-    value: ?[]const u8 = null,
+    type_url: []const u8 = "",
+    value: []const u8 = "",
 
     pub fn getTypeUrl(self: @This()) []const u8 {
-        return self.type_url orelse "";
+        return self.type_url;
     }
 
     pub fn getValue(self: @This()) []const u8 {
-        return self.value orelse "";
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -23,8 +23,8 @@ pub const Any = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_url
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // type_url
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .implicit } } }, // value
         },
     };
 };

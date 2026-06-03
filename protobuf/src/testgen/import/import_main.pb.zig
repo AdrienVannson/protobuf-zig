@@ -23,7 +23,7 @@ pub const ImportMain = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // single
-            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // kind
+            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // kind
             .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // many
             .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // kinds
         },
