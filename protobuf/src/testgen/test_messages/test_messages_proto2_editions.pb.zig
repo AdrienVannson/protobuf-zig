@@ -115,12 +115,14 @@ pub const TestAllTypesProto2 = struct {
     message_set_correct: ?*TestAllTypesProto2.MessageSetCorrect = null,
     oneof_field: ?union(enum) {
         oneof_uint32: u32,
+        oneof_nested_message: *TestAllTypesProto2.NestedMessage,
         oneof_string: []const u8,
         oneof_bytes: []const u8,
         oneof_bool: bool,
         oneof_uint64: u64,
         oneof_float: f32,
         oneof_double: f64,
+        oneof_enum: TestAllTypesProto2.NestedEnum,
     } = null,
 
     pub const NestedMessage = struct {
@@ -648,12 +650,14 @@ pub const TestAllTypesProto2 = struct {
             .{ .number = 418, .field_index = 105, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // Field_name18__
             .{ .number = 500, .field_index = 106, .kind = .{ .message_field = .{} } }, // message_set_correct
             .{ .number = 111, .field_index = 107, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
+            .{ .number = 112, .field_index = 107, .oneof_variant = "oneof_nested_message", .kind = .{ .message_field = .{} } }, // oneof_nested_message
             .{ .number = 113, .field_index = 107, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
             .{ .number = 114, .field_index = 107, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
             .{ .number = 115, .field_index = 107, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
             .{ .number = 116, .field_index = 107, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
             .{ .number = 117, .field_index = 107, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
             .{ .number = 118, .field_index = 107, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
+            .{ .number = 119, .field_index = 107, .oneof_variant = "oneof_enum", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_enum
         },
     };
 };
@@ -1151,7 +1155,13 @@ pub const TestAllRequiredTypesProto2 = struct {
 };
 
 pub const TestLargeOneof = struct {
-    large_oneof: ?union(enum) {} = null,
+    large_oneof: ?union(enum) {
+        a1: *TestLargeOneof.A1,
+        a2: *TestLargeOneof.A2,
+        a3: *TestLargeOneof.A3,
+        a4: *TestLargeOneof.A4,
+        a5: *TestLargeOneof.A5,
+    } = null,
 
     pub const A1 = struct {
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1208,7 +1218,13 @@ pub const TestLargeOneof = struct {
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .oneof_variant = "a1", .kind = .{ .message_field = .{} } }, // a1
+            .{ .number = 2, .field_index = 0, .oneof_variant = "a2", .kind = .{ .message_field = .{} } }, // a2
+            .{ .number = 3, .field_index = 0, .oneof_variant = "a3", .kind = .{ .message_field = .{} } }, // a3
+            .{ .number = 4, .field_index = 0, .oneof_variant = "a4", .kind = .{ .message_field = .{} } }, // a4
+            .{ .number = 5, .field_index = 0, .oneof_variant = "a5", .kind = .{ .message_field = .{} } }, // a5
+        },
     };
 };
 

@@ -136,12 +136,15 @@ pub const TestAllTypesProto3 = struct {
     Field_name18__: i32 = 0,
     oneof_field: ?union(enum) {
         oneof_uint32: u32,
+        oneof_nested_message: *TestAllTypesProto3.NestedMessage,
         oneof_string: []const u8,
         oneof_bytes: []const u8,
         oneof_bool: bool,
         oneof_uint64: u64,
         oneof_float: f32,
         oneof_double: f64,
+        oneof_enum: TestAllTypesProto3.NestedEnum,
+        oneof_null_value: _google_protobuf_struct.NullValue,
     } = null,
 
     pub const NestedMessage = struct {
@@ -513,12 +516,15 @@ pub const TestAllTypesProto3 = struct {
             .{ .number = 417, .field_index = 120, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // field_name17__
             .{ .number = 418, .field_index = 121, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // Field_name18__
             .{ .number = 111, .field_index = 122, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
+            .{ .number = 112, .field_index = 122, .oneof_variant = "oneof_nested_message", .kind = .{ .message_field = .{} } }, // oneof_nested_message
             .{ .number = 113, .field_index = 122, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
             .{ .number = 114, .field_index = 122, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
             .{ .number = 115, .field_index = 122, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
             .{ .number = 116, .field_index = 122, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
             .{ .number = 117, .field_index = 122, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
             .{ .number = 118, .field_index = 122, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
+            .{ .number = 119, .field_index = 122, .oneof_variant = "oneof_enum", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_enum
+            .{ .number = 120, .field_index = 122, .oneof_variant = "oneof_null_value", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_null_value
         },
     };
 };

@@ -26,6 +26,11 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
                                         allocator.free(payload);
                                     }
                                 },
+                                .message_field => {
+                                    payload.deinit(allocator);
+                                    allocator.destroy(payload);
+                                },
+                                .enum_field => {},
                                 else => {},
                             }
                         }

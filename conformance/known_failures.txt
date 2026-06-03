@@ -1,15 +1,3 @@
-Recommended.Proto3.ProtobufInput.OneofZeroEnum.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_enum: FOO
-Recommended.Proto3.ProtobufInput.OneofZeroMessage.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_nested_message: { }
-Recommended.Proto3.ProtobufInput.OneofZeroMessageSetTwice.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_nested_message: { a: 1 }
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.ENUM.DefaultValue.ProtobufOutput # Output was not equivalent to reference message: Expect: \270\007\000, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.ENUM.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: Expect: \270\007\001, but got: \370\006\000
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.ENUM.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: Expect: \270\007\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.ENUM.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: Expect: \270\007\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.MESSAGE.DefaultValue.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\007\000, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.MESSAGE.Merge.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\007\014\022\012\010\001\020\001\310\005\001\310\005\001, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.MESSAGE.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\007\003\010\322\011, but got: \370\006\000
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.MESSAGE.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\007\003\010\322\011, but got: 
-Recommended.Proto3.ProtobufInput.ValidDataOneofBinary.MESSAGE.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\007\003\010\322\011, but got: 
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \250\001\000
 Required.Proto2.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
 Required.Proto3.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
@@ -134,12 +122,3 @@ Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.DuplicateValueInMapEntr
 Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.MissingDefault.ProtobufOutput # Output was not equivalent to reference message: deleted: map_uint64_uint64[0]: 0
 Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.NonDefault.ProtobufOutput # Output was not equivalent to reference message: deleted: map_uint64_uint64[1]: 1
 Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.Unordered.ProtobufOutput # Output was not equivalent to reference message: deleted: map_uint64_uint64[1]: 1
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.DefaultValue.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_enum: FOO
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: added: oneof_uint32: 0deleted: oneof_enum: BAR
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_enum: BAR
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_enum: BAR
-Required.Proto3.ProtobufInput.ValidDataOneof.MESSAGE.DefaultValue.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_nested_message: { }
-Required.Proto3.ProtobufInput.ValidDataOneof.MESSAGE.Merge.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_nested_message: { corecursive { optional_int32: 1 optional_int64:
-Required.Proto3.ProtobufInput.ValidDataOneof.MESSAGE.MultipleValuesForDifferentField.ProtobufOutput # Output was not equivalent to reference message: added: oneof_uint32: 0deleted: oneof_nested_message: { a: 1234 }
-Required.Proto3.ProtobufInput.ValidDataOneof.MESSAGE.MultipleValuesForSameField.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_nested_message: { a: 1234 }
-Required.Proto3.ProtobufInput.ValidDataOneof.MESSAGE.NonDefaultValue.ProtobufOutput # Output was not equivalent to reference message: deleted: oneof_nested_message: { a: 1234 }

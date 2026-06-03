@@ -2,25 +2,12 @@ const std = @import("std");
 const binary_writer_mod = @import("binary_writer.zig");
 const tag_mod = @import("tag.zig");
 const metadata_mod = @import("../_codegen/metadata.zig");
+const field_access = @import("../_codegen/field_access.zig");
 
 const BinaryWriter = binary_writer_mod.BinaryWriter;
 const WireType = tag_mod.WireType;
 const ScalarType = metadata_mod.ScalarType;
-const FieldPresence = metadata_mod.FieldPresence;
-
-/// Returns the Zig value type corresponding to a ScalarType.
-fn scalarZigType(comptime scalar: ScalarType) type {
-    return switch (scalar) {
-        .int32, .sint32, .sfixed32 => i32,
-        .int64, .sint64, .sfixed64 => i64,
-        .uint32, .fixed32 => u32,
-        .uint64, .fixed64 => u64,
-        .bool => bool,
-        .float => f32,
-        .double => f64,
-        .string, .bytes => []const u8,
-    };
-}
+const FieldMetadata = metadata_mod.FieldMetadata;
 
 /// Returns the wire type for a ScalarType.
 fn scalarWireType(comptime scalar: ScalarType) WireType {
@@ -32,17 +19,8 @@ fn scalarWireType(comptime scalar: ScalarType) WireType {
     };
 }
 
-/// Returns true when value equals the proto3 zero default for the scalar type.
-fn isDefault(comptime scalar: ScalarType, value: scalarZigType(scalar)) bool {
-    switch (scalar) {
-        .string, .bytes => return value.len == 0,
-        .bool => return !value,
-        else => return value == 0,
-    }
-}
-
 /// Writes a scalar value to bw using the appropriate BinaryWriter method.
-fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: scalarZigType(scalar)) !void {
+fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: anytype) !void {
     switch (scalar) {
         .int32 => try bw.int32(value),
         .int64 => try bw.int64(value),
@@ -113,85 +91,35 @@ fn writeListField(
     }
 }
 
+/// Callback used by `forEachSetField` inside `writeMessage`.
+/// Receives each set field's payload and writes it to the BinaryWriter.
+fn writeFieldCallback(bw: *BinaryWriter, comptime fm: FieldMetadata, value: anytype) WriteMessageError!void {
+    switch (comptime fm.kind) {
+        .scalar => |sc| {
+            try bw.tag(fm.number, comptime scalarWireType(sc.scalar));
+            try writeScalar(bw, sc.scalar, value);
+        },
+        .enum_field => {
+            try bw.tag(fm.number, .varint);
+            try bw.int32(@intFromEnum(value));
+        },
+        .message_field => {
+            try writeMessageField(bw, fm.number, value.*);
+        },
+        .list => |lm| {
+            try writeListField(bw, value, lm, fm.number);
+        },
+        .map => {},
+    }
+}
+
 /// Encodes all fields of msg into bw.
 ///
-/// Each FieldMetadata carries a `field_index` pointing into std.meta.fields(T)
-/// and an optional `oneof_variant` for oneof members. This decouples the
-/// metadata array order from the struct field order, allowing N oneof entries
-/// to share a single struct field (the `?union(enum)`).
+/// Uses `field_access.forEachSetField` to iterate over every field that is currently "set"
+/// (presence-aware: implicit fields skip the proto3 default value, explicit fields skip null).
+/// Oneof fields are handled transparently by `hasField` / `getField` in field_access.zig.
 fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
-    const T = @TypeOf(msg);
-    const struct_fields = std.meta.fields(T);
-
-    inline for (T._desc.fields) |field_meta| {
-        const fi = comptime field_meta.field_index;
-        const field_name = comptime struct_fields[fi].name;
-
-        if (comptime field_meta.oneof_variant) |variant_name| {
-            // Oneof: the struct field is ?union(enum). Check if the active
-            // variant matches this metadata entry.
-            if (@field(msg, field_name)) |active_union| {
-                switch (active_union) {
-                    inline else => |payload, tag| {
-                        if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
-                            switch (field_meta.kind) {
-                                .scalar => |sc| {
-                                    try bw.tag(field_meta.number, comptime scalarWireType(sc.scalar));
-                                    try writeScalar(bw, sc.scalar, payload);
-                                },
-                                else => {},
-                            }
-                        }
-                    },
-                }
-            }
-        } else {
-            switch (field_meta.kind) {
-                .scalar => |sc| {
-                    const ExpectedType = comptime scalarZigType(sc.scalar);
-                    const StructFieldType = comptime struct_fields[fi].type;
-                    const presence = comptime sc.presence;
-
-                    const type_ok = comptime switch (presence) {
-                        .implicit => StructFieldType == ExpectedType,
-                        .explicit, .legacy_required => StructFieldType == ?ExpectedType,
-                    };
-
-                    if (comptime type_ok) {
-                        switch (presence) {
-                            .implicit => {
-                                const value: ExpectedType = @field(msg, field_name);
-                                if (!isDefault(sc.scalar, value)) {
-                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
-                                    try writeScalar(bw, sc.scalar, value);
-                                }
-                            },
-                            .explicit, .legacy_required => {
-                                const opt: ?ExpectedType = @field(msg, field_name);
-                                if (opt) |value| {
-                                    try bw.tag(@intCast(field_meta.number), comptime scalarWireType(sc.scalar));
-                                    try writeScalar(bw, sc.scalar, value);
-                                }
-                            },
-                        }
-                    }
-                },
-                .message_field => {
-                    if (@field(msg, field_name)) |child_ptr| {
-                        try writeMessageField(bw, field_meta.number, child_ptr.*);
-                    }
-                },
-                .list => |list_meta| try writeListField(bw, @field(msg, field_name), list_meta, field_meta.number),
-                .enum_field => {
-                    if (@field(msg, field_name)) |value| {
-                        try bw.tag(field_meta.number, .varint);
-                        try bw.int32(@intFromEnum(value));
-                    }
-                },
-                else => {},
-            }
-        }
-    }
+    try field_access.forEachSetField(msg, bw, writeFieldCallback);
 }
 
 /// Serializes a message to its binary Protocol Buffer representation,

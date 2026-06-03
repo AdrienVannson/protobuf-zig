@@ -2,6 +2,7 @@ const std = @import("std");
 const binary_reader_mod = @import("binary_reader.zig");
 const tag_mod = @import("tag.zig");
 const metadata_mod = @import("../_codegen/metadata.zig");
+const field_access = @import("../_codegen/field_access.zig");
 
 const BinaryReader = binary_reader_mod.BinaryReader;
 const WireType = tag_mod.WireType;
@@ -113,20 +114,6 @@ fn readListField(
     }
 }
 
-fn readMessageField(reader: *BinaryReader, field_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
-    const FieldType = @TypeOf(field_ptr.*); // ?*Child
-    const Child = std.meta.Child(std.meta.Child(FieldType));
-    const child_ptr = field_ptr.* orelse blk: { // Merge into existing message if non-null, otherwise allocate new one.
-        const p = try allocator.create(Child);
-        p.* = .{};
-        field_ptr.* = p;
-        break :blk p;
-    };
-    try reader.fork();
-    try readMessage(reader, child_ptr, allocator);
-    try reader.join();
-}
-
 /// Decodes all fields of msg from the current scope of reader.
 fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
     const T = std.meta.Child(@TypeOf(msg));
@@ -146,23 +133,22 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
 
                 switch (field_meta.kind) {
                     .scalar => |sc| {
-                        if (comptime field_meta.oneof_variant) |variant| {
-                            const field_ptr = &@field(msg.*, field_name);
-                            const Union = comptime std.meta.Child(@TypeOf(field_ptr.*));
-                            field_ptr.* = @unionInit(Union, variant, try readScalar(reader, sc.scalar));
-                        } else {
-                            if (comptime (sc.scalar == .string or sc.scalar == .bytes) and
-                                sc.presence != .implicit)
-                            {
-                                if (@field(msg.*, field_name)) |old| allocator.free(old);
-                            }
-                            @field(msg.*, field_name) = try readScalar(reader, sc.scalar);
-                        }
+                        // clearField frees any existing heap allocation for this field
+                        // (e.g. a previously decoded string/bytes) before overwriting it.
+                        // For oneofs it only clears if THIS variant is currently active.
+                        field_access.clearField(msg, field_meta, allocator);
+                        field_access.setField(msg, field_meta, try readScalar(reader, sc.scalar));
                     },
                     .enum_field => {
-                        @field(msg.*, field_name) = @enumFromInt(try reader.int32());
+                        const EnumType = comptime field_access.FieldPayloadType(T, field_meta);
+                        field_access.setField(msg, field_meta, @as(EnumType, @enumFromInt(try reader.int32())));
                     },
-                    .message_field => try readMessageField(reader, &@field(msg.*, field_name), allocator),
+                    .message_field => {
+                        const child_ptr = try field_access.getOrCreateMessageField(msg, field_meta, allocator);
+                        try reader.fork();
+                        try readMessage(reader, child_ptr, allocator);
+                        try reader.join();
+                    },
                     .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, tag.wire_type, allocator),
                     else => try skipField(reader, tag.wire_type),
                 }

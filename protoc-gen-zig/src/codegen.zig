@@ -91,7 +91,7 @@ fn generateMessage(
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
     for (msg.oneofs) |*oneof| {
-        try generateOneofField(f, oneof);
+        try generateOneofField(f, oneof, cur_file, imports);
     }
     try f.emptyLine();
 
@@ -266,19 +266,50 @@ fn generateMessageMetadata(
     // Oneof variant entries — all variants of a group share the same field_index.
     for (msg.oneofs) |*oneof| {
         for (oneof.fields) |field_ptr| {
-            if (field_ptr.kind != .scalar) continue;
-            try f.writeLine(.{
-                ".{ .number = ",
-                field_ptr.number,
-                ", .field_index = ",
-                field_index,
-                ", .oneof_variant = \"",
-                field_ptr.name,
-                "\", .kind = .{ .scalar = .{ .scalar = .",
-                @tagName(field_ptr.kind.scalar.scalar),
-                " } } }, // ",
-                field_ptr.name,
-            });
+            switch (field_ptr.kind) {
+                .scalar => |sc| {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field_ptr.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .oneof_variant = \"",
+                        field_ptr.name,
+                        "\", .kind = .{ .scalar = .{ .scalar = .",
+                        @tagName(sc.scalar),
+                        " } } }, // ",
+                        field_ptr.name,
+                    });
+                },
+                .enum_field => |ef| {
+                    const default = ef.default_value orelse 0;
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field_ptr.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .oneof_variant = \"",
+                        field_ptr.name,
+                        "\", .kind = .{ .enum_field = .{ .default_value = ",
+                        default,
+                        " } } }, // ",
+                        field_ptr.name,
+                    });
+                },
+                .message_field => {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field_ptr.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .oneof_variant = \"",
+                        field_ptr.name,
+                        "\", .kind = .{ .message_field = .{} } }, // ",
+                        field_ptr.name,
+                    });
+                },
+                else => {},
+            }
         }
         field_index += 1;
     }
@@ -340,14 +371,30 @@ fn generateField(
 fn generateOneofField(
     f: *GeneratedFile,
     oneof: *const protobuf.DescOneof,
+    cur_file: *const protobuf.DescFile,
+    imports: *const ImportTable,
 ) !void {
     const safe_name = try escapeZigKeyword(f.alloc, oneof.local_name);
     defer f.alloc.free(safe_name);
     try f.write(.{ safe_name, ": ?union(enum) {" });
     for (oneof.fields) |field_ptr| {
-        if (field_ptr.kind != .scalar) continue;
         // field_ptr.local_name is already keyword-escaped.
-        try f.write(.{ " ", field_ptr.local_name, ": ", scalarZigType(field_ptr.kind.scalar.scalar), "," });
+        switch (field_ptr.kind) {
+            .scalar => |sc| {
+                try f.write(.{ " ", field_ptr.local_name, ": ", scalarZigType(sc.scalar), "," });
+            },
+            .enum_field => |ef| {
+                const type_name = try enumZigTypeName(f.alloc, ef.enum_type, cur_file, imports);
+                defer f.alloc.free(type_name);
+                try f.write(.{ " ", field_ptr.local_name, ": ", type_name, "," });
+            },
+            .message_field => |mf| {
+                const type_name = try messageZigTypeName(f.alloc, mf.message, cur_file, imports);
+                defer f.alloc.free(type_name);
+                try f.write(.{ " ", field_ptr.local_name, ": *", type_name, "," });
+            },
+            else => {},
+        }
     }
     try f.writeLine(" } = null,");
 }

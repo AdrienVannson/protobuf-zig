@@ -35,6 +35,7 @@ pub const wkt = @import("wkt.zig");
 pub const _codegen = struct {
     pub const deinit_message = @import("_codegen/message_deinit.zig").deinit_message;
     pub const metadata = @import("_codegen/metadata.zig");
+    pub const field_access = @import("_codegen/field_access.zig");
 };
 
 test {
@@ -43,6 +44,7 @@ test {
     _ = @import("wire/tag.zig");
     _ = @import("descriptor.zig");
     _ = @import("_codegen/metadata.zig");
+    _ = @import("_codegen/field_access.zig");
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
     _ = @import("_codegen/message_deinit.zig");
