@@ -1,5 +1,5 @@
 const std = @import("std");
-const descriptor = @import("gen_old/google/protobuf.pb.zig");
+const descriptor = @import("our_protobuf").wkt.descriptor;
 const protobuf = @import("our_protobuf");
 const GeneratedFile = @import("generated_file.zig").GeneratedFile;
 
@@ -532,14 +532,11 @@ fn emitDescriptorBytes(
     file: *const descriptor.FileDescriptorProto,
     alloc: std.mem.Allocator,
 ) !void {
-    var w: std.Io.Writer.Allocating = .init(alloc);
-    defer w.deinit();
-
     // Strip source_code_info before encoding
     var stripped = file.*;
     stripped.source_code_info = null;
-    try stripped.encode(&w.writer, alloc);
-    const bytes = w.written();
+    const bytes = try protobuf.to_binary(alloc, stripped);
+    defer alloc.free(bytes);
 
     // TODO: make sure variable name doesn't conflict with any existing identifier
     try f.write("pub const DESCRIPTOR_BYTES: []const u8 = \"");

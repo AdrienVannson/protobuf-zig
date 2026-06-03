@@ -7,7 +7,7 @@ all: setup setup-conformance build generate generate-example run-example test co
 
 build:
     cd protobuf && zig build
-    cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}}
+    cd protoc-gen-zig && zig build
 
 code-quality:
     zig fmt --check protobuf/
@@ -16,7 +16,7 @@ code-quality:
 
 test:
     cd protobuf && zig build test
-    cd protoc-gen-zig && zig build test -Dprotobuf_version={{protobuf_version}}
+    cd protoc-gen-zig && zig build test
 
 clean:
     rm -rf protobuf/.zig-cache protobuf/zig-out

@@ -4,10 +4,6 @@
     .version = "0.0.0",
     .minimum_zig_version = "0.15.0",
     .dependencies = .{
-        .protobuf = .{
-            .url = "git+https://github.com/Arwalk/zig-protobuf?ref=master#9691a3d4cceceda61ed808d54fb0393c2a30d6fd",
-            .hash = "protobuf-3.0.0-0e82apPSKAD0Jh0OaZ2VkXqMIePmgOtuYrXpOh2eruDP",
-        },
         .our_protobuf = .{
             .path = "../protobuf",
         },
