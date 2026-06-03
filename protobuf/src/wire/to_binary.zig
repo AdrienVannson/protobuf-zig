@@ -150,7 +150,7 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
                 .scalar => |sc| {
                     const ExpectedType = comptime scalarZigType(sc.scalar);
                     const StructFieldType = comptime struct_fields[fi].type;
-                    const presence = comptime field_meta.presence;
+                    const presence = comptime sc.presence;
 
                     const type_ok = comptime switch (presence) {
                         .implicit => StructFieldType == ExpectedType,

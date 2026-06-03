@@ -24,8 +24,8 @@ pub const ImportMain = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // single
             .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // kind
-            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // many
-            .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // kinds
+            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // many
+            .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // kinds
         },
     };
 };

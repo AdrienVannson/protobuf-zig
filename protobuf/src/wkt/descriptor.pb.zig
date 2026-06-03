@@ -14,7 +14,7 @@ pub const FileDescriptorSet = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
+            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
         },
     };
 };
@@ -59,14 +59,14 @@ pub const FileDescriptorProto = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // package
-            .{ .number = 3, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // dependency
-            .{ .number = 10, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // public_dependency
-            .{ .number = 11, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // weak_dependency
-            .{ .number = 15, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // option_dependency
-            .{ .number = 4, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // message_type
-            .{ .number = 5, .field_index = 7, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
-            .{ .number = 6, .field_index = 8, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // service
-            .{ .number = 7, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
+            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // dependency
+            .{ .number = 10, .field_index = 3, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // public_dependency
+            .{ .number = 11, .field_index = 4, .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // weak_dependency
+            .{ .number = 15, .field_index = 5, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // option_dependency
+            .{ .number = 4, .field_index = 6, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // message_type
+            .{ .number = 5, .field_index = 7, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
+            .{ .number = 6, .field_index = 8, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // service
+            .{ .number = 7, .field_index = 9, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
             .{ .number = 8, .field_index = 10, .kind = .{ .message_field = .{} } }, // options
             .{ .number = 9, .field_index = 11, .kind = .{ .message_field = .{} } }, // source_code_info
             .{ .number = 12, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .string } } }, // syntax
@@ -153,15 +153,15 @@ pub const DescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // field
-            .{ .number = 6, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
-            .{ .number = 3, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // nested_type
-            .{ .number = 4, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
-            .{ .number = 5, .field_index = 5, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension_range
-            .{ .number = 8, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // oneof_decl
+            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // field
+            .{ .number = 6, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
+            .{ .number = 3, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // nested_type
+            .{ .number = 4, .field_index = 4, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
+            .{ .number = 5, .field_index = 5, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension_range
+            .{ .number = 8, .field_index = 6, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // oneof_decl
             .{ .number = 7, .field_index = 7, .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 9, .field_index = 8, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
-            .{ .number = 10, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
+            .{ .number = 9, .field_index = 8, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
+            .{ .number = 10, .field_index = 9, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
             .{ .number = 11, .field_index = 10, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
         },
     };
@@ -231,8 +231,8 @@ pub const ExtensionRangeOptions = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 999, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // declaration
+            .{ .number = 999, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // declaration
             .{ .number = 50, .field_index = 2, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 3, .field_index = 3, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // verification
         },
@@ -409,10 +409,10 @@ pub const EnumDescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // value
+            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // value
             .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 4, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
-            .{ .number = 5, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
+            .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
+            .{ .number = 5, .field_index = 4, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
             .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
         },
     };
@@ -460,7 +460,7 @@ pub const ServiceDescriptorProto = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // method
+            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // method
             .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // options
         },
     };
@@ -642,7 +642,7 @@ pub const FileOptions = struct {
             .{ .number = 44, .field_index = 17, .kind = .{ .scalar = .{ .scalar = .string } } }, // php_metadata_namespace
             .{ .number = 45, .field_index = 18, .kind = .{ .scalar = .{ .scalar = .string } } }, // ruby_package
             .{ .number = 50, .field_index = 19, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 20, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 20, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -688,7 +688,7 @@ pub const MessageOptions = struct {
             .{ .number = 7, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // map_entry
             .{ .number = 11, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
             .{ .number = 12, .field_index = 5, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 6, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 6, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -855,11 +855,11 @@ pub const FieldOptions = struct {
             .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool } } }, // weak
             .{ .number = 16, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
             .{ .number = 17, .field_index = 8, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // retention
-            .{ .number = 19, .field_index = 9, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // targets
-            .{ .number = 20, .field_index = 10, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // edition_defaults
+            .{ .number = 19, .field_index = 9, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // targets
+            .{ .number = 20, .field_index = 10, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // edition_defaults
             .{ .number = 21, .field_index = 11, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 22, .field_index = 12, .kind = .{ .message_field = .{} } }, // feature_support
-            .{ .number = 999, .field_index = 13, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 13, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -875,7 +875,7 @@ pub const OneofOptions = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -909,7 +909,7 @@ pub const EnumOptions = struct {
             .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 6, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
             .{ .number = 7, .field_index = 3, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 4, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -939,7 +939,7 @@ pub const EnumValueOptions = struct {
             .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
             .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // feature_support
-            .{ .number = 999, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 4, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -961,7 +961,7 @@ pub const ServiceOptions = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 34, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 33, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
-            .{ .number = 999, .field_index = 2, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -996,7 +996,7 @@ pub const MethodOptions = struct {
             .{ .number = 33, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
             .{ .number = 34, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // idempotency_level
             .{ .number = 35, .field_index = 2, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 3, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
+            .{ .number = 999, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
 };
@@ -1064,7 +1064,7 @@ pub const UninterpretedOption = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 2, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // name
+            .{ .number = 2, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // name
             .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // identifier_value
             .{ .number = 4, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // positive_int_value
             .{ .number = 5, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // negative_int_value
@@ -1245,7 +1245,7 @@ pub const FeatureSetDefaults = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // defaults
+            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // defaults
             .{ .number = 4, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // minimum_edition
             .{ .number = 5, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // maximum_edition
         },
@@ -1276,11 +1276,11 @@ pub const SourceCodeInfo = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
-                .{ .number = 2, .field_index = 1, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // span
+                .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
+                .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // span
                 .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // leading_comments
                 .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // trailing_comments
-                .{ .number = 6, .field_index = 4, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // leading_detached_comments
+                .{ .number = 6, .field_index = 4, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // leading_detached_comments
             },
         };
     };
@@ -1291,7 +1291,7 @@ pub const SourceCodeInfo = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // location
+            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // location
         },
     };
 };
@@ -1335,7 +1335,7 @@ pub const GeneratedCodeInfo = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
+                .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
                 .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // source_file
                 .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // begin
                 .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
@@ -1350,7 +1350,7 @@ pub const GeneratedCodeInfo = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .presence = .implicit, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // annotation
+            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // annotation
         },
     };
 };
