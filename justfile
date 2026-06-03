@@ -72,7 +72,6 @@ generate-plugin: setup build
         --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
         --zig_out=./protoc-gen-zig/src/gen \
         --proto_path="$include_dir" \
-        google/protobuf/descriptor.proto \
         google/protobuf/compiler/plugin.proto
 
 # Generate the example using buf
