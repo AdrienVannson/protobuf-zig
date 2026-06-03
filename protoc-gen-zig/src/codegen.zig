@@ -20,7 +20,6 @@ pub fn generateFile(
     }
     for (desc_file.dependencies) |dep_file| {
         const alias = try aliasFor(alloc, dep_file);
-        errdefer alloc.free(alias);
         try imports.put(dep_file, alias);
     }
 
@@ -33,9 +32,9 @@ pub fn generateFile(
         try f.writeLine("const std = @import(\"std\");");
         try f.writeLine("const _codegen = @import(\"protobuf\")._codegen;");
         try f.writeLine("const _metadata = _codegen.metadata;");
-        const cur_is_wkt = wktModuleName(desc_file.name) != null;
+        const current_is_wkt = wktModuleName(desc_file.name) != null;
         for (imports.keys(), imports.values()) |dep_file, alias| {
-            if (!cur_is_wkt) {
+            if (!current_is_wkt) {
                 if (wktModuleName(dep_file.name)) |module| {
                     try f.writeLine(.{ "const ", alias, " = @import(\"protobuf\").wkt.", module, ";" });
                     continue;
@@ -570,8 +569,7 @@ pub fn toCamelCase(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
 /// Computes the alias for an imported file's generated binding.
 ///
 /// Strips the ".proto" suffix, replaces non-alphanumeric characters with "_",
-/// and prepends "_" so the alias can never clash with a proto-derived identifier
-/// (which must begin with a letter).
+/// and prepends "_".
 fn aliasFor(alloc: std.mem.Allocator, dep_file: *const protobuf.DescFile) ![]u8 {
     const name = dep_file.name;
     const base = name[0 .. name.len - ".proto".len];
