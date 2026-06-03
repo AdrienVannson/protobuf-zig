@@ -2,7 +2,7 @@
     .name = .protobuf,
     .fingerprint = 0x99fac5be7f1d0145,
     .version = "0.0.0",
-    .minimum_zig_version = "0.15.0",
+    .minimum_zig_version = "0.16.0",
     .dependencies = .{},
     .paths = .{"."},
 }
