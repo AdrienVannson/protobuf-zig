@@ -7,7 +7,7 @@ all: setup setup-conformance build generate generate-example run-example test co
 
 build:
     cd protobuf && zig build
-    cd protoc-gen-zig && zig build -Dprotobuf_version={{protobuf_version}}
+    cd protoc-gen-zig && zig build
 
 code-quality:
     zig fmt --check protobuf/
@@ -16,11 +16,12 @@ code-quality:
 
 test:
     cd protobuf && zig build test
-    cd protoc-gen-zig && zig build test -Dprotobuf_version={{protobuf_version}}
+    cd protoc-gen-zig && zig build test
 
 clean:
     rm -rf protobuf/.zig-cache protobuf/zig-out
     rm -rf protoc-gen-zig/.zig-cache protoc-gen-zig/zig-out
+    rm -rf .cache
 
 # Run protoc-gen-zig on the test proto file
 generate: build
@@ -72,7 +73,6 @@ generate-plugin: setup build
         --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
         --zig_out=./protoc-gen-zig/src/gen \
         --proto_path="$include_dir" \
-        google/protobuf/descriptor.proto \
         google/protobuf/compiler/plugin.proto
 
 # Generate the example using buf

@@ -1,9 +1,8 @@
 const std = @import("std");
-const plugin = @import("gen_old/google/protobuf/compiler.pb.zig");
-const descriptor = @import("gen_old/google/protobuf.pb.zig");
+const plugin = @import("gen/google/protobuf/compiler/plugin.pb.zig");
 const codegen = @import("codegen.zig");
 const desc_file_from_proto = @import("desc_file_from_proto.zig");
-const protobuf = @import("our_protobuf");
+const protobuf = @import("protobuf");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -15,14 +14,14 @@ pub fn main() !void {
     defer alloc.free(input);
 
     // Decode request
-    var reader: std.Io.Reader = .fixed(input);
-    var request = try plugin.CodeGeneratorRequest.decode(&reader, alloc);
+    var request: plugin.CodeGeneratorRequest = .{};
     defer request.deinit(alloc);
+    try protobuf.from_binary(&request, input, alloc);
 
     // Build map: file name → FileDescriptorProto
-    var file_map = std.StringHashMap(*const descriptor.FileDescriptorProto).init(alloc);
+    var file_map = std.StringHashMap(*protobuf.wkt.descriptor.FileDescriptorProto).init(alloc);
     defer file_map.deinit();
-    for (request.proto_file.items) |*f| {
+    for (request.proto_file.items) |f| {
         if (f.name) |name| try file_map.put(name, f);
     }
 
@@ -36,7 +35,7 @@ pub fn main() !void {
         for (owned_descs.items) |*o| o.deinit();
         owned_descs.deinit(alloc);
     }
-    for (request.proto_file.items) |*f| {
+    for (request.proto_file.items) |f| {
         const owned = try desc_file_from_proto.descFileFromProto(f, &desc_by_name, alloc);
         try owned_descs.append(alloc, owned);
         // Reference the stable arena-owned file from the just-appended element.
@@ -62,7 +61,8 @@ pub fn main() !void {
         const base = file_name[0 .. file_name.len - ".proto".len];
         const out_name = try std.mem.concat(alloc, u8, &.{ base, ".pb.zig" });
 
-        const out_file: plugin.CodeGeneratorResponse.File = .{
+        const out_file = try alloc.create(plugin.CodeGeneratorResponse.File);
+        out_file.* = .{
             .name = out_name,
             .content = content,
         };
@@ -70,8 +70,7 @@ pub fn main() !void {
     }
 
     // Encode response and write to stdout
-    var w: std.Io.Writer.Allocating = .init(alloc);
-    defer w.deinit();
-    try response.encode(&w.writer, alloc);
-    try std.fs.File.stdout().writeAll(w.written());
+    const encoded = try protobuf.to_binary(alloc, response);
+    defer alloc.free(encoded);
+    try std.fs.File.stdout().writeAll(encoded);
 }
