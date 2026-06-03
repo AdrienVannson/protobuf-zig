@@ -548,7 +548,7 @@ fn parseDefaultValue(alloc: std.mem.Allocator, sc: protobuf.ScalarType, raw: ?[]
 }
 
 fn toJsonName(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
-    var out: std.ArrayList(u8) = .{};
+    var out: std.ArrayList(u8) = .empty;
     var up = false;
     for (snake) |c| {
         if (c == '_') {

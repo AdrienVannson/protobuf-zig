@@ -36,7 +36,7 @@ pub const TestStatus = struct {
 };
 
 pub const FailureSet = struct {
-    @"test": std.ArrayListUnmanaged(*TestStatus) = .{},
+    @"test": std.ArrayList(*TestStatus) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);

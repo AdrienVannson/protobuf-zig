@@ -2,10 +2,8 @@ const std = @import("std");
 const example = @import("gen/example.pb.zig");
 const protobuf = @import("protobuf");
 
-pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const allocator = gpa.allocator();
+pub fn main(init: std.process.Init) !void {
+    const allocator = init.gpa;
 
     const person = example.Person{
         .name = "Alice",

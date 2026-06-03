@@ -57,7 +57,7 @@ pub const Value = struct {
 };
 
 pub const ListValue = struct {
-    values: std.ArrayListUnmanaged(*Value) = .{},
+    values: std.ArrayList(*Value) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);

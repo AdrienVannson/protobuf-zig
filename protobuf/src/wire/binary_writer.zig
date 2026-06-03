@@ -47,9 +47,9 @@ pub const BinaryWriter = struct {
     pub fn init(allocator: std.mem.Allocator) BinaryWriter {
         return .{
             .allocator = allocator,
-            .chunks = .{},
+            .chunks = .empty,
             .size = 0,
-            .stack = .{},
+            .stack = .empty,
         };
     }
 

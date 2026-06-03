@@ -9,8 +9,8 @@ const _import_import_dep = @import("import_dep.pb.zig");
 pub const ImportMain = struct {
     single: ?*_import_import_dep.DepMsg = null,
     kind: ?_import_import_dep.DepEnum = null,
-    many: std.ArrayListUnmanaged(*_import_import_dep.DepMsg) = .{},
-    kinds: std.ArrayListUnmanaged(_import_import_dep.DepEnum) = .{},
+    many: std.ArrayList(*_import_import_dep.DepMsg) = .empty,
+    kinds: std.ArrayList(_import_import_dep.DepEnum) = .empty,
 
     pub fn getKind(self: @This()) _import_import_dep.DepEnum {
         return self.kind orelse @enumFromInt(0);

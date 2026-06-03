@@ -17,7 +17,7 @@ pub const GeneratedFile = struct {
     pub fn init(alloc: std.mem.Allocator) GeneratedFile {
         return .{
             .alloc = alloc,
-            .buffer = .{},
+            .buffer = .empty,
             .indent_level = 0,
             .at_line_start = true,
         };
@@ -77,7 +77,7 @@ pub const GeneratedFile = struct {
         const T = @TypeOf(value);
         switch (@typeInfo(T)) {
             .int, .comptime_int => {
-                try self.buffer.writer(self.alloc).print("{d}", .{value});
+                try self.buffer.print(self.alloc, "{d}", .{value});
             },
             .pointer => {
                 try self.buffer.appendSlice(self.alloc, value);

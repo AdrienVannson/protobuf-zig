@@ -9,9 +9,9 @@ const _google_protobuf_source_context = @import("source_context.pb.zig");
 
 pub const Type = struct {
     name: ?[]const u8 = null,
-    fields: std.ArrayListUnmanaged(*Field) = .{},
-    oneofs: std.ArrayListUnmanaged([]const u8) = .{},
-    options: std.ArrayListUnmanaged(*Option) = .{},
+    fields: std.ArrayList(*Field) = .empty,
+    oneofs: std.ArrayList([]const u8) = .empty,
+    options: std.ArrayList(*Option) = .empty,
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
     edition: ?[]const u8 = null,
@@ -53,7 +53,7 @@ pub const Field = struct {
     type_url: ?[]const u8 = null,
     oneof_index: ?i32 = null,
     @"packed": ?bool = null,
-    options: std.ArrayListUnmanaged(*Option) = .{},
+    options: std.ArrayList(*Option) = .empty,
     json_name: ?[]const u8 = null,
     default_value: ?[]const u8 = null,
 
@@ -146,8 +146,8 @@ pub const Field = struct {
 
 pub const Enum = struct {
     name: ?[]const u8 = null,
-    enumvalue: std.ArrayListUnmanaged(*EnumValue) = .{},
-    options: std.ArrayListUnmanaged(*Option) = .{},
+    enumvalue: std.ArrayList(*EnumValue) = .empty,
+    options: std.ArrayList(*Option) = .empty,
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
     edition: ?[]const u8 = null,
@@ -183,7 +183,7 @@ pub const Enum = struct {
 pub const EnumValue = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
-    options: std.ArrayListUnmanaged(*Option) = .{},
+    options: std.ArrayList(*Option) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";

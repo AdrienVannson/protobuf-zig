@@ -43,10 +43,10 @@ pub const Version = struct {
 };
 
 pub const CodeGeneratorRequest = struct {
-    file_to_generate: std.ArrayListUnmanaged([]const u8) = .{},
+    file_to_generate: std.ArrayList([]const u8) = .empty,
     parameter: ?[]const u8 = null,
-    proto_file: std.ArrayListUnmanaged(*_google_protobuf_descriptor.FileDescriptorProto) = .{},
-    source_file_descriptors: std.ArrayListUnmanaged(*_google_protobuf_descriptor.FileDescriptorProto) = .{},
+    proto_file: std.ArrayList(*_google_protobuf_descriptor.FileDescriptorProto) = .empty,
+    source_file_descriptors: std.ArrayList(*_google_protobuf_descriptor.FileDescriptorProto) = .empty,
     compiler_version: ?*Version = null,
 
     pub fn getParameter(self: @This()) []const u8 {
@@ -73,7 +73,7 @@ pub const CodeGeneratorResponse = struct {
     supported_features: ?u64 = null,
     minimum_edition: ?i32 = null,
     maximum_edition: ?i32 = null,
-    file: std.ArrayListUnmanaged(*CodeGeneratorResponse.File) = .{},
+    file: std.ArrayList(*CodeGeneratorResponse.File) = .empty,
 
     pub const File = struct {
         name: ?[]const u8 = null,

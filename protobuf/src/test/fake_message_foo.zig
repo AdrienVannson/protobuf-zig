@@ -5,13 +5,13 @@ pub const FakeMessageFoo = struct {
     explicit_field: ?i32 = null,
     implicit_field: i32 = 0,
     legacy_required_field: ?[]const u8 = null,
-    repeated_field: std.ArrayListUnmanaged([]const u8) = .{},
+    repeated_field: std.ArrayList([]const u8) = .empty,
     message_field: ?*Bar = null,
     field_with_default: ?i32 = null,
     color_field: ?Color = null,
     float_field: ?f32 = null,
-    repeated_float_field: std.ArrayListUnmanaged(f32) = .{},
-    repeated_color_field: std.ArrayListUnmanaged(Color) = .{},
+    repeated_float_field: std.ArrayList(f32) = .empty,
+    repeated_color_field: std.ArrayList(Color) = .empty,
 
     pub const _desc = metadata.MessageMetadata{
         .fields = &[_]metadata.FieldMetadata{

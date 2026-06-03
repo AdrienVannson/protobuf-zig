@@ -4,13 +4,14 @@ const codegen = @import("codegen.zig");
 const desc_file_from_proto = @import("desc_file_from_proto.zig");
 const protobuf = @import("protobuf");
 
-pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const alloc = gpa.allocator();
+pub fn main(init: std.process.Init) !void {
+    const alloc = init.gpa;
+    const io = init.io;
 
     // Read entire stdin (CodeGeneratorRequest bytes)
-    const input = try std.fs.File.stdin().readToEndAlloc(alloc, 100 * 1024 * 1024);
+    var stdin_buf: [4096]u8 = undefined;
+    var stdin_reader = std.Io.File.stdin().readerStreaming(io, &stdin_buf);
+    const input = try stdin_reader.interface.allocRemaining(alloc, .unlimited);
     defer alloc.free(input);
 
     // Decode request
@@ -30,7 +31,7 @@ pub fn main() !void {
     // so each file's imports are already in desc_by_name when we process it.
     var desc_by_name = std.StringHashMap(*const protobuf.DescFile).init(alloc);
     defer desc_by_name.deinit();
-    var owned_descs: std.ArrayList(desc_file_from_proto.OwnedDescFile) = .{};
+    var owned_descs: std.ArrayList(desc_file_from_proto.OwnedDescFile) = .empty;
     defer {
         for (owned_descs.items) |*o| o.deinit();
         owned_descs.deinit(alloc);
@@ -72,5 +73,5 @@ pub fn main() !void {
     // Encode response and write to stdout
     const encoded = try protobuf.to_binary(alloc, response);
     defer alloc.free(encoded);
-    try std.fs.File.stdout().writeAll(encoded);
+    try std.Io.File.stdout().writeStreamingAll(io, encoded);
 }
