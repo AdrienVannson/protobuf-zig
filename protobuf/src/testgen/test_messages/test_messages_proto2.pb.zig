@@ -880,8 +880,8 @@ pub const TestAllRequiredTypesProto2 = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // a
-                .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // corecursive
+                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .legacy_required } } }, // a
+                .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{ .presence = .legacy_required } } }, // corecursive
                 .{ .number = 3, .field_index = 2, .kind = .{ .message_field = .{} } }, // optional_corecursive
             },
         };
@@ -905,8 +905,8 @@ pub const TestAllRequiredTypesProto2 = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 202, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // group_int32
-                .{ .number = 203, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // group_uint32
+                .{ .number = 202, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .legacy_required } } }, // group_int32
+                .{ .number = 203, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .legacy_required } } }, // group_uint32
             },
         };
     };
@@ -934,7 +934,7 @@ pub const TestAllRequiredTypesProto2 = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 25, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // str
+                .{ .number = 25, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .legacy_required } } }, // str
             },
         };
     };
@@ -952,7 +952,7 @@ pub const TestAllRequiredTypesProto2 = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 9, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // i
+                .{ .number = 9, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .legacy_required } } }, // i
             },
         };
     };
@@ -1107,45 +1107,45 @@ pub const TestAllRequiredTypesProto2 = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // required_int32
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // required_int64
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // required_uint32
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // required_uint64
-            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .sint32 } } }, // required_sint32
-            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .sint64 } } }, // required_sint64
-            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .fixed32 } } }, // required_fixed32
-            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .fixed64 } } }, // required_fixed64
-            .{ .number = 9, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .sfixed32 } } }, // required_sfixed32
-            .{ .number = 10, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .sfixed64 } } }, // required_sfixed64
-            .{ .number = 11, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .float } } }, // required_float
-            .{ .number = 12, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .double } } }, // required_double
-            .{ .number = 13, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .bool } } }, // required_bool
-            .{ .number = 14, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string } } }, // required_string
-            .{ .number = 15, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // required_bytes
-            .{ .number = 18, .field_index = 15, .kind = .{ .message_field = .{} } }, // required_nested_message
-            .{ .number = 19, .field_index = 16, .kind = .{ .message_field = .{} } }, // required_foreign_message
-            .{ .number = 21, .field_index = 17, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // required_nested_enum
-            .{ .number = 22, .field_index = 18, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // required_foreign_enum
-            .{ .number = 24, .field_index = 19, .kind = .{ .scalar = .{ .scalar = .string } } }, // required_string_piece
-            .{ .number = 25, .field_index = 20, .kind = .{ .scalar = .{ .scalar = .string } } }, // required_cord
-            .{ .number = 27, .field_index = 21, .kind = .{ .message_field = .{} } }, // recursive_message
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .legacy_required } } }, // required_int32
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int64, .presence = .legacy_required } } }, // required_int64
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .legacy_required } } }, // required_uint32
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .uint64, .presence = .legacy_required } } }, // required_uint64
+            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .sint32, .presence = .legacy_required } } }, // required_sint32
+            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .sint64, .presence = .legacy_required } } }, // required_sint64
+            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .fixed32, .presence = .legacy_required } } }, // required_fixed32
+            .{ .number = 8, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .fixed64, .presence = .legacy_required } } }, // required_fixed64
+            .{ .number = 9, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .sfixed32, .presence = .legacy_required } } }, // required_sfixed32
+            .{ .number = 10, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .sfixed64, .presence = .legacy_required } } }, // required_sfixed64
+            .{ .number = 11, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .float, .presence = .legacy_required } } }, // required_float
+            .{ .number = 12, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .double, .presence = .legacy_required } } }, // required_double
+            .{ .number = 13, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .legacy_required } } }, // required_bool
+            .{ .number = 14, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string, .presence = .legacy_required } } }, // required_string
+            .{ .number = 15, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .legacy_required } } }, // required_bytes
+            .{ .number = 18, .field_index = 15, .kind = .{ .message_field = .{ .presence = .legacy_required } } }, // required_nested_message
+            .{ .number = 19, .field_index = 16, .kind = .{ .message_field = .{ .presence = .legacy_required } } }, // required_foreign_message
+            .{ .number = 21, .field_index = 17, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .legacy_required } } }, // required_nested_enum
+            .{ .number = 22, .field_index = 18, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .legacy_required } } }, // required_foreign_enum
+            .{ .number = 24, .field_index = 19, .kind = .{ .scalar = .{ .scalar = .string, .presence = .legacy_required } } }, // required_string_piece
+            .{ .number = 25, .field_index = 20, .kind = .{ .scalar = .{ .scalar = .string, .presence = .legacy_required } } }, // required_cord
+            .{ .number = 27, .field_index = 21, .kind = .{ .message_field = .{ .presence = .legacy_required } } }, // recursive_message
             .{ .number = 28, .field_index = 22, .kind = .{ .message_field = .{} } }, // optional_recursive_message
-            .{ .number = 201, .field_index = 23, .kind = .{ .message_field = .{} } }, // data
-            .{ .number = 241, .field_index = 24, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // default_int32
-            .{ .number = 242, .field_index = 25, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // default_int64
-            .{ .number = 243, .field_index = 26, .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // default_uint32
-            .{ .number = 244, .field_index = 27, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // default_uint64
-            .{ .number = 245, .field_index = 28, .kind = .{ .scalar = .{ .scalar = .sint32 } } }, // default_sint32
-            .{ .number = 246, .field_index = 29, .kind = .{ .scalar = .{ .scalar = .sint64 } } }, // default_sint64
-            .{ .number = 247, .field_index = 30, .kind = .{ .scalar = .{ .scalar = .fixed32 } } }, // default_fixed32
-            .{ .number = 248, .field_index = 31, .kind = .{ .scalar = .{ .scalar = .fixed64 } } }, // default_fixed64
-            .{ .number = 249, .field_index = 32, .kind = .{ .scalar = .{ .scalar = .sfixed32 } } }, // default_sfixed32
-            .{ .number = 250, .field_index = 33, .kind = .{ .scalar = .{ .scalar = .sfixed64 } } }, // default_sfixed64
-            .{ .number = 251, .field_index = 34, .kind = .{ .scalar = .{ .scalar = .float } } }, // default_float
-            .{ .number = 252, .field_index = 35, .kind = .{ .scalar = .{ .scalar = .double } } }, // default_double
-            .{ .number = 253, .field_index = 36, .kind = .{ .scalar = .{ .scalar = .bool } } }, // default_bool
-            .{ .number = 254, .field_index = 37, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_string
-            .{ .number = 255, .field_index = 38, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // default_bytes
+            .{ .number = 201, .field_index = 23, .kind = .{ .message_field = .{ .presence = .legacy_required } } }, // data
+            .{ .number = 241, .field_index = 24, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .legacy_required } } }, // default_int32
+            .{ .number = 242, .field_index = 25, .kind = .{ .scalar = .{ .scalar = .int64, .presence = .legacy_required } } }, // default_int64
+            .{ .number = 243, .field_index = 26, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .legacy_required } } }, // default_uint32
+            .{ .number = 244, .field_index = 27, .kind = .{ .scalar = .{ .scalar = .uint64, .presence = .legacy_required } } }, // default_uint64
+            .{ .number = 245, .field_index = 28, .kind = .{ .scalar = .{ .scalar = .sint32, .presence = .legacy_required } } }, // default_sint32
+            .{ .number = 246, .field_index = 29, .kind = .{ .scalar = .{ .scalar = .sint64, .presence = .legacy_required } } }, // default_sint64
+            .{ .number = 247, .field_index = 30, .kind = .{ .scalar = .{ .scalar = .fixed32, .presence = .legacy_required } } }, // default_fixed32
+            .{ .number = 248, .field_index = 31, .kind = .{ .scalar = .{ .scalar = .fixed64, .presence = .legacy_required } } }, // default_fixed64
+            .{ .number = 249, .field_index = 32, .kind = .{ .scalar = .{ .scalar = .sfixed32, .presence = .legacy_required } } }, // default_sfixed32
+            .{ .number = 250, .field_index = 33, .kind = .{ .scalar = .{ .scalar = .sfixed64, .presence = .legacy_required } } }, // default_sfixed64
+            .{ .number = 251, .field_index = 34, .kind = .{ .scalar = .{ .scalar = .float, .presence = .legacy_required } } }, // default_float
+            .{ .number = 252, .field_index = 35, .kind = .{ .scalar = .{ .scalar = .double, .presence = .legacy_required } } }, // default_double
+            .{ .number = 253, .field_index = 36, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .legacy_required } } }, // default_bool
+            .{ .number = 254, .field_index = 37, .kind = .{ .scalar = .{ .scalar = .string, .presence = .legacy_required } } }, // default_string
+            .{ .number = 255, .field_index = 38, .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .legacy_required } } }, // default_bytes
         },
     };
 };

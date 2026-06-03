@@ -6,10 +6,10 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const DoubleValue = struct {
-    value: ?f64 = null,
+    value: f64 = 0.0,
 
     pub fn getValue(self: @This()) f64 {
-        return self.value orelse 0.0;
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -18,16 +18,16 @@ pub const DoubleValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .double } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .double, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const FloatValue = struct {
-    value: ?f32 = null,
+    value: f32 = 0.0,
 
     pub fn getValue(self: @This()) f32 {
-        return self.value orelse 0.0;
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -36,16 +36,16 @@ pub const FloatValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .float } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .float, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const Int64Value = struct {
-    value: ?i64 = null,
+    value: i64 = 0,
 
     pub fn getValue(self: @This()) i64 {
-        return self.value orelse 0;
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -54,16 +54,16 @@ pub const Int64Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int64 } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int64, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const UInt64Value = struct {
-    value: ?u64 = null,
+    value: u64 = 0,
 
     pub fn getValue(self: @This()) u64 {
-        return self.value orelse 0;
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -72,16 +72,16 @@ pub const UInt64Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .uint64, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const Int32Value = struct {
-    value: ?i32 = null,
+    value: i32 = 0,
 
     pub fn getValue(self: @This()) i32 {
-        return self.value orelse 0;
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -90,16 +90,16 @@ pub const Int32Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const UInt32Value = struct {
-    value: ?u32 = null,
+    value: u32 = 0,
 
     pub fn getValue(self: @This()) u32 {
-        return self.value orelse 0;
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -108,16 +108,16 @@ pub const UInt32Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const BoolValue = struct {
-    value: ?bool = null,
+    value: bool = false,
 
     pub fn getValue(self: @This()) bool {
-        return self.value orelse false;
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -126,16 +126,16 @@ pub const BoolValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const StringValue = struct {
-    value: ?[]const u8 = null,
+    value: []const u8 = "",
 
     pub fn getValue(self: @This()) []const u8 {
-        return self.value orelse "";
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -144,16 +144,16 @@ pub const StringValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // value
         },
     };
 };
 
 pub const BytesValue = struct {
-    value: ?[]const u8 = null,
+    value: []const u8 = "",
 
     pub fn getValue(self: @This()) []const u8 {
-        return self.value orelse "";
+        return self.value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -162,7 +162,7 @@ pub const BytesValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bytes } } }, // value
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .implicit } } }, // value
         },
     };
 };

@@ -6,20 +6,20 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Person = struct {
-    name: ?[]const u8 = null,
-    age: ?i32 = null,
-    email: ?[]const u8 = null,
+    name: []const u8 = "",
+    age: i32 = 0,
+    email: []const u8 = "",
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getAge(self: @This()) i32 {
-        return self.age orelse 0;
+        return self.age;
     }
 
     pub fn getEmail(self: @This()) []const u8 {
-        return self.email orelse "";
+        return self.email;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -28,9 +28,9 @@ pub const Person = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // age
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // email
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // age
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // email
         },
     };
 };

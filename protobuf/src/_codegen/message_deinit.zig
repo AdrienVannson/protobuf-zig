@@ -36,7 +36,12 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
             switch (field_meta.kind) {
                 .scalar => |kind| {
                     if (comptime (kind.scalar == .string or kind.scalar == .bytes)) {
-                        if (@field(msg, member_name)) |s| allocator.free(s);
+                        if (comptime kind.presence == .implicit) {
+                            // Non-optional field; freeing the empty "" default is a no-op.
+                            allocator.free(@field(msg, member_name));
+                        } else {
+                            if (@field(msg, member_name)) |s| allocator.free(s);
+                        }
                     }
                 },
                 .message_field => {

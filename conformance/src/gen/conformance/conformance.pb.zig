@@ -6,20 +6,20 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const TestStatus = struct {
-    name: ?[]const u8 = null,
-    failure_message: ?[]const u8 = null,
-    matched_name: ?[]const u8 = null,
+    name: []const u8 = "",
+    failure_message: []const u8 = "",
+    matched_name: []const u8 = "",
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getFailureMessage(self: @This()) []const u8 {
-        return self.failure_message orelse "";
+        return self.failure_message;
     }
 
     pub fn getMatchedName(self: @This()) []const u8 {
-        return self.matched_name orelse "";
+        return self.matched_name;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -28,9 +28,9 @@ pub const TestStatus = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // failure_message
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // matched_name
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // failure_message
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // matched_name
         },
     };
 };
@@ -51,10 +51,10 @@ pub const FailureSet = struct {
 
 pub const ConformanceRequest = struct {
     requested_output_format: ?WireFormat = null,
-    message_type: ?[]const u8 = null,
+    message_type: []const u8 = "",
     test_category: ?TestCategory = null,
     jspb_encoding_options: ?*JspbEncodingConfig = null,
-    print_unknown_fields: ?bool = null,
+    print_unknown_fields: bool = false,
     payload: ?union(enum) {
         protobuf_payload: []const u8,
         json_payload: []const u8,
@@ -67,7 +67,7 @@ pub const ConformanceRequest = struct {
     }
 
     pub fn getMessageType(self: @This()) []const u8 {
-        return self.message_type orelse "";
+        return self.message_type;
     }
 
     pub fn getTestCategory(self: @This()) TestCategory {
@@ -75,7 +75,7 @@ pub const ConformanceRequest = struct {
     }
 
     pub fn getPrintUnknownFields(self: @This()) bool {
-        return self.print_unknown_fields orelse false;
+        return self.print_unknown_fields;
     }
 
     pub fn getProtobufPayload(self: @This()) []const u8 {
@@ -112,11 +112,11 @@ pub const ConformanceRequest = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 3, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // requested_output_format
-            .{ .number = 4, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // message_type
-            .{ .number = 5, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // test_category
+            .{ .number = 3, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // requested_output_format
+            .{ .number = 4, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // message_type
+            .{ .number = 5, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // test_category
             .{ .number = 6, .field_index = 3, .kind = .{ .message_field = .{} } }, // jspb_encoding_options
-            .{ .number = 9, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // print_unknown_fields
+            .{ .number = 9, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // print_unknown_fields
             .{ .number = 1, .field_index = 5, .oneof_variant = "protobuf_payload", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // protobuf_payload
             .{ .number = 2, .field_index = 5, .oneof_variant = "json_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_payload
             .{ .number = 7, .field_index = 5, .oneof_variant = "jspb_payload", .kind = .{ .scalar = .{ .scalar = .string } } }, // jspb_payload
@@ -221,10 +221,10 @@ pub const ConformanceResponse = struct {
 };
 
 pub const JspbEncodingConfig = struct {
-    use_jspb_array_any_format: ?bool = null,
+    use_jspb_array_any_format: bool = false,
 
     pub fn getUseJspbArrayAnyFormat(self: @This()) bool {
-        return self.use_jspb_array_any_format orelse false;
+        return self.use_jspb_array_any_format;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -233,7 +233,7 @@ pub const JspbEncodingConfig = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // use_jspb_array_any_format
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // use_jspb_array_any_format
         },
     };
 };

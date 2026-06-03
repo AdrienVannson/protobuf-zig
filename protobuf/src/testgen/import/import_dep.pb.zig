@@ -6,10 +6,10 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const DepMsg = struct {
-    label: ?[]const u8 = null,
+    label: []const u8 = "",
 
     pub fn getLabel(self: @This()) []const u8 {
-        return self.label orelse "";
+        return self.label;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -18,7 +18,7 @@ pub const DepMsg = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // label
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // label
         },
     };
 };

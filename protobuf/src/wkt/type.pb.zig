@@ -8,16 +8,16 @@ const _google_protobuf_any = @import("any.pb.zig");
 const _google_protobuf_source_context = @import("source_context.pb.zig");
 
 pub const Type = struct {
-    name: ?[]const u8 = null,
+    name: []const u8 = "",
     fields: std.ArrayList(*Field) = .empty,
     oneofs: std.ArrayList([]const u8) = .empty,
     options: std.ArrayList(*Option) = .empty,
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
-    edition: ?[]const u8 = null,
+    edition: []const u8 = "",
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getSyntax(self: @This()) Syntax {
@@ -25,7 +25,7 @@ pub const Type = struct {
     }
 
     pub fn getEdition(self: @This()) []const u8 {
-        return self.edition orelse "";
+        return self.edition;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -34,13 +34,13 @@ pub const Type = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
             .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
             .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
             .{ .number = 5, .field_index = 4, .kind = .{ .message_field = .{} } }, // source_context
-            .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
-            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
+            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
 };
@@ -48,14 +48,14 @@ pub const Type = struct {
 pub const Field = struct {
     kind: ?Field.Kind = null,
     cardinality: ?Field.Cardinality = null,
-    number: ?i32 = null,
-    name: ?[]const u8 = null,
-    type_url: ?[]const u8 = null,
-    oneof_index: ?i32 = null,
-    @"packed": ?bool = null,
+    number: i32 = 0,
+    name: []const u8 = "",
+    type_url: []const u8 = "",
+    oneof_index: i32 = 0,
+    @"packed": bool = false,
     options: std.ArrayList(*Option) = .empty,
-    json_name: ?[]const u8 = null,
-    default_value: ?[]const u8 = null,
+    json_name: []const u8 = "",
+    default_value: []const u8 = "",
 
     pub const Kind = enum(i32) {
         TYPE_UNKNOWN = 0,
@@ -97,31 +97,31 @@ pub const Field = struct {
     }
 
     pub fn getNumber(self: @This()) i32 {
-        return self.number orelse 0;
+        return self.number;
     }
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getTypeUrl(self: @This()) []const u8 {
-        return self.type_url orelse "";
+        return self.type_url;
     }
 
     pub fn getOneofIndex(self: @This()) i32 {
-        return self.oneof_index orelse 0;
+        return self.oneof_index;
     }
 
     pub fn getPacked(self: @This()) bool {
-        return self.@"packed" orelse false;
+        return self.@"packed";
     }
 
     pub fn getJsonName(self: @This()) []const u8 {
-        return self.json_name orelse "";
+        return self.json_name;
     }
 
     pub fn getDefaultValue(self: @This()) []const u8 {
-        return self.default_value orelse "";
+        return self.default_value;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -130,30 +130,30 @@ pub const Field = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // kind
-            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // cardinality
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string } } }, // type_url
-            .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
-            .{ .number = 8, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
+            .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // kind
+            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // cardinality
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
+            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // type_url
+            .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // oneof_index
+            .{ .number = 8, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // packed
             .{ .number = 9, .field_index = 7, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 10, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
-            .{ .number = 11, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
+            .{ .number = 10, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // json_name
+            .{ .number = 11, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // default_value
         },
     };
 };
 
 pub const Enum = struct {
-    name: ?[]const u8 = null,
+    name: []const u8 = "",
     enumvalue: std.ArrayList(*EnumValue) = .empty,
     options: std.ArrayList(*Option) = .empty,
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
-    edition: ?[]const u8 = null,
+    edition: []const u8 = "",
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getSyntax(self: @This()) Syntax {
@@ -161,7 +161,7 @@ pub const Enum = struct {
     }
 
     pub fn getEdition(self: @This()) []const u8 {
-        return self.edition orelse "";
+        return self.edition;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -170,27 +170,27 @@ pub const Enum = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
             .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
             .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // source_context
-            .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // syntax
-            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string } } }, // edition
+            .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
+            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
 };
 
 pub const EnumValue = struct {
-    name: ?[]const u8 = null,
-    number: ?i32 = null,
+    name: []const u8 = "",
+    number: i32 = 0,
     options: std.ArrayList(*Option) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn getNumber(self: @This()) i32 {
-        return self.number orelse 0;
+        return self.number;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -199,19 +199,19 @@ pub const EnumValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
             .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
         },
     };
 };
 
 pub const Option = struct {
-    name: ?[]const u8 = null,
+    name: []const u8 = "",
     value: ?*_google_protobuf_any.Any = null,
 
     pub fn getName(self: @This()) []const u8 {
-        return self.name orelse "";
+        return self.name;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -220,7 +220,7 @@ pub const Option = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
             .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // value
         },
     };
