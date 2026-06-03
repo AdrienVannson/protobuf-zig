@@ -4,8 +4,8 @@
 const std = @import("std");
 const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
-const _google_protobuf_type = @import("type.pb.zig");
 const _google_protobuf_source_context = @import("source_context.pb.zig");
+const _google_protobuf_type = @import("type.pb.zig");
 
 pub const Api = struct {
     name: ?[]const u8 = null,

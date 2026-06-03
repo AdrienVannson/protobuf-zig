@@ -4,12 +4,12 @@
 const std = @import("std");
 const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
-const _google_protobuf_struct = @import("protobuf").wkt.struct_;
-const _google_protobuf_wrappers = @import("protobuf").wkt.wrappers;
-const _google_protobuf_duration = @import("protobuf").wkt.duration;
-const _google_protobuf_timestamp = @import("protobuf").wkt.timestamp;
-const _google_protobuf_field_mask = @import("protobuf").wkt.field_mask;
 const _google_protobuf_any = @import("protobuf").wkt.any;
+const _google_protobuf_duration = @import("protobuf").wkt.duration;
+const _google_protobuf_field_mask = @import("protobuf").wkt.field_mask;
+const _google_protobuf_struct = @import("protobuf").wkt.struct_;
+const _google_protobuf_timestamp = @import("protobuf").wkt.timestamp;
+const _google_protobuf_wrappers = @import("protobuf").wkt.wrappers;
 
 pub const TestAllTypesProto3 = struct {
     optional_int32: ?i32 = null,
