@@ -103,6 +103,7 @@ pub const GeneratedFile = struct {
 
 test {
     _ = @import("desc_file_from_proto.zig");
+    _ = @import("codegen.zig");
 }
 
 const testing = std.testing;

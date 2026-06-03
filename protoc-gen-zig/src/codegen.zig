@@ -654,3 +654,39 @@ fn relativeImportPath(alloc: std.mem.Allocator, from_proto: []const u8, to_proto
 
     return std.mem.join(alloc, "/", parts.items);
 }
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+const testing = std.testing;
+
+fn expectRelative(from: []const u8, to: []const u8, expected: []const u8) !void {
+    const result = try relativeImportPath(testing.allocator, from, to);
+    defer testing.allocator.free(result);
+    try testing.expectEqualStrings(expected, result);
+}
+
+test "same root directory" {
+    try expectRelative("a.proto", "b.proto", "b.pb.zig");
+}
+
+test "root to subdirectory" {
+    try expectRelative("a.proto", "sub/b.proto", "sub/b.pb.zig");
+}
+
+test "subdirectory to root" {
+    try expectRelative("sub/a.proto", "b.proto", "../b.pb.zig");
+}
+
+test "same subdirectory" {
+    try expectRelative("sub/a.proto", "sub/b.proto", "b.pb.zig");
+}
+
+test "different subdirectories" {
+    try expectRelative("a/foo.proto", "b/bar.proto", "../b/bar.pb.zig");
+}
+
+test "partial common prefix" {
+    try expectRelative("a/b/c.proto", "a/d/e.proto", "../d/e.pb.zig");
+}
