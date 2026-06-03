@@ -21,6 +21,7 @@ test:
 clean:
     rm -rf protobuf/.zig-cache protobuf/zig-out
     rm -rf protoc-gen-zig/.zig-cache protoc-gen-zig/zig-out
+    rm -rf .cache
 
 # Run protoc-gen-zig on the test proto file
 generate: build
