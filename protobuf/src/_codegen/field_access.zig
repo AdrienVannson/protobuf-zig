@@ -6,7 +6,32 @@ const FieldMetadataKind = metadata.FieldMetadataKind;
 const ScalarType = metadata.ScalarType;
 const DefaultValue = metadata.DefaultValue;
 
-fn isDefault(
+fn getScalarDefault(
+    comptime scalar: ScalarType,
+    comptime default_value: ?DefaultValue,
+) metadata.scalarZigType(scalar) {
+    if (comptime default_value) |dv| {
+        return switch (comptime scalar) {
+            .bool => dv.bool,
+            .int32, .sint32, .sfixed32 => dv.int32,
+            .int64, .sint64, .sfixed64 => dv.int64,
+            .uint32, .fixed32 => dv.uint32,
+            .uint64, .fixed64 => dv.uint64,
+            .float => dv.float,
+            .double => dv.double,
+            .string => dv.string,
+            .bytes => dv.bytes,
+        };
+    }
+    return switch (comptime scalar) {
+        .string, .bytes => []const u8{},
+        .bool => false,
+        else => 0,
+    };
+}
+
+// TODO simplify with getScalarDefault
+fn isScalarDefault(
     comptime scalar: ScalarType,
     comptime default_value: ?DefaultValue,
     value: metadata.scalarZigType(scalar),
@@ -31,20 +56,17 @@ fn isDefault(
     };
 }
 
-/// Computes the payload type for a field (the inner value type, not the struct field type).
-///
-/// For oneof fields, finds the union variant type by matching `field_meta.oneof_variant` against
-/// the union tags in `?union(enum){...}`.
-/// For non-oneof optional fields (?T): returns T.
-/// For non-oneof non-optional fields (implicit-presence scalars): returns T directly.
-fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
+/// Computes the payload type for a field, assuming the field is set.
+fn SetFieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
     const struct_fields = std.meta.fields(MsgType);
     const StructFieldType = struct_fields[field_meta.field_index].type;
 
     if (comptime field_meta.oneof_variant) |variant_name| {
         const UnionType = std.meta.Child(StructFieldType); // strip ? from ?union(enum){...}
         inline for (std.meta.fields(UnionType)) |uf| {
-            if (comptime std.mem.eql(u8, uf.name, variant_name)) return uf.type;
+            if (comptime std.mem.eql(u8, uf.name, variant_name)) {
+                return uf.type;
+            }
         }
         @compileError("oneof variant not found in union: " ++ variant_name);
     }
@@ -54,37 +76,93 @@ fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) 
     return StructFieldType;
 }
 
-/// Returns the field value as `?T` (where T is `FieldPayloadType`).
-///
-/// For oneof fields: returns the variant's payload if the named variant is active, else null.
-/// For non-oneof optional fields: returns the optional field value (null if unset).
-/// For non-oneof non-optional (implicit-presence) fields: always returns a value (Zig coerces T → ?T).
+/// Computes the payload type for a field, without assuming that the field is set.
+fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
+    const field_payload_type = SetFieldPayloadType(MsgType, field_meta);
+
+    if (comptime field_meta.kind == .message_field) {
+        return ?field_payload_type;
+    }
+    return field_payload_type;
+}
+
+/// Returns the field value.
 pub fn getField(
     msg: anytype,
     comptime field_meta: FieldMetadata,
-) ?FieldPayloadType(@TypeOf(msg), field_meta) {
+) FieldPayloadType(@TypeOf(msg), field_meta) {
     const struct_fields = std.meta.fields(@TypeOf(msg));
     const field_name = comptime struct_fields[field_meta.field_index].name;
+
+    const field = @field(msg, field_name);
+
     if (comptime field_meta.oneof_variant) |variant_name| {
-        if (@field(msg, field_name)) |active| {
+        if (field) |active| {
             switch (active) {
                 inline else => |payload, tag| {
                     if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) return payload;
                 },
             }
         }
-        return null;
-    } else {
-        return @field(msg, field_name); // ?T returned directly; T coerces to ?T
+
+        switch (comptime field_meta.kind) { // Return the default value for this variant
+            .scalar => |sc| return getScalarDefault(sc.scalar, sc.default_value),
+            .enum_field => return field_meta.kind.enum_field.default_value,
+            .message_field => return null,
+            .list => return .empty,
+            .map => return .empty,
+        }
     }
+
+    if (field == null) {
+        return comptime switch (field_meta.kind) {
+            .scalar => |sc| getScalarDefault(sc.scalar, sc.default_value),
+            .enum_field => field_meta.kind.enum_field.default_value,
+            .message_field => null,
+            .list => .empty,
+            .map => .empty,
+        };
+    }
+
+    return field;
 }
 
-/// Returns true if the field is "set" (i.e. would be written to the wire).
+/// Returns the field value, assuming the field is set.
+pub fn getSetField(
+    msg: anytype,
+    comptime field_meta: FieldMetadata,
+) !SetFieldPayloadType(@TypeOf(msg), field_meta) {
+    const struct_fields = std.meta.fields(@TypeOf(msg));
+    const field_name = comptime struct_fields[field_meta.field_index].name;
+
+    const field = @field(msg, field_name);
+
+    if (comptime field_meta.oneof_variant) |variant_name| {
+        if (field) |active| {
+            switch (active) {
+                inline else => |payload, tag| {
+                    if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) return payload;
+                },
+            }
+        }
+        return error.UnsetField;
+    }
+
+    if (comptime @typeInfo(@TypeOf(field)) == .optional) {
+        return if (field) |v| v else error.UnsetField;
+    }
+    return field;
+}
+
+/// Returns true if the field is set (i.e. would be written to the wire).
 pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
     const struct_fields = std.meta.fields(@TypeOf(msg));
     const field_name = comptime struct_fields[field_meta.field_index].name;
+
+    const field = @field(msg, field_name);
+
     if (comptime field_meta.oneof_variant) |variant_name| {
-        if (@field(msg, field_name)) |active| {
+        if (field) |active| {
             switch (active) {
                 inline else => |_, tag| {
                     if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) return true;
@@ -92,17 +170,23 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
             }
         }
         return false;
-    } else {
-        return switch (comptime field_meta.kind) {
-            .scalar => |sc| switch (comptime sc.presence) {
-                .implicit => !isDefault(sc.scalar, sc.default_value, @field(msg, field_name)),
-                .explicit, .legacy_required => @field(msg, field_name) != null,
-            },
-            .enum_field, .message_field => @field(msg, field_name) != null,
-            .list => @field(msg, field_name).items.len > 0,
-            .map => false,
-        };
     }
+
+    return switch (comptime field_meta.kind) {
+        .scalar => |sc| switch (comptime sc.presence) {
+            .implicit => !isScalarDefault(sc.scalar, sc.default_value, field),
+            .explicit, .legacy_required => field != null, // TODO check behavior for required fields
+        },
+        .enum_field => |ef| switch (comptime ef.presence) {
+            // TODO generate implicit enum fields without optional
+            .implicit => field != null,
+            // .implicit => field != field_meta.kind.enum_field.default_value,
+            .explicit, .legacy_required => field != null,
+        },
+        .message_field => field != null,
+        .list => field.items.len > 0,
+        .map => false, // TODO
+    };
 }
 
 /// Sets the field value, handling oneof vs non-oneof transparently.
@@ -112,7 +196,7 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
 pub fn setField(
     msg_ptr: anytype,
     comptime field_meta: FieldMetadata,
-    value: FieldPayloadType(std.meta.Child(@TypeOf(msg_ptr)), field_meta),
+    value: SetFieldPayloadType(std.meta.Child(@TypeOf(msg_ptr)), field_meta),
 ) void {
     const MsgType = std.meta.Child(@TypeOf(msg_ptr));
     const field_name = comptime std.meta.fields(MsgType)[field_meta.field_index].name;
@@ -142,77 +226,75 @@ pub fn clearField(
     comptime field_meta: FieldMetadata,
     allocator: std.mem.Allocator,
 ) void {
-    const MsgType = std.meta.Child(@TypeOf(msg_ptr));
-    const struct_fields = comptime std.meta.fields(MsgType);
-    const field_name = comptime struct_fields[field_meta.field_index].name;
-    if (comptime field_meta.oneof_variant) |variant_name| {
-        if (@field(msg_ptr.*, field_name)) |active| {
-            switch (active) {
-                inline else => |payload, tag| {
-                    if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
-                        switch (comptime field_meta.kind) {
-                            .scalar => |sc| {
-                                if (comptime sc.scalar == .string or sc.scalar == .bytes) {
-                                    allocator.free(payload);
-                                }
-                            },
-                            .message_field => {
-                                payload.deinit(allocator);
-                                allocator.destroy(payload);
-                            },
-                            else => {},
-                        }
-                        @field(msg_ptr.*, field_name) = null;
-                    }
-                    // A different variant is active → leave the union unchanged.
-                },
-            }
-        }
-    } else {
-        switch (comptime field_meta.kind) {
-            .scalar => |sc| {
-                if (comptime sc.scalar == .string or sc.scalar == .bytes) {
-                    if (comptime sc.presence == .implicit) {
-                        const cur = @field(msg_ptr.*, field_name);
-                        const def: []const u8 = comptime struct_fields[field_meta.field_index].defaultValue().?;
-                        if (cur.ptr != def.ptr) allocator.free(cur);
-                        @field(msg_ptr.*, field_name) = def;
-                    } else {
-                        if (@field(msg_ptr.*, field_name)) |old| allocator.free(old);
-                        @field(msg_ptr.*, field_name) = null;
-                    }
-                } else if (comptime sc.presence == .implicit) {
-                    @field(msg_ptr.*, field_name) = comptime struct_fields[field_meta.field_index].defaultValue().?;
-                } else {
-                    @field(msg_ptr.*, field_name) = null;
-                }
-            },
-            .enum_field => {
-                @field(msg_ptr.*, field_name) = null;
-            },
-            .message_field => {
-                if (@field(msg_ptr.*, field_name)) |child| {
-                    child.deinit(allocator);
-                    allocator.destroy(child);
-                }
-                @field(msg_ptr.*, field_name) = null;
-            },
-            .list => {
-                @field(msg_ptr.*, field_name).deinit(allocator);
-                @field(msg_ptr.*, field_name) = .empty;
-            },
-            .map => {},
-        }
-    }
+    _ = msg_ptr;
+    _ = field_meta;
+    _ = allocator;
+    // const MsgType = std.meta.Child(@TypeOf(msg_ptr));
+    // const struct_fields = comptime std.meta.fields(MsgType);
+    // const field_name = comptime struct_fields[field_meta.field_index].name;
+    // if (comptime field_meta.oneof_variant) |variant_name| {
+    //     if (@field(msg_ptr.*, field_name)) |active| {
+    //         switch (active) {
+    //             inline else => |payload, tag| {
+    //                 if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
+    //                     switch (comptime field_meta.kind) {
+    //                         .scalar => |sc| {
+    //                             if (comptime sc.scalar == .string or sc.scalar == .bytes) {
+    //                                 allocator.free(payload);
+    //                             }
+    //                         },
+    //                         .message_field => {
+    //                             payload.deinit(allocator);
+    //                             allocator.destroy(payload);
+    //                         },
+    //                         else => {},
+    //                     }
+    //                     @field(msg_ptr.*, field_name) = null;
+    //                 }
+    //                 // A different variant is active → leave the union unchanged.
+    //             },
+    //         }
+    //     }
+    // } else {
+    //     switch (comptime field_meta.kind) {
+    //         .scalar => |sc| {
+    //             if (comptime sc.scalar == .string or sc.scalar == .bytes) {
+    //                 if (comptime sc.presence == .implicit) {
+    //                     const cur = @field(msg_ptr.*, field_name);
+    //                     const def: []const u8 = comptime struct_fields[field_meta.field_index].defaultValue().?;
+    //                     if (cur.ptr != def.ptr) allocator.free(cur);
+    //                     @field(msg_ptr.*, field_name) = def;
+    //                 } else {
+    //                     if (@field(msg_ptr.*, field_name)) |old| allocator.free(old);
+    //                     @field(msg_ptr.*, field_name) = null;
+    //                 }
+    //             } else if (comptime sc.presence == .implicit) {
+    //                 @field(msg_ptr.*, field_name) = comptime struct_fields[field_meta.field_index].defaultValue().?;
+    //             } else {
+    //                 @field(msg_ptr.*, field_name) = null;
+    //             }
+    //         },
+    //         .enum_field => {
+    //             @field(msg_ptr.*, field_name) = null;
+    //         },
+    //         .message_field => {
+    //             if (@field(msg_ptr.*, field_name)) |child| {
+    //                 child.deinit(allocator);
+    //                 allocator.destroy(child);
+    //             }
+    //             @field(msg_ptr.*, field_name) = null;
+    //         },
+    //         .list => {
+    //             @field(msg_ptr.*, field_name).deinit(allocator);
+    //             @field(msg_ptr.*, field_name) = .empty;
+    //         },
+    //         .map => {},
+    //     }
+    // }
 }
 
 /// Iterates over every field in a message that is currently "set", calling
 /// `callback(context, field_meta, value)` for each one.
-///
-/// For scalar / enum / message fields: `value` is the inner payload (the type returned by
-///   `getField`, e.g. `i32`, `MyEnum`, `*MyMessage`).
-/// For list fields: `value` is the whole `std.ArrayList(T)`, since the list IS the payload.
-/// Map fields and unset fields are skipped.
 ///
 /// The callback must be a comptime-known function that can accept any `value` type (use
 /// `comptime callback: anytype` at the call-site) and must return `anyerror!void`.
@@ -222,15 +304,11 @@ pub fn forEachSetField(
     comptime callback: anytype,
 ) !void {
     const MsgType = @TypeOf(msg);
-    const struct_fields = std.meta.fields(MsgType);
+
     inline for (MsgType._desc.fields) |field_meta| {
         if (hasField(msg, field_meta)) {
-            if (comptime field_meta.kind == .list) {
-                const field_name = comptime struct_fields[field_meta.field_index].name;
-                try callback(context, field_meta, @field(msg, field_name));
-            } else if (comptime field_meta.kind != .map) {
-                try callback(context, field_meta, getField(msg, field_meta).?);
-            }
+            const field = getSetField(msg, field_meta) catch unreachable;
+            try callback(context, field_meta, field);
         }
     }
 }
