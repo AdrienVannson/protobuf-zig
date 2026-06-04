@@ -206,47 +206,6 @@ pub fn clearField(
     }
 }
 
-/// For message fields: returns the existing `*MessageType` pointer if already set (enabling merge
-/// semantics), or allocates a new zeroed message, stores it, and returns the new pointer.
-///
-/// For oneof message fields: checks if the named variant is already active and returns its
-/// pointer; otherwise allocates, initialises the union variant, and returns the pointer.
-/// For non-oneof message fields (?*Child): returns the existing pointer or allocates a new one.
-///
-/// Replaces the readMessageField helper in from_binary.zig.
-pub fn getOrCreateMessageField(
-    msg_ptr: anytype,
-    comptime field_meta: FieldMetadata,
-    allocator: std.mem.Allocator,
-) !FieldPayloadType(std.meta.Child(@TypeOf(msg_ptr)), field_meta) {
-    const MsgType = std.meta.Child(@TypeOf(msg_ptr));
-    const field_name = comptime std.meta.fields(MsgType)[field_meta.field_index].name;
-    const PtrType = FieldPayloadType(MsgType, field_meta); // *MessageType
-    const Child = std.meta.Child(PtrType); // MessageType
-    if (comptime field_meta.oneof_variant) |variant_name| {
-        if (@field(msg_ptr.*, field_name)) |active| {
-            switch (active) {
-                inline else => |payload, tag| {
-                    if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) return payload;
-                },
-            }
-        }
-        const p = try allocator.create(Child);
-        p.* = .{};
-        const field_ptr = &@field(msg_ptr.*, field_name);
-        const UnionType = comptime std.meta.Child(@TypeOf(field_ptr.*));
-        field_ptr.* = @unionInit(UnionType, variant_name, p);
-        return p;
-    } else {
-        const field_ptr = &@field(msg_ptr.*, field_name);
-        if (field_ptr.*) |existing| return existing;
-        const p = try allocator.create(Child);
-        p.* = .{};
-        field_ptr.* = p;
-        return p;
-    }
-}
-
 /// Iterates over every field in a message that is currently "set", calling
 /// `callback(context, field_meta, value)` for each one.
 ///

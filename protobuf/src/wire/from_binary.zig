@@ -80,9 +80,7 @@ fn readListField(
             const p = try allocator.create(Child);
             p.* = .{};
             errdefer allocator.destroy(p);
-            try reader.fork();
-            try readMessage(reader, p, allocator);
-            try reader.join();
+            try readMessageField(reader, p, allocator);
             try field_ptr.*.append(allocator, p);
         },
         .enum_type => {
@@ -99,6 +97,12 @@ fn readListField(
             }
         },
     }
+}
+
+fn readMessageField(reader: *BinaryReader, child_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
+    try reader.fork();
+    try readMessage(reader, child_ptr, allocator);
+    try reader.join();
 }
 
 /// Decodes all fields of msg from the current scope of reader.
@@ -130,10 +134,16 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                         field_access.setField(msg, field_meta, @enumFromInt(try reader.int32()));
                     },
                     .message_field => {
-                        const child_ptr = try field_access.getOrCreateMessageField(msg, field_meta, allocator);
-                        try reader.fork();
-                        try readMessage(reader, child_ptr, allocator);
-                        try reader.join();
+                        const field = field_access.getField(msg.*, field_meta);
+                        const child_ptr = field orelse blk: {
+                            // Merge into the existing message if set; otherwise allocate a new one.
+                            const Child = std.meta.Child(@typeInfo(@TypeOf(field)).optional.child);
+                            const p = try allocator.create(Child);
+                            p.* = .{};
+                            field_access.setField(msg, field_meta, p);
+                            break :blk p;
+                        };
+                        try readMessageField(reader, child_ptr, allocator);
                     },
                     .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, field_tag.wire_type, allocator),
                     else => try skipField(reader, tag.wire_type),
