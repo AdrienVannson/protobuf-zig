@@ -127,8 +127,7 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                         field_access.setField(msg, field_meta, try readScalar(reader, sc.scalar));
                     },
                     .enum_field => {
-                        const EnumType = comptime field_access.FieldPayloadType(T, field_meta);
-                        field_access.setField(msg, field_meta, @as(EnumType, @enumFromInt(try reader.int32())));
+                        field_access.setField(msg, field_meta, @enumFromInt(try reader.int32()));
                     },
                     .message_field => {
                         const child_ptr = try field_access.getOrCreateMessageField(msg, field_meta, allocator);

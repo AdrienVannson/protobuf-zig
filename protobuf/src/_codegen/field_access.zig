@@ -37,7 +37,7 @@ fn isDefault(
 /// the union tags in `?union(enum){...}`.
 /// For non-oneof optional fields (?T): returns T.
 /// For non-oneof non-optional fields (implicit-presence scalars): returns T directly.
-pub fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
+fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
     const struct_fields = std.meta.fields(MsgType);
     const StructFieldType = struct_fields[field_meta.field_index].type;
     if (comptime field_meta.oneof_variant) |variant_name| {
