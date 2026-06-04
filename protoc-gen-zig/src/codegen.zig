@@ -91,7 +91,7 @@ fn generateMessage(
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
     for (msg.oneofs) |*oneof| {
-        try generateOneofField(f, oneof);
+        try generateOneofField(f, oneof, cur_file, imports);
     }
     try f.emptyLine();
 
@@ -180,17 +180,35 @@ fn generateMessageMetadata(
     // Plain scalar/message/list fields (not in a oneof) — must mirror the struct field loop.
     for (msg.fields) |*field| {
         if (isPlainScalar(field)) {
-            try f.writeLine(.{
-                ".{ .number = ",
-                field.number,
-                ", .field_index = ",
-                field_index,
-                ", .kind = .{ .scalar = .{ .scalar = .",
-                @tagName(field.kind.scalar.scalar),
-                presenceClause(field.presence, true),
-                " } } }, // ",
-                field.name,
-            });
+            if (field.kind.scalar.default_value) |dv| {
+                const dv_literal = try defaultValueLiteral(f.alloc, dv);
+                defer f.alloc.free(dv_literal);
+                try f.writeLine(.{
+                    ".{ .number = ",
+                    field.number,
+                    ", .field_index = ",
+                    field_index,
+                    ", .kind = .{ .scalar = .{ .scalar = .",
+                    @tagName(field.kind.scalar.scalar),
+                    ", .default_value = ",
+                    dv_literal,
+                    presenceClause(field.presence, true),
+                    " } } }, // ",
+                    field.name,
+                });
+            } else {
+                try f.writeLine(.{
+                    ".{ .number = ",
+                    field.number,
+                    ", .field_index = ",
+                    field_index,
+                    ", .kind = .{ .scalar = .{ .scalar = .",
+                    @tagName(field.kind.scalar.scalar),
+                    presenceClause(field.presence, true),
+                    " } } }, // ",
+                    field.name,
+                });
+            }
             field_index += 1;
         } else if (isPlainMessage(field)) {
             try f.writeLine(.{
@@ -266,19 +284,50 @@ fn generateMessageMetadata(
     // Oneof variant entries — all variants of a group share the same field_index.
     for (msg.oneofs) |*oneof| {
         for (oneof.fields) |field_ptr| {
-            if (field_ptr.kind != .scalar) continue;
-            try f.writeLine(.{
-                ".{ .number = ",
-                field_ptr.number,
-                ", .field_index = ",
-                field_index,
-                ", .oneof_variant = \"",
-                field_ptr.name,
-                "\", .kind = .{ .scalar = .{ .scalar = .",
-                @tagName(field_ptr.kind.scalar.scalar),
-                " } } }, // ",
-                field_ptr.name,
-            });
+            switch (field_ptr.kind) {
+                .scalar => |sc| {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field_ptr.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .oneof_variant = \"",
+                        field_ptr.name,
+                        "\", .kind = .{ .scalar = .{ .scalar = .",
+                        @tagName(sc.scalar),
+                        " } } }, // ",
+                        field_ptr.name,
+                    });
+                },
+                .enum_field => |ef| {
+                    const default = ef.default_value orelse 0;
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field_ptr.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .oneof_variant = \"",
+                        field_ptr.name,
+                        "\", .kind = .{ .enum_field = .{ .default_value = ",
+                        default,
+                        " } } }, // ",
+                        field_ptr.name,
+                    });
+                },
+                .message_field => {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field_ptr.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .oneof_variant = \"",
+                        field_ptr.name,
+                        "\", .kind = .{ .message_field = .{} } }, // ",
+                        field_ptr.name,
+                    });
+                },
+                else => {},
+            }
         }
         field_index += 1;
     }
@@ -340,14 +389,30 @@ fn generateField(
 fn generateOneofField(
     f: *GeneratedFile,
     oneof: *const protobuf.DescOneof,
+    cur_file: *const protobuf.DescFile,
+    imports: *const ImportTable,
 ) !void {
     const safe_name = try escapeZigKeyword(f.alloc, oneof.local_name);
     defer f.alloc.free(safe_name);
     try f.write(.{ safe_name, ": ?union(enum) {" });
     for (oneof.fields) |field_ptr| {
-        if (field_ptr.kind != .scalar) continue;
         // field_ptr.local_name is already keyword-escaped.
-        try f.write(.{ " ", field_ptr.local_name, ": ", scalarZigType(field_ptr.kind.scalar.scalar), "," });
+        switch (field_ptr.kind) {
+            .scalar => |sc| {
+                try f.write(.{ " ", field_ptr.local_name, ": ", scalarZigType(sc.scalar), "," });
+            },
+            .enum_field => |ef| {
+                const type_name = try enumZigTypeName(f.alloc, ef.enum_type, cur_file, imports);
+                defer f.alloc.free(type_name);
+                try f.write(.{ " ", field_ptr.local_name, ": ", type_name, "," });
+            },
+            .message_field => |mf| {
+                const type_name = try messageZigTypeName(f.alloc, mf.message, cur_file, imports);
+                defer f.alloc.free(type_name);
+                try f.write(.{ " ", field_ptr.local_name, ": *", type_name, "," });
+            },
+            else => {},
+        }
     }
     try f.writeLine(" } = null,");
 }
@@ -536,6 +601,20 @@ fn presenceClause(presence: protobuf.SupportedFieldPresence, leading_comma: bool
         .explicit => "",
         .implicit => if (leading_comma) ", .presence = .implicit" else " .presence = .implicit ",
         .legacy_required => if (leading_comma) ", .presence = .legacy_required" else " .presence = .legacy_required ",
+    };
+}
+
+fn defaultValueLiteral(alloc: std.mem.Allocator, dv: protobuf.DefaultValue) ![]u8 {
+    return switch (dv) {
+        .bool => |v| try std.fmt.allocPrint(alloc, ".{{ .bool = {} }}", .{v}),
+        .float => |v| try std.fmt.allocPrint(alloc, ".{{ .float = {d} }}", .{v}),
+        .double => |v| try std.fmt.allocPrint(alloc, ".{{ .double = {d} }}", .{v}),
+        .int32 => |v| try std.fmt.allocPrint(alloc, ".{{ .int32 = {} }}", .{v}),
+        .int64 => |v| try std.fmt.allocPrint(alloc, ".{{ .int64 = {} }}", .{v}),
+        .uint32 => |v| try std.fmt.allocPrint(alloc, ".{{ .uint32 = {} }}", .{v}),
+        .uint64 => |v| try std.fmt.allocPrint(alloc, ".{{ .uint64 = {} }}", .{v}),
+        .string => |v| try std.fmt.allocPrint(alloc, ".{{ .string = \"{f}\" }}", .{std.zig.fmtString(v)}),
+        .bytes => |v| try std.fmt.allocPrint(alloc, ".{{ .bytes = \"{f}\" }}", .{std.zig.fmtString(v)}),
     };
 }
 

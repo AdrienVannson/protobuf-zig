@@ -1,26 +1,14 @@
 const std = @import("std");
-const binary_reader_mod = @import("binary_reader.zig");
-const tag_mod = @import("tag.zig");
-const metadata_mod = @import("../_codegen/metadata.zig");
+const binary_reader = @import("binary_reader.zig");
+const tag = @import("tag.zig");
+const metadata = @import("../_codegen/metadata.zig");
+const field_access = @import("../_codegen/field_access.zig");
 
-const BinaryReader = binary_reader_mod.BinaryReader;
-const WireType = tag_mod.WireType;
-const ScalarType = metadata_mod.ScalarType;
+const BinaryReader = binary_reader.BinaryReader;
+const WireType = tag.WireType;
+const ScalarType = metadata.ScalarType;
 
-fn scalarZigType(comptime scalar: ScalarType) type {
-    return switch (scalar) {
-        .int32, .sint32, .sfixed32 => i32,
-        .int64, .sint64, .sfixed64 => i64,
-        .uint32, .fixed32 => u32,
-        .uint64, .fixed64 => u64,
-        .bool => bool,
-        .float => f32,
-        .double => f64,
-        .string, .bytes => []const u8,
-    };
-}
-
-fn readScalar(reader: *BinaryReader, comptime scalar: ScalarType) !scalarZigType(scalar) {
+fn readScalar(reader: *BinaryReader, comptime scalar: ScalarType) !metadata.scalarZigType(scalar) {
     return switch (scalar) {
         .int32 => reader.int32(),
         .int64 => reader.int64(),
@@ -92,9 +80,7 @@ fn readListField(
             const p = try allocator.create(Child);
             p.* = .{};
             errdefer allocator.destroy(p);
-            try reader.fork();
-            try readMessage(reader, p, allocator);
-            try reader.join();
+            try readMessageField(reader, p, allocator);
             try field_ptr.*.append(allocator, p);
         },
         .enum_type => {
@@ -113,15 +99,7 @@ fn readListField(
     }
 }
 
-fn readMessageField(reader: *BinaryReader, field_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
-    const FieldType = @TypeOf(field_ptr.*); // ?*Child
-    const Child = std.meta.Child(std.meta.Child(FieldType));
-    const child_ptr = field_ptr.* orelse blk: { // Merge into existing message if non-null, otherwise allocate new one.
-        const p = try allocator.create(Child);
-        p.* = .{};
-        field_ptr.* = p;
-        break :blk p;
-    };
+fn readMessageField(reader: *BinaryReader, child_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
     try reader.fork();
     try readMessage(reader, child_ptr, allocator);
     try reader.join();
@@ -133,8 +111,8 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
     const struct_fields = std.meta.fields(T);
 
     while (reader.remainingInScope() > 0) {
-        const tag = try reader.tag();
-        const number = tag.number;
+        const field_tag = try reader.tag();
+        const number = field_tag.number;
 
         var handled = false;
 
@@ -146,31 +124,35 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
 
                 switch (field_meta.kind) {
                     .scalar => |sc| {
-                        if (comptime field_meta.oneof_variant) |variant| {
-                            const field_ptr = &@field(msg.*, field_name);
-                            const Union = comptime std.meta.Child(@TypeOf(field_ptr.*));
-                            field_ptr.* = @unionInit(Union, variant, try readScalar(reader, sc.scalar));
-                        } else {
-                            if (comptime (sc.scalar == .string or sc.scalar == .bytes) and
-                                sc.presence != .implicit)
-                            {
-                                if (@field(msg.*, field_name)) |old| allocator.free(old);
-                            }
-                            @field(msg.*, field_name) = try readScalar(reader, sc.scalar);
-                        }
+                        // clearField frees any existing heap allocation for this field
+                        // (e.g. a previously decoded string/bytes) before overwriting it.
+                        // For oneofs it only clears if THIS variant is currently active.
+                        field_access.clearField(msg, field_meta, allocator);
+                        field_access.setField(msg, field_meta, try readScalar(reader, sc.scalar));
                     },
                     .enum_field => {
-                        @field(msg.*, field_name) = @enumFromInt(try reader.int32());
+                        field_access.setField(msg, field_meta, @enumFromInt(try reader.int32()));
                     },
-                    .message_field => try readMessageField(reader, &@field(msg.*, field_name), allocator),
-                    .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, tag.wire_type, allocator),
+                    .message_field => {
+                        const field = field_access.getField(msg.*, field_meta);
+                        const child_ptr = field orelse blk: {
+                            // Merge into the existing message if set; otherwise allocate a new one.
+                            const Child = std.meta.Child(@typeInfo(@TypeOf(field)).optional.child);
+                            const p = try allocator.create(Child);
+                            p.* = .{};
+                            field_access.setField(msg, field_meta, p);
+                            break :blk p;
+                        };
+                        try readMessageField(reader, child_ptr, allocator);
+                    },
+                    .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, field_tag.wire_type, allocator),
                     else => try skipField(reader, tag.wire_type),
                 }
             }
         }
 
         if (!handled) { // TODO: Unknown field
-            try skipField(reader, tag.wire_type);
+            try skipField(reader, field_tag.wire_type);
         }
     }
 }

@@ -540,10 +540,13 @@ fn parseDefaultValue(alloc: std.mem.Allocator, sc: protobuf.ScalarType, raw: ?[]
     const s = raw orelse return null;
     if (s.len == 0) return null;
     return switch (sc) {
-        .bool => .{ .boolean = std.mem.eql(u8, s, "true") },
-        .int32, .int64, .sint32, .sint64, .sfixed32, .sfixed64 => .{ .integer = std.fmt.parseInt(i64, s, 10) catch return null },
-        .uint32, .uint64, .fixed32, .fixed64 => .{ .integer = @bitCast(std.fmt.parseInt(u64, s, 10) catch return null) },
-        .float, .double => .{ .float = std.fmt.parseFloat(f64, s) catch return null },
+        .bool => .{ .bool = std.mem.eql(u8, s, "true") },
+        .int32, .sint32, .sfixed32 => .{ .int32 = std.fmt.parseInt(i32, s, 10) catch return null },
+        .int64, .sint64, .sfixed64 => .{ .int64 = std.fmt.parseInt(i64, s, 10) catch return null },
+        .uint32, .fixed32 => .{ .uint32 = std.fmt.parseInt(u32, s, 10) catch return null },
+        .uint64, .fixed64 => .{ .uint64 = std.fmt.parseInt(u64, s, 10) catch return null },
+        .float => .{ .float = std.fmt.parseFloat(f32, s) catch return null },
+        .double => .{ .double = std.fmt.parseFloat(f64, s) catch return null },
         .string => .{ .string = try alloc.dupe(u8, s) },
         .bytes => .{ .bytes = try alloc.dupe(u8, s) },
     };

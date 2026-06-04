@@ -504,8 +504,8 @@ pub const MethodDescriptorProto = struct {
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // input_type
             .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // output_type
             .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // client_streaming
-            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool } } }, // server_streaming
+            .{ .number = 5, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // client_streaming
+            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // server_streaming
         },
     };
 };
@@ -624,16 +624,16 @@ pub const FileOptions = struct {
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // java_package
             .{ .number = 8, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // java_outer_classname
-            .{ .number = 10, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_multiple_files
+            .{ .number = 10, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // java_multiple_files
             .{ .number = 20, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_generate_equals_and_hash
-            .{ .number = 27, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_string_check_utf8
+            .{ .number = 27, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // java_string_check_utf8
             .{ .number = 9, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optimize_for
             .{ .number = 11, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string } } }, // go_package
-            .{ .number = 16, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool } } }, // cc_generic_services
-            .{ .number = 17, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_generic_services
-            .{ .number = 18, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .bool } } }, // py_generic_services
-            .{ .number = 23, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
-            .{ .number = 31, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .bool } } }, // cc_enable_arenas
+            .{ .number = 16, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // cc_generic_services
+            .{ .number = 17, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // java_generic_services
+            .{ .number = 18, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // py_generic_services
+            .{ .number = 23, .field_index = 10, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
+            .{ .number = 31, .field_index = 11, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = true } } } }, // cc_enable_arenas
             .{ .number = 36, .field_index = 12, .kind = .{ .scalar = .{ .scalar = .string } } }, // objc_class_prefix
             .{ .number = 37, .field_index = 13, .kind = .{ .scalar = .{ .scalar = .string } } }, // csharp_namespace
             .{ .number = 39, .field_index = 14, .kind = .{ .scalar = .{ .scalar = .string } } }, // swift_prefix
@@ -682,9 +682,9 @@ pub const MessageOptions = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // message_set_wire_format
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // no_standard_descriptor_accessor
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // message_set_wire_format
+            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // no_standard_descriptor_accessor
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
             .{ .number = 7, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // map_entry
             .{ .number = 11, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
             .{ .number = 12, .field_index = 5, .kind = .{ .message_field = .{} } }, // features
@@ -849,11 +849,11 @@ pub const FieldOptions = struct {
             .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // ctype
             .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
             .{ .number = 6, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // jstype
-            .{ .number = 5, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // lazy
-            .{ .number = 15, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool } } }, // unverified_lazy
-            .{ .number = 3, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
-            .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool } } }, // weak
-            .{ .number = 16, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
+            .{ .number = 5, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // lazy
+            .{ .number = 15, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // unverified_lazy
+            .{ .number = 3, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
+            .{ .number = 10, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // weak
+            .{ .number = 16, .field_index = 7, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // debug_redact
             .{ .number = 17, .field_index = 8, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // retention
             .{ .number = 19, .field_index = 9, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // targets
             .{ .number = 20, .field_index = 10, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // edition_defaults
@@ -906,7 +906,7 @@ pub const EnumOptions = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 2, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // allow_alias
-            .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 3, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
             .{ .number = 6, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
             .{ .number = 7, .field_index = 3, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 999, .field_index = 4, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
@@ -935,9 +935,9 @@ pub const EnumValueOptions = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
             .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // debug_redact
+            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // debug_redact
             .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // feature_support
             .{ .number = 999, .field_index = 4, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
@@ -960,7 +960,7 @@ pub const ServiceOptions = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
             .{ .number = 34, .field_index = 0, .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 33, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 33, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
             .{ .number = 999, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
@@ -993,7 +993,7 @@ pub const MethodOptions = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 33, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated
+            .{ .number = 33, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
             .{ .number = 34, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // idempotency_level
             .{ .number = 35, .field_index = 2, .kind = .{ .message_field = .{} } }, // features
             .{ .number = 999, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option

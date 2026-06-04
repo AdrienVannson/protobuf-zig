@@ -1,79 +1,16 @@
 const std = @import("std");
-const ScalarType = @import("metadata.zig").ScalarType;
+const field_access = @import("field_access.zig");
 
 /// Frees all allocator-owned fields in a decoded message.
 ///
 /// Called by the generated `deinit` method on every message struct.
 /// `msg` must be a pointer to a message struct.
 ///
-/// TODO: check the memory model. How does it work for non-optional allocated fields?
+/// TODO make it work for constant messages as well, and update plugin accordingly.
 pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
     const T = std.meta.Child(@TypeOf(msg));
-    const members = std.meta.fields(T);
-
     inline for (T._desc.fields) |field_meta| {
-        const fi = comptime field_meta.field_index;
-        const member_name = comptime members[fi].name;
-
-        if (comptime field_meta.oneof_variant) |variant_name| {
-            if (@field(msg, member_name)) |member_active| {
-                switch (member_active) {
-                    inline else => |payload, tag| {
-                        if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
-                            switch (field_meta.kind) {
-                                .scalar => |kind| {
-                                    if (comptime kind.scalar == .string or kind.scalar == .bytes) {
-                                        allocator.free(payload);
-                                    }
-                                },
-                                else => {},
-                            }
-                        }
-                    },
-                }
-            }
-        } else {
-            switch (field_meta.kind) {
-                .scalar => |kind| {
-                    if (comptime (kind.scalar == .string or kind.scalar == .bytes)) {
-                        if (comptime kind.presence == .implicit) {
-                            // Non-optional field: free it only when it no longer points
-                            // at its compile-time default, i.e. it was replaced by a heap
-                            // allocation.
-                            const s = @field(msg, member_name);
-                            const default: []const u8 = comptime members[fi].defaultValue().?;
-                            if (s.ptr != default.ptr) allocator.free(s);
-                        } else {
-                            if (@field(msg, member_name)) |s| allocator.free(s);
-                        }
-                    }
-                },
-                .message_field => {
-                    if (@field(msg, member_name)) |child_ptr| {
-                        child_ptr.deinit(allocator);
-                        allocator.destroy(child_ptr);
-                    }
-                },
-                .list => |kind| {
-                    switch (comptime kind.element) {
-                        .scalar => |sc| {
-                            if (comptime sc == .string or sc == .bytes) {
-                                for (@field(msg, member_name).items) |s| allocator.free(s);
-                            }
-                        },
-                        .message => {
-                            for (@field(msg, member_name).items) |child_ptr| {
-                                child_ptr.deinit(allocator);
-                                allocator.destroy(child_ptr);
-                            }
-                        },
-                        .enum_type => {},
-                    }
-                    @field(msg, member_name).deinit(allocator);
-                },
-                else => {},
-            }
-        }
+        field_access.clearField(msg, field_meta, allocator);
     }
 }
 
