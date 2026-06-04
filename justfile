@@ -111,3 +111,8 @@ docs-serve: docs
 conformance:
     cd conformance && zig build -Doptimize=ReleaseFast
     just conformance-runner --enforce_recommended --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
+
+# Run conformance tests in debug mode with per-request GPA leak detection
+conformance-debug:
+    cd conformance && zig build
+    just conformance-runner --enforce_recommended --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
