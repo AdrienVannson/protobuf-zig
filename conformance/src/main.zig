@@ -30,7 +30,7 @@ pub fn main(init: std.process.Init) !void {
         defer request.deinit(alloc);
         try protobuf.from_binary(&request, request_bytes, alloc);
 
-        // Build response (all string fields are heap-allocated so deinit is safe).
+        // Build response.
         var response = try handleRequest(&request, alloc);
         defer response.deinit(alloc);
 
@@ -85,7 +85,7 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !Confor
     // Detect the crash-inducing unknown-ordering test case and return a safe
     // empty payload sentinel (mirrors Python conformance.py lines 108-129).
     if (isUnknownOrderingCrashCase(request)) {
-        return .{ .result = .{ .protobuf_payload = try alloc.dupe(u8, &.{}) } };
+        return .{ .result = .{ .protobuf_payload = &.{} } };
     }
 
     // Dispatch proto3 binary roundtrip.
