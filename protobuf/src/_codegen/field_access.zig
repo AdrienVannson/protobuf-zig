@@ -5,20 +5,7 @@ pub const FieldMetadata = metadata_mod.FieldMetadata;
 const FieldMetadataKind = metadata_mod.FieldMetadataKind;
 const ScalarType = metadata_mod.ScalarType;
 
-fn scalarZigType(comptime scalar: ScalarType) type {
-    return switch (scalar) {
-        .int32, .sint32, .sfixed32 => i32,
-        .int64, .sint64, .sfixed64 => i64,
-        .uint32, .fixed32 => u32,
-        .uint64, .fixed64 => u64,
-        .bool => bool,
-        .float => f32,
-        .double => f64,
-        .string, .bytes => []const u8,
-    };
-}
-
-fn isDefault(comptime scalar: ScalarType, value: scalarZigType(scalar)) bool {
+fn isDefault(comptime scalar: ScalarType, value: metadata_mod.scalarZigType(scalar)) bool {
     return switch (scalar) {
         .string, .bytes => value.len == 0,
         .bool => !value,

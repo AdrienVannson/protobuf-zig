@@ -46,3 +46,16 @@ pub const FieldMetadata = struct {
 pub const MessageMetadata = struct {
     fields: []const FieldMetadata,
 };
+
+pub fn scalarZigType(comptime scalar: ScalarType) type {
+    return switch (scalar) {
+        .int32, .sint32, .sfixed32 => i32,
+        .int64, .sint64, .sfixed64 => i64,
+        .uint32, .fixed32 => u32,
+        .uint64, .fixed64 => u64,
+        .bool => bool,
+        .float => f32,
+        .double => f64,
+        .string, .bytes => []const u8,
+    };
+}

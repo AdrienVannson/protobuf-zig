@@ -8,20 +8,7 @@ const BinaryReader = binary_reader_mod.BinaryReader;
 const WireType = tag_mod.WireType;
 const ScalarType = metadata_mod.ScalarType;
 
-fn scalarZigType(comptime scalar: ScalarType) type {
-    return switch (scalar) {
-        .int32, .sint32, .sfixed32 => i32,
-        .int64, .sint64, .sfixed64 => i64,
-        .uint32, .fixed32 => u32,
-        .uint64, .fixed64 => u64,
-        .bool => bool,
-        .float => f32,
-        .double => f64,
-        .string, .bytes => []const u8,
-    };
-}
-
-fn readScalar(reader: *BinaryReader, comptime scalar: ScalarType) !scalarZigType(scalar) {
+fn readScalar(reader: *BinaryReader, comptime scalar: ScalarType) !metadata_mod.scalarZigType(scalar) {
     return switch (scalar) {
         .int32 => reader.int32(),
         .int64 => reader.int64(),
