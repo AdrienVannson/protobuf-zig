@@ -5,6 +5,8 @@ const field_access = @import("field_access.zig");
 ///
 /// Called by the generated `deinit` method on every message struct.
 /// `msg` must be a pointer to a message struct.
+///
+/// TODO make it work for constant messages as well, and update plugin accordingly.
 pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
     const T = std.meta.Child(@TypeOf(msg));
     inline for (T._desc.fields) |field_meta| {
