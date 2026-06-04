@@ -1,7 +1,7 @@
 const std = @import("std");
 const metadata = @import("metadata.zig");
 
-pub const FieldMetadata = metadata.FieldMetadata;
+const FieldMetadata = metadata.FieldMetadata;
 const FieldMetadataKind = metadata.FieldMetadataKind;
 const ScalarType = metadata.ScalarType;
 const DefaultValue = metadata.DefaultValue;
