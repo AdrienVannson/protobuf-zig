@@ -211,13 +211,15 @@ pub fn setField(
 
 /// Frees any heap memory owned by a single field value.
 ///
-/// Dispatches on the value's type: slices are strings/bytes and are freed;
-/// single-item pointers are messages and are deinit'd then destroyed; structs
-/// are lists whose elements are freed recursively before the list itself is
-/// deinit'd. Scalars (ints, floats, bools, enums) own nothing and are ignored.
+/// Dispatches on the value's type: optionals are unwrapped (null is a no-op);
+/// slices are strings/bytes and are freed; single-item pointers are messages
+/// and are deinit'd then destroyed; structs are lists whose elements are freed
+/// recursively before the list itself is deinit'd. Scalars (ints, floats,
+/// bools, enums) own nothing and are ignored.
 fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
     const T = @TypeOf(value);
     switch (@typeInfo(T)) {
+        .optional => if (value) |v| deinitElement(v, allocator),
         .pointer => |ptr| switch (ptr.size) {
             .slice => { // string / bytes
                 if (ptr.child != u8) @compileError("unexpected slice field type");
@@ -274,7 +276,7 @@ pub fn clearField(
                         if (cur.ptr != def.ptr) allocator.free(cur);
                         @field(msg_ptr.*, field_name) = def;
                     } else {
-                        if (@field(msg_ptr.*, field_name)) |old| allocator.free(old);
+                        deinitElement(@field(msg_ptr.*, field_name), allocator);
                         @field(msg_ptr.*, field_name) = null;
                     }
                 } else if (comptime sc.presence == .implicit) {
@@ -284,10 +286,11 @@ pub fn clearField(
                 }
             },
             .enum_field => {
+                // TODO handle implicit presence for enums once supported
                 @field(msg_ptr.*, field_name) = null;
             },
             .message_field => {
-                if (@field(msg_ptr.*, field_name)) |child| deinitElement(child, allocator);
+                deinitElement(@field(msg_ptr.*, field_name), allocator);
                 @field(msg_ptr.*, field_name) = null;
             },
             .list => {
