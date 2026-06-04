@@ -20,7 +20,7 @@ fn scalarWireType(comptime scalar: ScalarType) WireType {
 }
 
 /// Writes a scalar value to bw using the appropriate BinaryWriter method.
-fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: anytype) !void {
+fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: metadata_mod.scalarZigType(scalar)) !void {
     switch (scalar) {
         .int32 => try bw.int32(value),
         .int64 => try bw.int64(value),
