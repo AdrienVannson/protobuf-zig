@@ -180,17 +180,35 @@ fn generateMessageMetadata(
     // Plain scalar/message/list fields (not in a oneof) — must mirror the struct field loop.
     for (msg.fields) |*field| {
         if (isPlainScalar(field)) {
-            try f.writeLine(.{
-                ".{ .number = ",
-                field.number,
-                ", .field_index = ",
-                field_index,
-                ", .kind = .{ .scalar = .{ .scalar = .",
-                @tagName(field.kind.scalar.scalar),
-                presenceClause(field.presence, true),
-                " } } }, // ",
-                field.name,
-            });
+            if (field.kind.scalar.default_value) |dv| {
+                const dv_literal = try defaultValueLiteral(f.alloc, dv);
+                defer f.alloc.free(dv_literal);
+                try f.writeLine(.{
+                    ".{ .number = ",
+                    field.number,
+                    ", .field_index = ",
+                    field_index,
+                    ", .kind = .{ .scalar = .{ .scalar = .",
+                    @tagName(field.kind.scalar.scalar),
+                    ", .default_value = ",
+                    dv_literal,
+                    presenceClause(field.presence, true),
+                    " } } }, // ",
+                    field.name,
+                });
+            } else {
+                try f.writeLine(.{
+                    ".{ .number = ",
+                    field.number,
+                    ", .field_index = ",
+                    field_index,
+                    ", .kind = .{ .scalar = .{ .scalar = .",
+                    @tagName(field.kind.scalar.scalar),
+                    presenceClause(field.presence, true),
+                    " } } }, // ",
+                    field.name,
+                });
+            }
             field_index += 1;
         } else if (isPlainMessage(field)) {
             try f.writeLine(.{
@@ -583,6 +601,20 @@ fn presenceClause(presence: protobuf.SupportedFieldPresence, leading_comma: bool
         .explicit => "",
         .implicit => if (leading_comma) ", .presence = .implicit" else " .presence = .implicit ",
         .legacy_required => if (leading_comma) ", .presence = .legacy_required" else " .presence = .legacy_required ",
+    };
+}
+
+fn defaultValueLiteral(alloc: std.mem.Allocator, dv: protobuf.DefaultValue) ![]u8 {
+    return switch (dv) {
+        .bool => |v| try std.fmt.allocPrint(alloc, ".{{ .bool = {} }}", .{v}),
+        .float => |v| try std.fmt.allocPrint(alloc, ".{{ .float = {d} }}", .{v}),
+        .double => |v| try std.fmt.allocPrint(alloc, ".{{ .double = {d} }}", .{v}),
+        .int32 => |v| try std.fmt.allocPrint(alloc, ".{{ .int32 = {} }}", .{v}),
+        .int64 => |v| try std.fmt.allocPrint(alloc, ".{{ .int64 = {} }}", .{v}),
+        .uint32 => |v| try std.fmt.allocPrint(alloc, ".{{ .uint32 = {} }}", .{v}),
+        .uint64 => |v| try std.fmt.allocPrint(alloc, ".{{ .uint64 = {} }}", .{v}),
+        .string => |v| try std.fmt.allocPrint(alloc, ".{{ .string = \"{f}\" }}", .{std.zig.fmtString(v)}),
+        .bytes => |v| try std.fmt.allocPrint(alloc, ".{{ .bytes = \"{f}\" }}", .{std.zig.fmtString(v)}),
     };
 }
 

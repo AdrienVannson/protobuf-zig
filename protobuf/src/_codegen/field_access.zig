@@ -4,9 +4,27 @@ const metadata_mod = @import("metadata.zig");
 pub const FieldMetadata = metadata_mod.FieldMetadata;
 const FieldMetadataKind = metadata_mod.FieldMetadataKind;
 const ScalarType = metadata_mod.ScalarType;
+const DefaultValue = metadata_mod.DefaultValue;
 
-fn isDefault(comptime scalar: ScalarType, value: metadata_mod.scalarZigType(scalar)) bool {
-    return switch (scalar) {
+fn isDefault(
+    comptime scalar: ScalarType,
+    comptime default_value: ?DefaultValue,
+    value: metadata_mod.scalarZigType(scalar),
+) bool {
+    if (comptime default_value) |dv| {
+        return switch (comptime scalar) {
+            .bool => value == dv.bool,
+            .string => std.mem.eql(u8, value, dv.string),
+            .bytes => std.mem.eql(u8, value, dv.bytes),
+            .float => value == dv.float,
+            .double => value == dv.double,
+            .int32, .sint32, .sfixed32 => value == dv.int32,
+            .int64, .sint64, .sfixed64 => value == dv.int64,
+            .uint32, .fixed32 => value == dv.uint32,
+            .uint64, .fixed64 => value == dv.uint64,
+        };
+    }
+    return switch (comptime scalar) {
         .string, .bytes => value.len == 0,
         .bool => !value,
         else => value == 0,
@@ -82,7 +100,7 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
     } else {
         return switch (comptime field_meta.kind) {
             .scalar => |sc| switch (comptime sc.presence) {
-                .implicit => !isDefault(sc.scalar, @field(msg, field_name)),
+                .implicit => !isDefault(sc.scalar, sc.default_value, @field(msg, field_name)),
                 .explicit, .legacy_required => @field(msg, field_name) != null,
             },
             .enum_field, .message_field => @field(msg, field_name) != null,
