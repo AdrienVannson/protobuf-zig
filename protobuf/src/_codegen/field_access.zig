@@ -14,14 +14,14 @@ fn isDefault(
     if (comptime default_value) |dv| {
         return switch (comptime scalar) {
             .bool => value == dv.bool,
-            .string => std.mem.eql(u8, value, dv.string),
-            .bytes => std.mem.eql(u8, value, dv.bytes),
-            .float => value == dv.float,
-            .double => value == dv.double,
             .int32, .sint32, .sfixed32 => value == dv.int32,
             .int64, .sint64, .sfixed64 => value == dv.int64,
             .uint32, .fixed32 => value == dv.uint32,
             .uint64, .fixed64 => value == dv.uint64,
+            .float => value == dv.float,
+            .double => value == dv.double,
+            .string => std.mem.eql(u8, value, dv.string),
+            .bytes => std.mem.eql(u8, value, dv.bytes),
         };
     }
     return switch (comptime scalar) {
@@ -40,17 +40,18 @@ fn isDefault(
 fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
     const struct_fields = std.meta.fields(MsgType);
     const StructFieldType = struct_fields[field_meta.field_index].type;
+
     if (comptime field_meta.oneof_variant) |variant_name| {
         const UnionType = std.meta.Child(StructFieldType); // strip ? from ?union(enum){...}
         inline for (std.meta.fields(UnionType)) |uf| {
             if (comptime std.mem.eql(u8, uf.name, variant_name)) return uf.type;
         }
         @compileError("oneof variant not found in union: " ++ variant_name);
-    } else {
-        const info = comptime @typeInfo(StructFieldType);
-        if (info == .optional) return info.optional.child;
-        return StructFieldType;
     }
+
+    const info = comptime @typeInfo(StructFieldType);
+    if (info == .optional) return info.optional.child;
+    return StructFieldType;
 }
 
 /// Returns the field value as `?T` (where T is `FieldPayloadType`).
