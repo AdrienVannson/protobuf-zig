@@ -209,88 +209,94 @@ pub fn setField(
     }
 }
 
-/// Frees any heap memory owned by the field and resets it to its unset / default state.
+/// Frees any heap memory owned by a single field value.
 ///
-/// Non-oneof string/bytes with explicit presence: frees the old slice, sets to null.
-/// Non-oneof string/bytes with implicit presence: frees if the pointer != default ptr, resets to
-///   the compile-time default literal.
-/// Non-oneof message: calls deinit(allocator) + destroy(allocator), sets to null.
-/// Non-oneof other scalar (explicit): sets to null.
-/// Non-oneof other scalar (implicit): resets to compile-time default value.
-/// Non-oneof enum: sets to null.
-/// Non-oneof list: deinits the ArrayList buffer, resets to .empty.
-/// Oneof with this named variant active: performs kind-specific cleanup then nulls the union.
-/// Oneof with a different variant active: no-op (leaves the other variant untouched).
+/// Dispatches on the value's type: slices are strings/bytes and are freed;
+/// single-item pointers are messages and are deinit'd then destroyed; structs
+/// are lists whose elements are freed recursively before the list itself is
+/// deinit'd. Scalars (ints, floats, bools, enums) own nothing and are ignored.
+fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
+    const T = @TypeOf(value);
+    switch (@typeInfo(T)) {
+        .pointer => |ptr| switch (ptr.size) {
+            .slice => { // string / bytes
+                if (ptr.child != u8) @compileError("unexpected slice field type");
+                allocator.free(value);
+            },
+            .one => { // message pointer
+                if (@typeInfo(ptr.child) != .@"struct") @compileError("unexpected pointer field type");
+                value.deinit(allocator);
+                allocator.destroy(value);
+            },
+            else => @compileError("unexpected pointer field type"),
+        },
+        // TODO: distinguish maps from lists once maps are generated.
+        .@"struct" => { // list (std.ArrayList)
+            const Elem = @typeInfo(@FieldType(T, "items")).pointer.child;
+            if (T != std.ArrayList(Elem)) @compileError("unexpected struct field type");
+
+            for (value.items) |item| deinitElement(item, allocator);
+            value.deinit(allocator);
+        },
+        .int, .float, .bool, .@"enum" => {}, // scalars / enums own no heap memory
+        else => @compileError("unexpected field type: " ++ @typeName(T)),
+    }
+}
+
+/// Frees any heap memory owned by the field and resets it to its unset / default state.
 pub fn clearField(
     msg_ptr: anytype,
     comptime field_meta: FieldMetadata,
     allocator: std.mem.Allocator,
 ) void {
-    _ = msg_ptr;
-    _ = field_meta;
-    _ = allocator;
-    // const MsgType = std.meta.Child(@TypeOf(msg_ptr));
-    // const struct_fields = comptime std.meta.fields(MsgType);
-    // const field_name = comptime struct_fields[field_meta.field_index].name;
-    // if (comptime field_meta.oneof_variant) |variant_name| {
-    //     if (@field(msg_ptr.*, field_name)) |active| {
-    //         switch (active) {
-    //             inline else => |payload, tag| {
-    //                 if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
-    //                     switch (comptime field_meta.kind) {
-    //                         .scalar => |sc| {
-    //                             if (comptime sc.scalar == .string or sc.scalar == .bytes) {
-    //                                 allocator.free(payload);
-    //                             }
-    //                         },
-    //                         .message_field => {
-    //                             payload.deinit(allocator);
-    //                             allocator.destroy(payload);
-    //                         },
-    //                         else => {},
-    //                     }
-    //                     @field(msg_ptr.*, field_name) = null;
-    //                 }
-    //                 // A different variant is active → leave the union unchanged.
-    //             },
-    //         }
-    //     }
-    // } else {
-    //     switch (comptime field_meta.kind) {
-    //         .scalar => |sc| {
-    //             if (comptime sc.scalar == .string or sc.scalar == .bytes) {
-    //                 if (comptime sc.presence == .implicit) {
-    //                     const cur = @field(msg_ptr.*, field_name);
-    //                     const def: []const u8 = comptime struct_fields[field_meta.field_index].defaultValue().?;
-    //                     if (cur.ptr != def.ptr) allocator.free(cur);
-    //                     @field(msg_ptr.*, field_name) = def;
-    //                 } else {
-    //                     if (@field(msg_ptr.*, field_name)) |old| allocator.free(old);
-    //                     @field(msg_ptr.*, field_name) = null;
-    //                 }
-    //             } else if (comptime sc.presence == .implicit) {
-    //                 @field(msg_ptr.*, field_name) = comptime struct_fields[field_meta.field_index].defaultValue().?;
-    //             } else {
-    //                 @field(msg_ptr.*, field_name) = null;
-    //             }
-    //         },
-    //         .enum_field => {
-    //             @field(msg_ptr.*, field_name) = null;
-    //         },
-    //         .message_field => {
-    //             if (@field(msg_ptr.*, field_name)) |child| {
-    //                 child.deinit(allocator);
-    //                 allocator.destroy(child);
-    //             }
-    //             @field(msg_ptr.*, field_name) = null;
-    //         },
-    //         .list => {
-    //             @field(msg_ptr.*, field_name).deinit(allocator);
-    //             @field(msg_ptr.*, field_name) = .empty;
-    //         },
-    //         .map => {},
-    //     }
-    // }
+    const MsgType = std.meta.Child(@TypeOf(msg_ptr));
+    const field = comptime std.meta.fields(MsgType)[field_meta.field_index];
+    const field_name = comptime field.name;
+
+    if (comptime field_meta.oneof_variant) |variant_name| {
+        if (@field(msg_ptr.*, field_name)) |active| {
+            switch (active) {
+                inline else => |payload, tag| {
+                    if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
+                        deinitElement(payload, allocator);
+                        @field(msg_ptr.*, field_name) = null;
+                    }
+                },
+            }
+        }
+    } else {
+        switch (comptime field_meta.kind) {
+            .scalar => |sc| {
+                if (comptime sc.scalar == .string or sc.scalar == .bytes) {
+                    if (comptime sc.presence == .implicit) {
+                        const cur = @field(msg_ptr.*, field_name);
+                        const def: []const u8 = comptime field.defaultValue().?;
+                        if (cur.ptr != def.ptr) allocator.free(cur);
+                        @field(msg_ptr.*, field_name) = def;
+                    } else {
+                        if (@field(msg_ptr.*, field_name)) |old| allocator.free(old);
+                        @field(msg_ptr.*, field_name) = null;
+                    }
+                } else if (comptime sc.presence == .implicit) {
+                    @field(msg_ptr.*, field_name) = comptime field.defaultValue().?;
+                } else {
+                    @field(msg_ptr.*, field_name) = null;
+                }
+            },
+            .enum_field => {
+                @field(msg_ptr.*, field_name) = null;
+            },
+            .message_field => {
+                if (@field(msg_ptr.*, field_name)) |child| deinitElement(child, allocator);
+                @field(msg_ptr.*, field_name) = null;
+            },
+            .list => {
+                deinitElement(@field(msg_ptr.*, field_name), allocator);
+                @field(msg_ptr.*, field_name) = .empty;
+            },
+            .map => {}, // TODO
+        }
+    }
 }
 
 /// Iterates over every field in a message that is currently "set", calling
