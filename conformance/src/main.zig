@@ -12,29 +12,31 @@ pub fn main(init: std.process.Init) !void {
     var stdout_buf: [4096]u8 = undefined;
     var stdout_writer = std.Io.File.stdout().writerStreaming(init.io, &stdout_buf);
 
+    var alloc = init.arena.allocator();
+
     while (true) {
         // Read 4-byte little-endian request length; EOF here means clean shutdown.
         var len_buf: [4]u8 = undefined;
         stdin_reader.interface.readSliceAll(&len_buf) catch break;
         const request_len = std.mem.readInt(u32, &len_buf, .little);
 
-        var arena = std.heap.ArenaAllocator.init(init.gpa);
-        defer arena.deinit();
-        const alloc = arena.allocator();
-
         // Read request bytes.
         const request_bytes = try alloc.alloc(u8, request_len);
+        defer alloc.free(request_bytes);
         try stdin_reader.interface.readSliceAll(request_bytes);
 
         // Decode ConformanceRequest.
         var request: ConformanceRequest = .{};
+        defer request.deinit(alloc);
         try protobuf.from_binary(&request, request_bytes, alloc);
 
-        // Build response.
-        const response = handleRequest(&request, alloc);
+        // Build response (all string fields are heap-allocated so deinit is safe).
+        var response = try handleRequest(&request, alloc);
+        defer response.deinit(alloc);
 
         // Encode ConformanceResponse.
         const response_bytes = try protobuf.to_binary(alloc, response);
+        defer alloc.free(response_bytes);
 
         // Write 4-byte LE length + response bytes.
         var out_len_buf: [4]u8 = undefined;
@@ -79,37 +81,47 @@ fn isUnknownOrderingCrashCase(request: *const ConformanceRequest) bool {
     return std.mem.eql(u8, payload_bytes, &crash_bytes);
 }
 
-fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) ConformanceResponse {
+fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !ConformanceResponse {
     // Detect the crash-inducing unknown-ordering test case and return a safe
     // empty payload sentinel (mirrors Python conformance.py lines 108-129).
     if (isUnknownOrderingCrashCase(request)) {
-        return .{ .result = .{ .protobuf_payload = &.{} } };
+        return .{ .result = .{ .protobuf_payload = try alloc.dupe(u8, &.{}) } };
     }
 
     // Dispatch proto3 binary roundtrip.
     if (std.mem.eql(u8, request.getMessageType(), "protobuf_test_messages.proto3.TestAllTypesProto3")) {
         // Only handle binary protobuf output; skip JSON, text, etc.
         if (request.getRequestedOutputFormat() != .PROTOBUF) {
-            return .{ .result = .{ .skipped = "non-binary output format not supported" } };
+            return .{ .result = .{ .skipped = try alloc.dupe(u8, "non-binary output format not supported") } };
         }
         const payload = if (request.payload) |p| switch (p) {
             .protobuf_payload => |b| b,
-            else => return .{ .result = .{ .skipped = "non-binary payload not supported" } },
-        } else return .{ .result = .{ .skipped = "no payload" } };
-        return roundTrip(payload, alloc);
+            else => return .{ .result = .{ .skipped = try alloc.dupe(u8, "non-binary payload not supported") } },
+        } else return .{ .result = .{ .skipped = try alloc.dupe(u8, "no payload") } };
+
+        var test_gpa = std.heap.DebugAllocator(.{}){};
+        const test_alloc = test_gpa.allocator();
+
+        var response = try roundTrip(payload, test_alloc, alloc);
+        if (test_gpa.deinit() == .leak) {
+            response.deinit(alloc);
+            return .{ .result = .{ .runtime_error = try alloc.dupe(u8, "memory leak detected") } };
+        }
+        return response;
     }
 
     // proto2 test messages use group fields, unsupported by zig-protobuf's generator.
-    return .{ .result = .{ .skipped = "payload decode not yet supported" } };
+    return .{ .result = .{ .skipped = try alloc.dupe(u8, "payload decode not yet supported") } };
 }
 
-fn roundTrip(payload: []const u8, alloc: std.mem.Allocator) ConformanceResponse {
+fn roundTrip(payload: []const u8, inner_alloc: std.mem.Allocator, result_alloc: std.mem.Allocator) !ConformanceResponse {
     var msg: gen_proto3.TestAllTypesProto3 = .{};
-    protobuf.from_binary(&msg, payload, alloc) catch |err| {
-        return .{ .result = .{ .parse_error = @errorName(err) } };
+    defer msg.deinit(inner_alloc);
+    protobuf.from_binary(&msg, payload, inner_alloc) catch |err| {
+        return .{ .result = .{ .parse_error = try result_alloc.dupe(u8, @errorName(err)) } };
     };
-    const encoded = protobuf.to_binary(alloc, msg) catch |err| {
-        return .{ .result = .{ .serialize_error = @errorName(err) } };
+    const encoded = protobuf.to_binary(result_alloc, msg) catch |err| {
+        return .{ .result = .{ .serialize_error = try result_alloc.dupe(u8, @errorName(err)) } };
     };
     return .{ .result = .{ .protobuf_payload = encoded } };
 }
