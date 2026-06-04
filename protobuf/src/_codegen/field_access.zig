@@ -238,7 +238,8 @@ fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
             if (T != std.ArrayList(Elem)) @compileError("unexpected struct field type");
 
             for (value.items) |item| deinitElement(item, allocator);
-            value.deinit(allocator);
+            var list = value;
+            list.deinit(allocator);
         },
         .int, .float, .bool, .@"enum" => {}, // scalars / enums own no heap memory
         else => @compileError("unexpected field type: " ++ @typeName(T)),
@@ -261,15 +262,15 @@ pub fn clearField(
                 inline else => |payload, tag| {
                     if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
                         deinitElement(payload, allocator);
+                        @field(msg_ptr.*, field_name) = null;
                     }
                 },
             }
         }
     } else if (hasField(msg_ptr.*, field_meta)) {
         deinitElement(@field(msg_ptr.*, field_name), allocator);
+        @field(msg_ptr.*, field_name) = comptime field.defaultValue().?;
     }
-
-    @field(msg_ptr.*, field_name) = comptime field.defaultValue().?;
 }
 
 /// Iterates over every field in a message that is currently "set", calling
