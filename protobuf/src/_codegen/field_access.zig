@@ -261,45 +261,15 @@ pub fn clearField(
                 inline else => |payload, tag| {
                     if (comptime std.mem.eql(u8, @tagName(tag), variant_name)) {
                         deinitElement(payload, allocator);
-                        @field(msg_ptr.*, field_name) = null;
                     }
                 },
             }
         }
-    } else {
-        switch (comptime field_meta.kind) {
-            .scalar => |sc| {
-                if (comptime sc.scalar == .string or sc.scalar == .bytes) {
-                    if (comptime sc.presence == .implicit) {
-                        const cur = @field(msg_ptr.*, field_name);
-                        const def: []const u8 = comptime field.defaultValue().?;
-                        if (cur.ptr != def.ptr) allocator.free(cur);
-                        @field(msg_ptr.*, field_name) = def;
-                    } else {
-                        deinitElement(@field(msg_ptr.*, field_name), allocator);
-                        @field(msg_ptr.*, field_name) = null;
-                    }
-                } else if (comptime sc.presence == .implicit) {
-                    @field(msg_ptr.*, field_name) = comptime field.defaultValue().?;
-                } else {
-                    @field(msg_ptr.*, field_name) = null;
-                }
-            },
-            .enum_field => {
-                // TODO handle implicit presence for enums once supported
-                @field(msg_ptr.*, field_name) = null;
-            },
-            .message_field => {
-                deinitElement(@field(msg_ptr.*, field_name), allocator);
-                @field(msg_ptr.*, field_name) = null;
-            },
-            .list => {
-                deinitElement(@field(msg_ptr.*, field_name), allocator);
-                @field(msg_ptr.*, field_name) = .empty;
-            },
-            .map => {}, // TODO
-        }
+    } else if (hasField(msg_ptr.*, field_meta)) {
+        deinitElement(@field(msg_ptr.*, field_name), allocator);
     }
+
+    @field(msg_ptr.*, field_name) = comptime field.defaultValue().?;
 }
 
 /// Iterates over every field in a message that is currently "set", calling
