@@ -1,14 +1,14 @@
 const std = @import("std");
-const binary_reader_mod = @import("binary_reader.zig");
-const tag_mod = @import("tag.zig");
-const metadata_mod = @import("../_codegen/metadata.zig");
+const binary_reader = @import("binary_reader.zig");
+const tag = @import("tag.zig");
+const metadata = @import("../_codegen/metadata.zig");
 const field_access = @import("../_codegen/field_access.zig");
 
-const BinaryReader = binary_reader_mod.BinaryReader;
-const WireType = tag_mod.WireType;
-const ScalarType = metadata_mod.ScalarType;
+const BinaryReader = binary_reader.BinaryReader;
+const WireType = tag.WireType;
+const ScalarType = metadata.ScalarType;
 
-fn readScalar(reader: *BinaryReader, comptime scalar: ScalarType) !metadata_mod.scalarZigType(scalar) {
+fn readScalar(reader: *BinaryReader, comptime scalar: ScalarType) !metadata.scalarZigType(scalar) {
     return switch (scalar) {
         .int32 => reader.int32(),
         .int64 => reader.int64(),
@@ -107,8 +107,8 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
     const struct_fields = std.meta.fields(T);
 
     while (reader.remainingInScope() > 0) {
-        const tag = try reader.tag();
-        const number = tag.number;
+        const field_tag = try reader.tag();
+        const number = field_tag.number;
 
         var handled = false;
 
@@ -136,14 +136,14 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                         try readMessage(reader, child_ptr, allocator);
                         try reader.join();
                     },
-                    .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, tag.wire_type, allocator),
+                    .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, field_tag.wire_type, allocator),
                     else => try skipField(reader, tag.wire_type),
                 }
             }
         }
 
         if (!handled) { // TODO: Unknown field
-            try skipField(reader, tag.wire_type);
+            try skipField(reader, field_tag.wire_type);
         }
     }
 }

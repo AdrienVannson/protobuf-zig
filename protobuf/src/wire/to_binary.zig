@@ -1,13 +1,13 @@
 const std = @import("std");
-const binary_writer_mod = @import("binary_writer.zig");
-const tag_mod = @import("tag.zig");
-const metadata_mod = @import("../_codegen/metadata.zig");
+const binary_writer = @import("binary_writer.zig");
+const tag = @import("tag.zig");
+const metadata = @import("../_codegen/metadata.zig");
 const field_access = @import("../_codegen/field_access.zig");
 
-const BinaryWriter = binary_writer_mod.BinaryWriter;
-const WireType = tag_mod.WireType;
-const ScalarType = metadata_mod.ScalarType;
-const FieldMetadata = metadata_mod.FieldMetadata;
+const BinaryWriter = binary_writer.BinaryWriter;
+const WireType = tag.WireType;
+const ScalarType = metadata.ScalarType;
+const FieldMetadata = metadata.FieldMetadata;
 
 /// Returns the wire type for a ScalarType.
 fn scalarWireType(comptime scalar: ScalarType) WireType {
@@ -20,7 +20,7 @@ fn scalarWireType(comptime scalar: ScalarType) WireType {
 }
 
 /// Writes a scalar value to bw using the appropriate BinaryWriter method.
-fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: metadata_mod.scalarZigType(scalar)) !void {
+fn writeScalar(bw: *BinaryWriter, comptime scalar: ScalarType, value: metadata.scalarZigType(scalar)) !void {
     switch (scalar) {
         .int32 => try bw.int32(value),
         .int64 => try bw.int64(value),

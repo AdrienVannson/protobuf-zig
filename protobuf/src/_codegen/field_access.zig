@@ -1,15 +1,15 @@
 const std = @import("std");
-const metadata_mod = @import("metadata.zig");
+const metadata = @import("metadata.zig");
 
-pub const FieldMetadata = metadata_mod.FieldMetadata;
-const FieldMetadataKind = metadata_mod.FieldMetadataKind;
-const ScalarType = metadata_mod.ScalarType;
-const DefaultValue = metadata_mod.DefaultValue;
+pub const FieldMetadata = metadata.FieldMetadata;
+const FieldMetadataKind = metadata.FieldMetadataKind;
+const ScalarType = metadata.ScalarType;
+const DefaultValue = metadata.DefaultValue;
 
 fn isDefault(
     comptime scalar: ScalarType,
     comptime default_value: ?DefaultValue,
-    value: metadata_mod.scalarZigType(scalar),
+    value: metadata.scalarZigType(scalar),
 ) bool {
     if (comptime default_value) |dv| {
         return switch (comptime scalar) {
@@ -79,12 +79,6 @@ pub fn getField(
 }
 
 /// Returns true if the field is "set" (i.e. would be written to the wire).
-///
-/// For oneof fields: true if the named variant is active.
-/// For non-oneof implicit-presence scalars: true if the value differs from the proto3 default.
-/// For non-oneof optional fields (explicit/required scalars, enum, message): true if non-null.
-/// For list fields: true if items.len > 0.
-/// For map fields: always false (not yet supported).
 pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
     const struct_fields = std.meta.fields(@TypeOf(msg));
     const field_name = comptime struct_fields[field_meta.field_index].name;

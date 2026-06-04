@@ -2,8 +2,6 @@ const binary_writer = @import("wire/binary_writer.zig");
 const binary_reader = @import("wire/binary_reader.zig");
 const tag = @import("wire/tag.zig");
 const descriptor = @import("descriptor.zig");
-const to_binary_mod = @import("wire/to_binary.zig");
-const from_binary_mod = @import("wire/from_binary.zig");
 
 // TODO move under `descriptor`?
 pub const WireType = tag.WireType;
@@ -25,8 +23,8 @@ pub const DescField = descriptor.DescField;
 pub const DescExtensionKind = descriptor.DescExtensionKind;
 pub const DescExtension = descriptor.DescExtension;
 
-pub const to_binary = to_binary_mod.to_binary;
-pub const from_binary = from_binary_mod.from_binary;
+pub const to_binary = @import("wire/to_binary.zig").to_binary;
+pub const from_binary = @import("wire/from_binary.zig").from_binary;
 
 pub const wkt = @import("wkt.zig");
 
