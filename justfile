@@ -113,6 +113,7 @@ conformance:
     just conformance-runner --enforce_recommended --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
 
 # Run conformance tests in debug mode with per-request GPA leak detection
+# TODO: fix the leaks and make this the default
 conformance-debug:
     cd conformance && zig build
     just conformance-runner --enforce_recommended --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
