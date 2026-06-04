@@ -111,7 +111,7 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
 pub fn setField(
     msg_ptr: anytype,
     comptime field_meta: FieldMetadata,
-    value: anytype,
+    value: FieldPayloadType(std.meta.Child(@TypeOf(msg_ptr)), field_meta),
 ) void {
     const MsgType = std.meta.Child(@TypeOf(msg_ptr));
     const field_name = comptime std.meta.fields(MsgType)[field_meta.field_index].name;
