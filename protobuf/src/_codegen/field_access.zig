@@ -191,20 +191,26 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
 
 /// Sets the field value, handling oneof vs non-oneof transparently.
 ///
-/// For oneof fields: initialises the union to the named variant with `value`.
-/// For non-oneof fields: assigns `value` directly (Zig auto-wraps T → ?T when needed).
+/// Frees any heap memory owned by the current field value before overwriting it.
 pub fn setField(
     msg_ptr: anytype,
     comptime field_meta: FieldMetadata,
     value: SetFieldPayloadType(std.meta.Child(@TypeOf(msg_ptr)), field_meta),
+    allocator: std.mem.Allocator,
 ) void {
     const MsgType = std.meta.Child(@TypeOf(msg_ptr));
     const field_name = comptime std.meta.fields(MsgType)[field_meta.field_index].name;
     if (comptime field_meta.oneof_variant) |variant_name| {
         const field_ptr = &@field(msg_ptr.*, field_name);
+        if (field_ptr.*) |active| {
+            switch (active) {
+                inline else => |payload| deinitElement(payload, allocator),
+            }
+        }
         const UnionType = comptime std.meta.Child(@TypeOf(field_ptr.*));
         field_ptr.* = @unionInit(UnionType, variant_name, value);
     } else {
+        clearField(msg_ptr, field_meta, allocator);
         @field(msg_ptr.*, field_name) = value;
     }
 }

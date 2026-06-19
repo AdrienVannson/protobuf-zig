@@ -124,14 +124,10 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
 
                 switch (field_meta.kind) {
                     .scalar => |sc| {
-                        // clearField frees any existing heap allocation for this field
-                        // (e.g. a previously decoded string/bytes) before overwriting it.
-                        // For oneofs it only clears if THIS variant is currently active.
-                        field_access.clearField(msg, field_meta, allocator);
-                        field_access.setField(msg, field_meta, try readScalar(reader, sc.scalar));
+                        field_access.setField(msg, field_meta, try readScalar(reader, sc.scalar), allocator);
                     },
                     .enum_field => {
-                        field_access.setField(msg, field_meta, @enumFromInt(try reader.int32()));
+                        field_access.setField(msg, field_meta, @enumFromInt(try reader.int32()), allocator);
                     },
                     .message_field => {
                         const field = field_access.getField(msg.*, field_meta);
@@ -140,13 +136,13 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                             const Child = std.meta.Child(@typeInfo(@TypeOf(field)).optional.child);
                             const p = try allocator.create(Child);
                             p.* = .{};
-                            field_access.setField(msg, field_meta, p);
+                            field_access.setField(msg, field_meta, p, allocator);
                             break :blk p;
                         };
                         try readMessageField(reader, child_ptr, allocator);
                     },
                     .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, field_tag.wire_type, allocator),
-                    else => try skipField(reader, tag.wire_type),
+                    .map => @compileError("TODO"),
                 }
             }
         }
