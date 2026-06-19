@@ -119,8 +119,7 @@ pub fn getField(
             .scalar => |sc| getScalarDefault(sc.scalar, sc.default_value),
             .enum_field => field_meta.kind.enum_field.default_value,
             .message_field => null,
-            .list => .empty,
-            .map => .empty,
+            .list, .map => @compileError("list/map fields are never null"),
         };
     }
 
@@ -216,12 +215,6 @@ pub fn setField(
 }
 
 /// Frees any heap memory owned by a single field value.
-///
-/// Dispatches on the value's type: optionals are unwrapped (null is a no-op);
-/// slices are strings/bytes and are freed; single-item pointers are messages
-/// and are deinit'd then destroyed; structs are lists whose elements are freed
-/// recursively before the list itself is deinit'd. Scalars (ints, floats,
-/// bools, enums) own nothing and are ignored.
 fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
     const T = @TypeOf(value);
     switch (@typeInfo(T)) {
