@@ -116,7 +116,7 @@ fn generateMessage(
     // Plain scalar field getters (message fields have no getter).
     for (msg.fields) |*field| {
         if (isPlainScalar(field)) {
-            try generateFieldGetter(f, field);
+            try generateScalarFieldGetter(f, field);
         }
         if (isPlainEnum(field)) {
             try generateEnumFieldGetter(f, field, cur_file, imports);
@@ -516,7 +516,7 @@ fn generateOneofVariantGetters(
     }
 }
 
-fn generateFieldGetter(
+fn generateScalarFieldGetter(
     f: *GeneratedFile,
     field: *const protobuf.DescField,
 ) !void {
