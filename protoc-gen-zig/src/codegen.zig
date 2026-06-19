@@ -180,35 +180,29 @@ fn generateMessageMetadata(
     // Plain scalar/message/list fields (not in a oneof) — must mirror the struct field loop.
     for (msg.fields) |*field| {
         if (isPlainScalar(field)) {
+            try f.write(.{
+                ".{ .number = ",
+                field.number,
+                ", .field_index = ",
+                field_index,
+                ", .kind = .{ .scalar = .{ .scalar = .",
+                @tagName(field.kind.scalar.scalar),
+            });
+
             if (field.kind.scalar.default_value) |dv| {
                 const dv_literal = try defaultValueLiteral(f.alloc, dv);
                 defer f.alloc.free(dv_literal);
-                try f.writeLine(.{
-                    ".{ .number = ",
-                    field.number,
-                    ", .field_index = ",
-                    field_index,
-                    ", .kind = .{ .scalar = .{ .scalar = .",
-                    @tagName(field.kind.scalar.scalar),
+                try f.write(.{
                     ", .default_value = ",
                     dv_literal,
-                    presenceClause(field.presence, true),
-                    " } } }, // ",
-                    field.name,
-                });
-            } else {
-                try f.writeLine(.{
-                    ".{ .number = ",
-                    field.number,
-                    ", .field_index = ",
-                    field_index,
-                    ", .kind = .{ .scalar = .{ .scalar = .",
-                    @tagName(field.kind.scalar.scalar),
-                    presenceClause(field.presence, true),
-                    " } } }, // ",
-                    field.name,
                 });
             }
+
+            try f.writeLine(.{
+                presenceClause(field.presence, true),
+                " } } }, // ",
+                field.name,
+            });
             field_index += 1;
         } else if (isPlainMessage(field)) {
             try f.writeLine(.{
