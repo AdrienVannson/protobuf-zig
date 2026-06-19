@@ -2,7 +2,8 @@
 // Source: google/protobuf/go_features.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 const _google_protobuf_descriptor = @import("descriptor.pb.zig");
 
@@ -10,7 +11,7 @@ pub const GoFeatures = struct {
     legacy_unmarshal_json_enum: ?bool = null,
     api_level: ?GoFeatures.APILevel = null,
     strip_enum_prefix: ?GoFeatures.StripEnumPrefix = null,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const APILevel = enum(i32) {
         API_LEVEL_UNSPECIFIED = 0,

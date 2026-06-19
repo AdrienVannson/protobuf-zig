@@ -36,7 +36,6 @@ pub const _codegen = struct {
     pub const deinit_message = @import("_codegen/message_deinit.zig").deinit_message;
     pub const metadata = @import("_codegen/metadata.zig");
     pub const field_access = @import("_codegen/field_access.zig");
-    pub const UnknownField = @import("unknown_field.zig").UnknownField;
 };
 
 test {

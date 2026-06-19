@@ -2,14 +2,15 @@
 // Source: test_messages/test_messages_proto3.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
-const _google_protobuf_any = @import("protobuf").wkt.any;
-const _google_protobuf_duration = @import("protobuf").wkt.duration;
-const _google_protobuf_field_mask = @import("protobuf").wkt.field_mask;
-const _google_protobuf_struct = @import("protobuf").wkt.struct_;
-const _google_protobuf_timestamp = @import("protobuf").wkt.timestamp;
-const _google_protobuf_wrappers = @import("protobuf").wkt.wrappers;
+const _google_protobuf_any = _protobuf.wkt.any;
+const _google_protobuf_duration = _protobuf.wkt.duration;
+const _google_protobuf_field_mask = _protobuf.wkt.field_mask;
+const _google_protobuf_struct = _protobuf.wkt.struct_;
+const _google_protobuf_timestamp = _protobuf.wkt.timestamp;
+const _google_protobuf_wrappers = _protobuf.wkt.wrappers;
 
 pub const TestAllTypesProto3 = struct {
     optional_int32: i32 = 0,
@@ -165,12 +166,12 @@ pub const TestAllTypesProto3 = struct {
         oneof_enum: TestAllTypesProto3.NestedEnum,
         oneof_null_value: _google_protobuf_struct.NullValue,
     } = null,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const NestedMessage = struct {
         a: i32 = 0,
         corecursive: ?*TestAllTypesProto3 = null,
-        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getA(self: @This()) i32 {
             return self.a;
@@ -571,7 +572,7 @@ pub const TestAllTypesProto3 = struct {
 
 pub const ForeignMessage = struct {
     c: i32 = 0,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getC(self: @This()) i32 {
         return self.c;
@@ -589,7 +590,7 @@ pub const ForeignMessage = struct {
 };
 
 pub const NullHypothesisProto3 = struct {
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -601,7 +602,7 @@ pub const NullHypothesisProto3 = struct {
 };
 
 pub const EnumOnlyProto3 = struct {
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const Bool = enum(i32) {
         kFalse = 0,

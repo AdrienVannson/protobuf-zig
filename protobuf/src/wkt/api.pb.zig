@@ -2,7 +2,8 @@
 // Source: google/protobuf/api.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 const _google_protobuf_source_context = @import("source_context.pb.zig");
 const _google_protobuf_type = @import("type.pb.zig");
@@ -16,7 +17,7 @@ pub const Api = struct {
     mixins: std.ArrayList(*Mixin) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
     edition: []const u8 = "",
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -61,7 +62,7 @@ pub const Method = struct {
     options: std.ArrayList(*_google_protobuf_type.Option) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
     edition: []const u8 = "",
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -112,7 +113,7 @@ pub const Method = struct {
 pub const Mixin = struct {
     name: []const u8 = "",
     root: []const u8 = "",
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;

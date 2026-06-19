@@ -2,7 +2,8 @@
 // Source: example.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Foo = struct {
@@ -13,7 +14,7 @@ pub const Foo = struct {
         x: i32,
         y: []const u8,
     } = null,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -61,11 +62,11 @@ pub const Bar = struct {
     tags: std.ArrayList([]const u8) = .empty,
     color: ?Color = null,
     colors: std.ArrayList(Color) = .empty,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const Nested = struct {
         value: i32 = 0,
-        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getValue(self: @This()) i32 {
             return self.value;

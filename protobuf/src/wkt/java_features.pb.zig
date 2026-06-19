@@ -2,7 +2,8 @@
 // Source: google/protobuf/java_features.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 const _google_protobuf_descriptor = @import("descriptor.pb.zig");
 
@@ -12,10 +13,10 @@ pub const JavaFeatures = struct {
     large_enum: ?bool = null,
     use_old_outer_classname_default: ?bool = null,
     nest_in_file_class: ?JavaFeatures.NestInFileClassFeature.NestInFileClass = null,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const NestInFileClassFeature = struct {
-        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub const NestInFileClass = enum(i32) {
             NEST_IN_FILE_CLASS_UNKNOWN = 0,

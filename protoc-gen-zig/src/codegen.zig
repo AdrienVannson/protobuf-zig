@@ -29,13 +29,14 @@ pub fn generateFile(
     // TODO make sure this is always correct
     if (desc_file.messages.len > 0) {
         try f.writeLine("const std = @import(\"std\");");
-        try f.writeLine("const _codegen = @import(\"protobuf\")._codegen;");
+        try f.writeLine("const _protobuf = @import(\"protobuf\");");
+        try f.writeLine("const _codegen = _protobuf._codegen;");
         try f.writeLine("const _metadata = _codegen.metadata;");
         const current_is_wkt = wktModuleName(desc_file.name) != null;
         for (imports.keys(), imports.values()) |dep_file, alias| {
             if (!current_is_wkt) {
                 if (wktModuleName(dep_file.name)) |module| {
-                    try f.writeLine(.{ "const ", alias, " = @import(\"protobuf\").wkt.", module, ";" });
+                    try f.writeLine(.{ "const ", alias, " = _protobuf.wkt.", module, ";" });
                     continue;
                 }
             }
@@ -101,7 +102,7 @@ fn generateMessage(
     for (msg.oneofs) |*oneof| {
         try generateOneofField(f, oneof, cur_file, imports);
     }
-    try f.writeLine("_unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,");
+    try f.writeLine("_unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,");
     try f.emptyLine();
 
     for (msg.nested_messages) |*nested| {

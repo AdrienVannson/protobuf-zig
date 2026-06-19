@@ -2,12 +2,13 @@
 // Source: google/protobuf/struct.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Struct = struct {
     fields: std.StringHashMapUnmanaged(*Value) = .{},
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -29,7 +30,7 @@ pub const Value = struct {
         struct_value: *Struct,
         list_value: *ListValue,
     } = null,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getNumberValue(self: @This()) f64 {
         return if (self.kind) |c| switch (c) {
@@ -70,7 +71,7 @@ pub const Value = struct {
 
 pub const ListValue = struct {
     values: std.ArrayList(*Value) = .empty,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);

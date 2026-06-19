@@ -2,12 +2,13 @@
 // Source: google/protobuf/wrappers.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 
 pub const DoubleValue = struct {
     value: f64 = 0.0,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) f64 {
         return self.value;
@@ -26,7 +27,7 @@ pub const DoubleValue = struct {
 
 pub const FloatValue = struct {
     value: f32 = 0.0,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) f32 {
         return self.value;
@@ -45,7 +46,7 @@ pub const FloatValue = struct {
 
 pub const Int64Value = struct {
     value: i64 = 0,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) i64 {
         return self.value;
@@ -64,7 +65,7 @@ pub const Int64Value = struct {
 
 pub const UInt64Value = struct {
     value: u64 = 0,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) u64 {
         return self.value;
@@ -83,7 +84,7 @@ pub const UInt64Value = struct {
 
 pub const Int32Value = struct {
     value: i32 = 0,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) i32 {
         return self.value;
@@ -102,7 +103,7 @@ pub const Int32Value = struct {
 
 pub const UInt32Value = struct {
     value: u32 = 0,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) u32 {
         return self.value;
@@ -121,7 +122,7 @@ pub const UInt32Value = struct {
 
 pub const BoolValue = struct {
     value: bool = false,
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) bool {
         return self.value;
@@ -140,7 +141,7 @@ pub const BoolValue = struct {
 
 pub const StringValue = struct {
     value: []const u8 = "",
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) []const u8 {
         return self.value;
@@ -159,7 +160,7 @@ pub const StringValue = struct {
 
 pub const BytesValue = struct {
     value: []const u8 = "",
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getValue(self: @This()) []const u8 {
         return self.value;
