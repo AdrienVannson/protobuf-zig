@@ -196,18 +196,9 @@ pub const BinaryReader = struct {
         return self.bytes();
     }
 
-    pub const SkipError = error{
-        UnexpectedEof,
-        InvalidVarint,
-        InvalidFieldNumber,
-        InvalidWireType,
-        UnexpectedEgroupTag,
-        MismatchedGroupTag,
-    };
-
     /// Consume the bytes of a field (given its full tag, after the tag has been read)
     /// and return a non-owning view into the reader's buffer.
-    pub fn skip(self: *BinaryReader, t: Tag) SkipError![]const u8 {
+    pub fn skip(self: *BinaryReader, t: Tag) ![]const u8 {
         const start = self.pos;
         switch (t.wire_type) {
             .varint => _ = try self.varint(),
@@ -218,22 +209,19 @@ pub const BinaryReader = struct {
                 if (self.pos + len > self.end) return error.UnexpectedEof;
                 self.pos += @intCast(len);
             },
-            .sgroup => try self.skipGroupBody(t.number),
+            .sgroup => {
+                while (true) {
+                    const inner_tag = try self.tag();
+                    if (inner_tag.wire_type == .egroup) {
+                        if (inner_tag.number != t.number) return error.MismatchedGroupTag;
+                        break;
+                    }
+                    _ = try self.skip(inner_tag);
+                }
+            },
             .egroup => return error.UnexpectedEgroupTag,
         }
         return self.data[start..self.pos];
-    }
-
-    fn skipGroupBody(self: *BinaryReader, group_number: u32) SkipError!void {
-        while (self.remainingInScope() > 0) {
-            const inner_tag = try self.tag();
-            if (inner_tag.wire_type == .egroup) {
-                if (inner_tag.number != group_number) return error.MismatchedGroupTag;
-                return;
-            }
-            _ = try self.skip(inner_tag);
-        }
-        return error.UnexpectedEof;
     }
 };
 
