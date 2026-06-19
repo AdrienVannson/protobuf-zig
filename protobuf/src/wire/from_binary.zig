@@ -209,13 +209,12 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
 
         if (!handled) {
             const raw = try reader.skip(field_tag.wire_type);
-            if (comptime @hasField(T, "_unknown_fields")) {
-                const owned = try allocator.dupe(u8, raw);
-                errdefer allocator.free(owned);
-                const gop = try msg._unknown_fields.getOrPut(allocator, field_tag.number);
-                if (!gop.found_existing) gop.value_ptr.* = .empty;
-                try gop.value_ptr.append(allocator, .{ .tag = field_tag, .data = owned });
-            }
+            const owned = try allocator.dupe(u8, raw);
+            errdefer allocator.free(owned);
+
+            const gop = try msg._unknown_fields.getOrPut(allocator, field_tag.number);
+            if (!gop.found_existing) gop.value_ptr.* = .empty;
+            try gop.value_ptr.append(allocator, .{ .tag = field_tag, .data = owned });
         }
     }
 }
