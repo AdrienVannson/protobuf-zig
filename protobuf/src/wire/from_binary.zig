@@ -28,19 +28,6 @@ fn readScalar(reader: *BinaryReader, comptime scalar: ScalarType) !metadata.scal
     };
 }
 
-fn skipField(reader: *BinaryReader, wire_type: WireType) !void {
-    switch (wire_type) {
-        .varint => _ = try reader.varint(),
-        .bit32 => _ = try reader.fixed32(),
-        .bit64 => _ = try reader.fixed64(),
-        .length_delimited => {
-            const b = try reader.bytes();
-            reader.allocator.free(b);
-        },
-        .sgroup, .egroup => return error.UnsupportedWireType,
-    }
-}
-
 const ReadMessageError = error{
     UnexpectedEof,
     InvalidVarint,
@@ -143,7 +130,7 @@ fn readMapEntry(
                     opt_value = p;
                 },
             },
-            else => try skipField(reader, field_tag.wire_type),
+            else => _ = try reader.skip(field_tag.wire_type),
         }
     }
     try reader.join();
@@ -220,8 +207,15 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
             }
         }
 
-        if (!handled) { // TODO: Unknown field
-            try skipField(reader, field_tag.wire_type);
+        if (!handled) {
+            const raw = try reader.skip(field_tag.wire_type);
+            if (comptime @hasField(T, "_unknown_fields")) {
+                const owned = try allocator.dupe(u8, raw);
+                errdefer allocator.free(owned);
+                const gop = try msg._unknown_fields.getOrPut(allocator, field_tag.number);
+                if (!gop.found_existing) gop.value_ptr.* = .empty;
+                try gop.value_ptr.append(allocator, .{ .tag = field_tag, .data = owned });
+            }
         }
     }
 }

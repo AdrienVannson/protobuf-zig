@@ -16,6 +16,7 @@ pub const Api = struct {
     mixins: std.ArrayList(*Mixin) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
     edition: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -60,6 +61,7 @@ pub const Method = struct {
     options: std.ArrayList(*_google_protobuf_type.Option) = .empty,
     syntax: ?_google_protobuf_type.Syntax = null,
     edition: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -110,6 +112,7 @@ pub const Method = struct {
 pub const Mixin = struct {
     name: []const u8 = "",
     root: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;

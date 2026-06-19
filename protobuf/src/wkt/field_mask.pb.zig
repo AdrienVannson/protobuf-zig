@@ -7,6 +7,7 @@ const _metadata = _codegen.metadata;
 
 pub const FieldMask = struct {
     paths: std.ArrayList([]const u8) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);

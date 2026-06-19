@@ -15,6 +15,7 @@ pub const Type = struct {
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
     edition: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -56,6 +57,7 @@ pub const Field = struct {
     options: std.ArrayList(*Option) = .empty,
     json_name: []const u8 = "",
     default_value: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const Kind = enum(i32) {
         TYPE_UNKNOWN = 0,
@@ -151,6 +153,7 @@ pub const Enum = struct {
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     syntax: ?Syntax = null,
     edition: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -184,6 +187,7 @@ pub const EnumValue = struct {
     name: []const u8 = "",
     number: i32 = 0,
     options: std.ArrayList(*Option) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -209,6 +213,7 @@ pub const EnumValue = struct {
 pub const Option = struct {
     name: []const u8 = "",
     value: ?*_google_protobuf_any.Any = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;

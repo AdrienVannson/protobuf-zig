@@ -7,6 +7,7 @@ const _metadata = _codegen.metadata;
 
 pub const SourceContext = struct {
     file_name: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getFileName(self: @This()) []const u8 {
         return self.file_name;

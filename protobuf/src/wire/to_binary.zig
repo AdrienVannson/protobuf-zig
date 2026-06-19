@@ -147,6 +147,15 @@ fn writeFieldCallback(bw: *BinaryWriter, comptime fm: FieldMetadata, value: anyt
 /// Encodes all fields of msg into bw.
 fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
     try field_access.forEachSetField(msg, bw, writeFieldCallback);
+    if (comptime @hasField(@TypeOf(msg), "_unknown_fields")) {
+        var it = msg._unknown_fields.iterator();
+        while (it.next()) |entry| {
+            for (entry.value_ptr.items) |uf| {
+                try bw.tag(uf.tag.number, uf.tag.wire_type);
+                try bw.rawBytes(uf.data);
+            }
+        }
+    }
 }
 
 /// Serializes a message to its binary Protocol Buffer representation,

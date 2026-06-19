@@ -1,4 +1,3 @@
 Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \250\001\000
 Required.Proto2.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
 Required.Proto3.ProtobufInput.UnknownOrdering.ProtobufOutput # Unknown field mismatch
-Required.Proto3.ProtobufInput.UnknownVarint.ProtobufOutput # Output was not equivalent to reference message: Expect: \250\037\001, but got: 

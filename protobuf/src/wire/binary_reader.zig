@@ -195,6 +195,24 @@ pub const BinaryReader = struct {
     pub fn string(self: *BinaryReader) ![]u8 {
         return self.bytes();
     }
+
+    /// Consume the bytes of a field (given its wire type, after the tag has been read)
+    /// and return a non-owning view into the reader's buffer.
+    pub fn skip(self: *BinaryReader, wire_type: WireType) ![]const u8 {
+        const start = self.pos;
+        switch (wire_type) {
+            .varint => _ = try self.varint(),
+            .bit32 => _ = try self.fixed32(),
+            .bit64 => _ = try self.fixed64(),
+            .length_delimited => {
+                const len = try decodeVarint(self.data, &self.pos, self.end);
+                if (self.pos + len > self.end) return error.UnexpectedEof;
+                self.pos += @intCast(len);
+            },
+            .sgroup, .egroup => return error.UnsupportedWireType,
+        }
+        return self.data[start..self.pos];
+    }
 };
 
 // ---------------------------------------------------------------------------

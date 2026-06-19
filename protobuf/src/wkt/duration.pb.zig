@@ -8,6 +8,7 @@ const _metadata = _codegen.metadata;
 pub const Duration = struct {
     seconds: i64 = 0,
     nanos: i32 = 0,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getSeconds(self: @This()) i64 {
         return self.seconds;

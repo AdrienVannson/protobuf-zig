@@ -10,6 +10,7 @@ pub const CppFeatures = struct {
     legacy_closed_enum: ?bool = null,
     string_type: ?CppFeatures.StringType = null,
     enum_name_uses_string_view: ?bool = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const StringType = enum(i32) {
         STRING_TYPE_UNKNOWN = 0,

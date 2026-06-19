@@ -9,6 +9,7 @@ pub const Person = struct {
     name: []const u8 = "",
     age: i32 = 0,
     email: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;

@@ -9,6 +9,7 @@ pub const TestStatus = struct {
     name: []const u8 = "",
     failure_message: []const u8 = "",
     matched_name: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -37,6 +38,7 @@ pub const TestStatus = struct {
 
 pub const FailureSet = struct {
     @"test": std.ArrayList(*TestStatus) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -61,6 +63,7 @@ pub const ConformanceRequest = struct {
         jspb_payload: []const u8,
         text_payload: []const u8,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getRequestedOutputFormat(self: @This()) WireFormat {
         return self.requested_output_format orelse @enumFromInt(0);
@@ -137,6 +140,7 @@ pub const ConformanceResponse = struct {
         jspb_payload: []const u8,
         text_payload: []const u8,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getParseError(self: @This()) []const u8 {
         return if (self.result) |c| switch (c) {
@@ -222,6 +226,7 @@ pub const ConformanceResponse = struct {
 
 pub const JspbEncodingConfig = struct {
     use_jspb_array_any_format: bool = false,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getUseJspbArrayAnyFormat(self: @This()) bool {
         return self.use_jspb_array_any_format;

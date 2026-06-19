@@ -198,6 +198,12 @@ pub const BinaryWriter = struct {
     pub fn string(self: *BinaryWriter, value: []const u8) !void {
         try self.bytes(value);
     }
+
+    /// Write raw bytes without any length prefix.
+    pub fn rawBytes(self: *BinaryWriter, data: []const u8) !void {
+        const owned = try self.allocator.dupe(u8, data);
+        try self.write(owned);
+    }
 };
 
 // ---------------------------------------------------------------------------

@@ -11,6 +11,7 @@ pub const Version = struct {
     minor: ?i32 = null,
     patch: ?i32 = null,
     suffix: ?[]const u8 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getMajor(self: @This()) i32 {
         return self.major orelse 0;
@@ -48,6 +49,7 @@ pub const CodeGeneratorRequest = struct {
     proto_file: std.ArrayList(*_google_protobuf_descriptor.FileDescriptorProto) = .empty,
     source_file_descriptors: std.ArrayList(*_google_protobuf_descriptor.FileDescriptorProto) = .empty,
     compiler_version: ?*Version = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getParameter(self: @This()) []const u8 {
         return self.parameter orelse "";
@@ -74,12 +76,14 @@ pub const CodeGeneratorResponse = struct {
     minimum_edition: ?i32 = null,
     maximum_edition: ?i32 = null,
     file: std.ArrayList(*CodeGeneratorResponse.File) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const File = struct {
         name: ?[]const u8 = null,
         insertion_point: ?[]const u8 = null,
         content: ?[]const u8 = null,
         generated_code_info: ?*_google_protobuf_descriptor.GeneratedCodeInfo = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getName(self: @This()) []const u8 {
             return self.name orelse "";

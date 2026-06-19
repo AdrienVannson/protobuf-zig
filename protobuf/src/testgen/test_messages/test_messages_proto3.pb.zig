@@ -165,10 +165,12 @@ pub const TestAllTypesProto3 = struct {
         oneof_enum: TestAllTypesProto3.NestedEnum,
         oneof_null_value: _google_protobuf_struct.NullValue,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const NestedMessage = struct {
         a: i32 = 0,
         corecursive: ?*TestAllTypesProto3 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getA(self: @This()) i32 {
             return self.a;
@@ -569,6 +571,7 @@ pub const TestAllTypesProto3 = struct {
 
 pub const ForeignMessage = struct {
     c: i32 = 0,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getC(self: @This()) i32 {
         return self.c;
@@ -586,6 +589,8 @@ pub const ForeignMessage = struct {
 };
 
 pub const NullHypothesisProto3 = struct {
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
@@ -596,6 +601,8 @@ pub const NullHypothesisProto3 = struct {
 };
 
 pub const EnumOnlyProto3 = struct {
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+
     pub const Bool = enum(i32) {
         kFalse = 0,
         kTrue = 1,

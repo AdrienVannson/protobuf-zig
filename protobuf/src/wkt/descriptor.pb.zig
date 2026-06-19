@@ -7,6 +7,7 @@ const _metadata = _codegen.metadata;
 
 pub const FileDescriptorSet = struct {
     file: std.ArrayList(*FileDescriptorProto) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -34,6 +35,7 @@ pub const FileDescriptorProto = struct {
     source_code_info: ?*SourceCodeInfo = null,
     syntax: ?[]const u8 = null,
     edition: ?Edition = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -87,11 +89,13 @@ pub const DescriptorProto = struct {
     reserved_range: std.ArrayList(*DescriptorProto.ReservedRange) = .empty,
     reserved_name: std.ArrayList([]const u8) = .empty,
     visibility: ?SymbolVisibility = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const ExtensionRange = struct {
         start: ?i32 = null,
         end: ?i32 = null,
         options: ?*ExtensionRangeOptions = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getStart(self: @This()) i32 {
             return self.start orelse 0;
@@ -117,6 +121,7 @@ pub const DescriptorProto = struct {
     pub const ReservedRange = struct {
         start: ?i32 = null,
         end: ?i32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getStart(self: @This()) i32 {
             return self.start orelse 0;
@@ -172,6 +177,7 @@ pub const ExtensionRangeOptions = struct {
     declaration: std.ArrayList(*ExtensionRangeOptions.Declaration) = .empty,
     features: ?*FeatureSet = null,
     verification: ?ExtensionRangeOptions.VerificationState = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const Declaration = struct {
         number: ?i32 = null,
@@ -179,6 +185,7 @@ pub const ExtensionRangeOptions = struct {
         type: ?[]const u8 = null,
         reserved: ?bool = null,
         repeated: ?bool = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getNumber(self: @This()) i32 {
             return self.number orelse 0;
@@ -251,6 +258,7 @@ pub const FieldDescriptorProto = struct {
     json_name: ?[]const u8 = null,
     options: ?*FieldOptions = null,
     proto3_optional: ?bool = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const Type = enum(i32) {
         TYPE_DOUBLE = 1,
@@ -345,6 +353,7 @@ pub const FieldDescriptorProto = struct {
 pub const OneofDescriptorProto = struct {
     name: ?[]const u8 = null,
     options: ?*OneofOptions = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -369,10 +378,12 @@ pub const EnumDescriptorProto = struct {
     reserved_range: std.ArrayList(*EnumDescriptorProto.EnumReservedRange) = .empty,
     reserved_name: std.ArrayList([]const u8) = .empty,
     visibility: ?SymbolVisibility = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const EnumReservedRange = struct {
         start: ?i32 = null,
         end: ?i32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getStart(self: @This()) i32 {
             return self.start orelse 0;
@@ -422,6 +433,7 @@ pub const EnumValueDescriptorProto = struct {
     name: ?[]const u8 = null,
     number: ?i32 = null,
     options: ?*EnumValueOptions = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -448,6 +460,7 @@ pub const ServiceDescriptorProto = struct {
     name: ?[]const u8 = null,
     method: std.ArrayList(*MethodDescriptorProto) = .empty,
     options: ?*ServiceOptions = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -473,6 +486,7 @@ pub const MethodDescriptorProto = struct {
     options: ?*MethodOptions = null,
     client_streaming: ?bool = null,
     server_streaming: ?bool = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name orelse "";
@@ -532,6 +546,7 @@ pub const FileOptions = struct {
     ruby_package: ?[]const u8 = null,
     features: ?*FeatureSet = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const OptimizeMode = enum(i32) {
         SPEED = 1,
@@ -655,6 +670,7 @@ pub const MessageOptions = struct {
     deprecated_legacy_json_field_conflicts: ?bool = null,
     features: ?*FeatureSet = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getMessageSetWireFormat(self: @This()) bool {
         return self.message_set_wire_format orelse false;
@@ -708,10 +724,12 @@ pub const FieldOptions = struct {
     features: ?*FeatureSet = null,
     feature_support: ?*FieldOptions.FeatureSupport = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const EditionDefault = struct {
         edition: ?Edition = null,
         value: ?[]const u8 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getEdition(self: @This()) Edition {
             return self.edition orelse @enumFromInt(0);
@@ -738,6 +756,7 @@ pub const FieldOptions = struct {
         edition_deprecated: ?Edition = null,
         deprecation_warning: ?[]const u8 = null,
         edition_removed: ?Edition = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getEditionIntroduced(self: @This()) Edition {
             return self.edition_introduced orelse @enumFromInt(0);
@@ -867,6 +886,7 @@ pub const FieldOptions = struct {
 pub const OneofOptions = struct {
     features: ?*FeatureSet = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -886,6 +906,7 @@ pub const EnumOptions = struct {
     deprecated_legacy_json_field_conflicts: ?bool = null,
     features: ?*FeatureSet = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getAllowAlias(self: @This()) bool {
         return self.allow_alias orelse false;
@@ -920,6 +941,7 @@ pub const EnumValueOptions = struct {
     debug_redact: ?bool = null,
     feature_support: ?*FieldOptions.FeatureSupport = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -948,6 +970,7 @@ pub const ServiceOptions = struct {
     features: ?*FeatureSet = null,
     deprecated: ?bool = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getDeprecated(self: @This()) bool {
         return self.deprecated orelse false;
@@ -971,6 +994,7 @@ pub const MethodOptions = struct {
     idempotency_level: ?MethodOptions.IdempotencyLevel = null,
     features: ?*FeatureSet = null,
     uninterpreted_option: std.ArrayList(*UninterpretedOption) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const IdempotencyLevel = enum(i32) {
         IDEMPOTENCY_UNKNOWN = 0,
@@ -1009,10 +1033,12 @@ pub const UninterpretedOption = struct {
     double_value: ?f64 = null,
     string_value: ?[]const u8 = null,
     aggregate_value: ?[]const u8 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const NamePart = struct {
         name_part: ?[]const u8 = null,
         is_extension: ?bool = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getNamePart(self: @This()) []const u8 {
             return self.name_part orelse "";
@@ -1084,8 +1110,11 @@ pub const FeatureSet = struct {
     json_format: ?FeatureSet.JsonFormat = null,
     enforce_naming_style: ?FeatureSet.EnforceNamingStyle = null,
     default_symbol_visibility: ?FeatureSet.VisibilityFeature.DefaultSymbolVisibility = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const VisibilityFeature = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+
         pub const DefaultSymbolVisibility = enum(i32) {
             DEFAULT_SYMBOL_VISIBILITY_UNKNOWN = 0,
             EXPORT_ALL = 1,
@@ -1208,11 +1237,13 @@ pub const FeatureSetDefaults = struct {
     defaults: std.ArrayList(*FeatureSetDefaults.FeatureSetEditionDefault) = .empty,
     minimum_edition: ?Edition = null,
     maximum_edition: ?Edition = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const FeatureSetEditionDefault = struct {
         edition: ?Edition = null,
         overridable_features: ?*FeatureSet = null,
         fixed_features: ?*FeatureSet = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getEdition(self: @This()) Edition {
             return self.edition orelse @enumFromInt(0);
@@ -1254,6 +1285,7 @@ pub const FeatureSetDefaults = struct {
 
 pub const SourceCodeInfo = struct {
     location: std.ArrayList(*SourceCodeInfo.Location) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const Location = struct {
         path: std.ArrayList(i32) = .empty,
@@ -1261,6 +1293,7 @@ pub const SourceCodeInfo = struct {
         leading_comments: ?[]const u8 = null,
         trailing_comments: ?[]const u8 = null,
         leading_detached_comments: std.ArrayList([]const u8) = .empty,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getLeadingComments(self: @This()) []const u8 {
             return self.leading_comments orelse "";
@@ -1298,6 +1331,7 @@ pub const SourceCodeInfo = struct {
 
 pub const GeneratedCodeInfo = struct {
     annotation: std.ArrayList(*GeneratedCodeInfo.Annotation) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const Annotation = struct {
         path: std.ArrayList(i32) = .empty,
@@ -1305,6 +1339,7 @@ pub const GeneratedCodeInfo = struct {
         begin: ?i32 = null,
         end: ?i32 = null,
         semantic: ?GeneratedCodeInfo.Annotation.Semantic = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub const Semantic = enum(i32) {
             NONE = 0,

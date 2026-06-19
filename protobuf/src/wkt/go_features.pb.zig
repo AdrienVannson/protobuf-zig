@@ -10,6 +10,7 @@ pub const GoFeatures = struct {
     legacy_unmarshal_json_enum: ?bool = null,
     api_level: ?GoFeatures.APILevel = null,
     strip_enum_prefix: ?GoFeatures.StripEnumPrefix = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const APILevel = enum(i32) {
         API_LEVEL_UNSPECIFIED = 0,

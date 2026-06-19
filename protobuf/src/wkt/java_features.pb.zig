@@ -12,8 +12,11 @@ pub const JavaFeatures = struct {
     large_enum: ?bool = null,
     use_old_outer_classname_default: ?bool = null,
     nest_in_file_class: ?JavaFeatures.NestInFileClassFeature.NestInFileClass = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const NestInFileClassFeature = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
+
         pub const NestInFileClass = enum(i32) {
             NEST_IN_FILE_CLASS_UNKNOWN = 0,
             NO = 1,

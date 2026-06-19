@@ -7,6 +7,7 @@ const _metadata = _codegen.metadata;
 
 pub const DepMsg = struct {
     label: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getLabel(self: @This()) []const u8 {
         return self.label;

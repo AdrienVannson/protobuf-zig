@@ -26,6 +26,8 @@ pub const DescExtension = descriptor.DescExtension;
 pub const to_binary = @import("wire/to_binary.zig").to_binary;
 pub const from_binary = @import("wire/from_binary.zig").from_binary;
 
+pub const UnknownField = @import("unknown_field.zig").UnknownField;
+
 pub const wkt = @import("wkt.zig");
 
 /// Code-generation helpers called by generated `.pb.zig` files.
@@ -34,11 +36,13 @@ pub const _codegen = struct {
     pub const deinit_message = @import("_codegen/message_deinit.zig").deinit_message;
     pub const metadata = @import("_codegen/metadata.zig");
     pub const field_access = @import("_codegen/field_access.zig");
+    pub const UnknownField = @import("unknown_field.zig").UnknownField;
 };
 
 test {
     _ = @import("wire/binary_writer.zig");
     _ = @import("wire/binary_reader.zig");
+    _ = @import("unknown_field.zig");
     _ = @import("wire/tag.zig");
     _ = @import("descriptor.zig");
     _ = @import("_codegen/metadata.zig");

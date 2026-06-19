@@ -13,6 +13,7 @@ pub const Foo = struct {
         x: i32,
         y: []const u8,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -60,9 +61,11 @@ pub const Bar = struct {
     tags: std.ArrayList([]const u8) = .empty,
     color: ?Color = null,
     colors: std.ArrayList(Color) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub const Nested = struct {
         value: i32 = 0,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
         pub fn getValue(self: @This()) i32 {
             return self.value;

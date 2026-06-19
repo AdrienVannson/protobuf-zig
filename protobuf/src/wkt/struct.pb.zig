@@ -7,6 +7,7 @@ const _metadata = _codegen.metadata;
 
 pub const Struct = struct {
     fields: std.StringHashMapUnmanaged(*Value) = .{},
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
@@ -28,6 +29,7 @@ pub const Value = struct {
         struct_value: *Struct,
         list_value: *ListValue,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getNumberValue(self: @This()) f64 {
         return if (self.kind) |c| switch (c) {
@@ -68,6 +70,7 @@ pub const Value = struct {
 
 pub const ListValue = struct {
     values: std.ArrayList(*Value) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);

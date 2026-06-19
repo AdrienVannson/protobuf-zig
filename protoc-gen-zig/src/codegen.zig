@@ -101,6 +101,7 @@ fn generateMessage(
     for (msg.oneofs) |*oneof| {
         try generateOneofField(f, oneof, cur_file, imports);
     }
+    try f.writeLine("_unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,");
     try f.emptyLine();
 
     for (msg.nested_messages) |*nested| {

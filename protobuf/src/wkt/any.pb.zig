@@ -8,6 +8,7 @@ const _metadata = _codegen.metadata;
 pub const Any = struct {
     type_url: []const u8 = "",
     value: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_codegen.UnknownField)) = .empty,
 
     pub fn getTypeUrl(self: @This()) []const u8 {
         return self.type_url;
