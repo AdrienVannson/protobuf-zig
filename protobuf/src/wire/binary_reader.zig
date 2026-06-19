@@ -510,8 +510,6 @@ test "finish with unclosed fork returns error" {
 }
 
 // skip / groups
-// Tag encoding: (field_number << 3) | wire_type
-// sgroup(1)=0x0b  egroup(1)=0x0c  sgroup(2)=0x13  egroup(2)=0x14
 
 test "skip simple group" {
     // sgroup(1), varint(2)=42, egroup(1)
