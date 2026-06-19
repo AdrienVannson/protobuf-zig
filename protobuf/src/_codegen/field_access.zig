@@ -184,7 +184,7 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
         },
         .message_field => field != null,
         .list => field.items.len > 0,
-        .map => @field(msg, field_name).count() > 0,
+        .map => field.count() > 0,
     };
 }
 
