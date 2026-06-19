@@ -381,22 +381,30 @@ fn generateOneofField(
     try f.write(.{ safe_name, ": ?union(enum) {" });
     for (oneof.fields) |field_ptr| {
         // field_ptr.local_name is already keyword-escaped.
+        try f.write(.{
+            " ",
+            field_ptr.local_name,
+            ": ",
+        });
+
         switch (field_ptr.kind) {
             .scalar => |sc| {
-                try f.write(.{ " ", field_ptr.local_name, ": ", scalarZigType(sc.scalar), "," });
+                try f.write(.{scalarZigType(sc.scalar)});
             },
             .enum_field => |ef| {
                 const type_name = try enumZigTypeName(f.alloc, ef.enum_type, cur_file, imports);
                 defer f.alloc.free(type_name);
-                try f.write(.{ " ", field_ptr.local_name, ": ", type_name, "," });
+                try f.write(.{type_name});
             },
             .message_field => |mf| {
                 const type_name = try messageZigTypeName(f.alloc, mf.message, cur_file, imports);
                 defer f.alloc.free(type_name);
-                try f.write(.{ " ", field_ptr.local_name, ": *", type_name, "," });
+                try f.write(.{ "*", type_name });
             },
             else => {},
         }
+
+        try f.write(.{","});
     }
     try f.writeLine(" } = null,");
 }
