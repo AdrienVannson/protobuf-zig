@@ -30,9 +30,9 @@ pub const TestAllTypesProto3 = struct {
     optional_bytes: []const u8 = "",
     optional_nested_message: ?*TestAllTypesProto3.NestedMessage = null,
     optional_foreign_message: ?*ForeignMessage = null,
-    optional_nested_enum: ?TestAllTypesProto3.NestedEnum = null,
-    optional_foreign_enum: ?ForeignEnum = null,
-    optional_aliased_enum: ?TestAllTypesProto3.AliasedEnum = null,
+    optional_nested_enum: TestAllTypesProto3.NestedEnum = @enumFromInt(0),
+    optional_foreign_enum: ForeignEnum = @enumFromInt(0),
+    optional_aliased_enum: TestAllTypesProto3.AliasedEnum = @enumFromInt(0),
     optional_string_piece: []const u8 = "",
     optional_cord: []const u8 = "",
     recursive_message: ?*TestAllTypesProto3 = null,
@@ -128,7 +128,7 @@ pub const TestAllTypesProto3 = struct {
     optional_struct: ?*_google_protobuf_struct.Struct = null,
     optional_any: ?*_google_protobuf_any.Any = null,
     optional_value: ?*_google_protobuf_struct.Value = null,
-    optional_null_value: ?_google_protobuf_struct.NullValue = null,
+    optional_null_value: _google_protobuf_struct.NullValue = @enumFromInt(0),
     repeated_duration: std.ArrayList(*_google_protobuf_duration.Duration) = .empty,
     repeated_timestamp: std.ArrayList(*_google_protobuf_timestamp.Timestamp) = .empty,
     repeated_fieldmask: std.ArrayList(*_google_protobuf_field_mask.FieldMask) = .empty,
@@ -265,15 +265,15 @@ pub const TestAllTypesProto3 = struct {
     }
 
     pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto3.NestedEnum {
-        return self.optional_nested_enum orelse @enumFromInt(0);
+        return self.optional_nested_enum;
     }
 
     pub fn getOptionalForeignEnum(self: @This()) ForeignEnum {
-        return self.optional_foreign_enum orelse @enumFromInt(0);
+        return self.optional_foreign_enum;
     }
 
     pub fn getOptionalAliasedEnum(self: @This()) TestAllTypesProto3.AliasedEnum {
-        return self.optional_aliased_enum orelse @enumFromInt(0);
+        return self.optional_aliased_enum;
     }
 
     pub fn getOptionalStringPiece(self: @This()) []const u8 {
@@ -285,7 +285,7 @@ pub const TestAllTypesProto3 = struct {
     }
 
     pub fn getOptionalNullValue(self: @This()) _google_protobuf_struct.NullValue {
-        return self.optional_null_value orelse @enumFromInt(0);
+        return self.optional_null_value;
     }
 
     pub fn getFieldname1(self: @This()) i32 {

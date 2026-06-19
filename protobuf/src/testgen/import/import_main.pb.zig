@@ -9,13 +9,13 @@ const _import_import_dep = @import("import_dep.pb.zig");
 
 pub const ImportMain = struct {
     single: ?*_import_import_dep.DepMsg = null,
-    kind: ?_import_import_dep.DepEnum = null,
+    kind: _import_import_dep.DepEnum = @enumFromInt(0),
     many: std.ArrayList(*_import_import_dep.DepMsg) = .empty,
     kinds: std.ArrayList(_import_import_dep.DepEnum) = .empty,
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getKind(self: @This()) _import_import_dep.DepEnum {
-        return self.kind orelse @enumFromInt(0);
+        return self.kind;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

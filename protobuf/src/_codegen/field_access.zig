@@ -177,9 +177,7 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
             .explicit, .legacy_required => field != null, // TODO check behavior for required fields
         },
         .enum_field => |ef| switch (comptime ef.presence) {
-            // TODO generate implicit enum fields without optional
-            .implicit => field != null,
-            // .implicit => field != field_meta.kind.enum_field.default_value,
+            .implicit => @intFromEnum(field) != ef.default_value,
             .explicit, .legacy_required => field != null,
         },
         .message_field => field != null,

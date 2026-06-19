@@ -53,9 +53,9 @@ pub const FailureSet = struct {
 };
 
 pub const ConformanceRequest = struct {
-    requested_output_format: ?WireFormat = null,
+    requested_output_format: WireFormat = @enumFromInt(0),
     message_type: []const u8 = "",
-    test_category: ?TestCategory = null,
+    test_category: TestCategory = @enumFromInt(0),
     jspb_encoding_options: ?*JspbEncodingConfig = null,
     print_unknown_fields: bool = false,
     payload: ?union(enum) {
@@ -67,7 +67,7 @@ pub const ConformanceRequest = struct {
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getRequestedOutputFormat(self: @This()) WireFormat {
-        return self.requested_output_format orelse @enumFromInt(0);
+        return self.requested_output_format;
     }
 
     pub fn getMessageType(self: @This()) []const u8 {
@@ -75,7 +75,7 @@ pub const ConformanceRequest = struct {
     }
 
     pub fn getTestCategory(self: @This()) TestCategory {
-        return self.test_category orelse @enumFromInt(0);
+        return self.test_category;
     }
 
     pub fn getPrintUnknownFields(self: @This()) bool {

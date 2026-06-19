@@ -60,7 +60,7 @@ pub const Foo = struct {
 pub const Bar = struct {
     foo: ?*Foo = null,
     tags: std.ArrayList([]const u8) = .empty,
-    color: ?Color = null,
+    color: Color = @enumFromInt(0),
     colors: std.ArrayList(Color) = .empty,
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
@@ -84,7 +84,7 @@ pub const Bar = struct {
     };
 
     pub fn getColor(self: @This()) Color {
-        return self.color orelse @enumFromInt(0);
+        return self.color;
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

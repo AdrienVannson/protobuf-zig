@@ -15,7 +15,7 @@ pub const Api = struct {
     version: []const u8 = "",
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
     mixins: std.ArrayList(*Mixin) = .empty,
-    syntax: ?_google_protobuf_type.Syntax = null,
+    syntax: _google_protobuf_type.Syntax = @enumFromInt(0),
     edition: []const u8 = "",
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
@@ -28,7 +28,7 @@ pub const Api = struct {
     }
 
     pub fn getSyntax(self: @This()) _google_protobuf_type.Syntax {
-        return self.syntax orelse @enumFromInt(0);
+        return self.syntax;
     }
 
     pub fn getEdition(self: @This()) []const u8 {
@@ -60,7 +60,7 @@ pub const Method = struct {
     response_type_url: []const u8 = "",
     response_streaming: bool = false,
     options: std.ArrayList(*_google_protobuf_type.Option) = .empty,
-    syntax: ?_google_protobuf_type.Syntax = null,
+    syntax: _google_protobuf_type.Syntax = @enumFromInt(0),
     edition: []const u8 = "",
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
@@ -85,7 +85,7 @@ pub const Method = struct {
     }
 
     pub fn getSyntax(self: @This()) _google_protobuf_type.Syntax {
-        return self.syntax orelse @enumFromInt(0);
+        return self.syntax;
     }
 
     pub fn getEdition(self: @This()) []const u8 {

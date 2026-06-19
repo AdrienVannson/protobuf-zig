@@ -116,7 +116,7 @@ fn generateMessage(
     // Plain scalar field getters (message fields have no getter).
     for (msg.fields) |*field| {
         if (isPlainScalar(field)) {
-            try generateFieldGetter(f, field);
+            try generateScalarFieldGetter(f, field);
         }
         if (isPlainEnum(field)) {
             try generateEnumFieldGetter(f, field, cur_file, imports);
@@ -399,7 +399,12 @@ fn generateField(
         .enum_field => |ef| {
             const type_name = try enumZigTypeName(f.alloc, ef.enum_type, cur_file, imports);
             defer f.alloc.free(type_name);
-            try f.writeLine(.{ field.local_name, ": ?", type_name, " = null," });
+            if (field.presence == .implicit) {
+                const default = field.kind.enum_field.default_value orelse 0;
+                try f.writeLine(.{ field.local_name, ": ", type_name, " = @enumFromInt(", default, ")," });
+            } else {
+                try f.writeLine(.{ field.local_name, ": ?", type_name, " = null," });
+            }
         },
         .list => |list| {
             switch (list.element) {
@@ -511,7 +516,7 @@ fn generateOneofVariantGetters(
     }
 }
 
-fn generateFieldGetter(
+fn generateScalarFieldGetter(
     f: *GeneratedFile,
     field: *const protobuf.DescField,
 ) !void {
@@ -633,7 +638,11 @@ fn generateEnumFieldGetter(
     try f.emptyLine();
     try f.writeLine(.{ "pub fn get", field_name_camel, "(self: @This()) ", zig_type, " {" });
     f.indent();
-    try f.writeLine(.{ "return self.", field.local_name, " orelse @enumFromInt(", default, ");" });
+    if (field.presence == .implicit) {
+        try f.writeLine(.{ "return self.", field.local_name, ";" });
+    } else {
+        try f.writeLine(.{ "return self.", field.local_name, " orelse @enumFromInt(", default, ");" });
+    }
     f.unindent();
     try f.writeLine("}");
 }

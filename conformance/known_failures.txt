@@ -1,1 +1,0 @@
-Recommended.Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \250\001\000
