@@ -84,8 +84,17 @@ fn generateMessage(
     try f.writeLine(.{ "pub const ", safe_name, " = struct {" });
     f.indent();
 
+    // TODO iterate over members
+
     // Plain fields (not in a oneof).
     for (msg.fields) |*field| {
+        switch (field.kind) {
+            .scalar => if (field.kind.scalar.oneof != null) continue,
+            .enum_field => if (field.kind.enum_field.oneof != null) continue,
+            .message_field => if (field.kind.message_field.oneof != null) continue,
+            else => {},
+        }
+
         try generateField(f, field, cur_file, imports);
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
