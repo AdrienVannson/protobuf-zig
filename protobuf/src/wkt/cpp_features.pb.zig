@@ -2,7 +2,8 @@
 // Source: google/protobuf/cpp_features.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 const _google_protobuf_descriptor = @import("descriptor.pb.zig");
 
@@ -10,6 +11,7 @@ pub const CppFeatures = struct {
     legacy_closed_enum: ?bool = null,
     string_type: ?CppFeatures.StringType = null,
     enum_name_uses_string_view: ?bool = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const StringType = enum(i32) {
         STRING_TYPE_UNKNOWN = 0,

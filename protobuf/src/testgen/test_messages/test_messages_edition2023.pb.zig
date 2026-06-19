@@ -2,11 +2,13 @@
 // Source: test_messages/test_messages_edition2023.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 
 pub const ComplexMessage = struct {
     d: ?i32 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getD(self: @This()) i32 {
         return self.d orelse 0;
@@ -127,10 +129,12 @@ pub const TestAllTypesEdition2023 = struct {
         oneof_double: f64,
         oneof_enum: TestAllTypesEdition2023.NestedEnum,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const NestedMessage = struct {
         a: ?i32 = null,
         corecursive: ?*TestAllTypesEdition2023 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -151,6 +155,7 @@ pub const TestAllTypesEdition2023 = struct {
     pub const GroupLikeType = struct {
         group_int32: ?i32 = null,
         group_uint32: ?u32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getGroupInt32(self: @This()) i32 {
             return self.group_int32 orelse 0;
@@ -418,6 +423,7 @@ pub const TestAllTypesEdition2023 = struct {
 
 pub const ForeignMessageEdition2023 = struct {
     c: ?i32 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getC(self: @This()) i32 {
         return self.c orelse 0;
@@ -436,6 +442,7 @@ pub const ForeignMessageEdition2023 = struct {
 
 pub const GroupLikeType = struct {
     c: ?i32 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getC(self: @This()) i32 {
         return self.c orelse 0;

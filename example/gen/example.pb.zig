@@ -2,13 +2,15 @@
 // Source: example.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Person = struct {
     name: []const u8 = "",
     age: i32 = 0,
     email: []const u8 = "",
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;

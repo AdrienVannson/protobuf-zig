@@ -12,6 +12,14 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
     inline for (T._desc.fields) |field_meta| {
         field_access.clearField(msg, field_meta, allocator);
     }
+
+    // Clear unknown fields
+    var it = msg._unknown_fields.iterator();
+    while (it.next()) |entry| {
+        for (entry.value_ptr.items) |uf| allocator.free(uf.data);
+        entry.value_ptr.deinit(allocator);
+    }
+    msg._unknown_fields.deinit(allocator);
 }
 
 test "deinit_message string" {

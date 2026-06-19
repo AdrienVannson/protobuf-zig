@@ -2,7 +2,8 @@
 // Source: google/protobuf/test_messages_proto2.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 
 pub const TestAllTypesProto2 = struct {
@@ -145,10 +146,12 @@ pub const TestAllTypesProto2 = struct {
         oneof_double: f64,
         oneof_enum: TestAllTypesProto2.NestedEnum,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const NestedMessage = struct {
         a: ?i32 = null,
         corecursive: ?*TestAllTypesProto2 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -169,6 +172,7 @@ pub const TestAllTypesProto2 = struct {
     pub const Data = struct {
         group_int32: ?i32 = null,
         group_uint32: ?u32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getGroupInt32(self: @This()) i32 {
             return self.group_int32 orelse 0;
@@ -193,6 +197,7 @@ pub const TestAllTypesProto2 = struct {
     pub const MultiWordGroupField = struct {
         group_int32: ?i32 = null,
         group_uint32: ?u32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getGroupInt32(self: @This()) i32 {
             return self.group_int32 orelse 0;
@@ -215,6 +220,8 @@ pub const TestAllTypesProto2 = struct {
     };
 
     pub const MessageSetCorrect = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
@@ -226,6 +233,7 @@ pub const TestAllTypesProto2 = struct {
 
     pub const MessageSetCorrectExtension1 = struct {
         str: ?[]const u8 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getStr(self: @This()) []const u8 {
             return self.str orelse "";
@@ -244,6 +252,7 @@ pub const TestAllTypesProto2 = struct {
 
     pub const MessageSetCorrectExtension2 = struct {
         i: ?i32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getI(self: @This()) i32 {
             return self.i orelse 0;
@@ -265,6 +274,7 @@ pub const TestAllTypesProto2 = struct {
             a: i32,
             b: i32,
         } = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getA(self: @This()) i32 {
             return if (self.oneof_field) |c| switch (c) {
@@ -706,6 +716,7 @@ pub const TestAllTypesProto2 = struct {
 
 pub const ForeignMessageProto2 = struct {
     c: ?i32 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getC(self: @This()) i32 {
         return self.c orelse 0;
@@ -725,6 +736,7 @@ pub const ForeignMessageProto2 = struct {
 pub const GroupField = struct {
     group_int32: ?i32 = null,
     group_uint32: ?u32 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getGroupInt32(self: @This()) i32 {
         return self.group_int32 orelse 0;
@@ -753,9 +765,11 @@ pub const UnknownToTestAllTypes = struct {
     optionalgroup: ?*UnknownToTestAllTypes.OptionalGroup = null,
     optional_bool: ?bool = null,
     repeated_int32: std.ArrayList(i32) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const OptionalGroup = struct {
         a: ?i32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -801,6 +815,8 @@ pub const UnknownToTestAllTypes = struct {
 };
 
 pub const NullHypothesisProto2 = struct {
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
@@ -811,6 +827,8 @@ pub const NullHypothesisProto2 = struct {
 };
 
 pub const EnumOnlyProto2 = struct {
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
     pub const Bool = enum(i32) {
         kFalse = 0,
         kTrue = 1,
@@ -828,6 +846,7 @@ pub const EnumOnlyProto2 = struct {
 
 pub const OneStringProto2 = struct {
     data: ?[]const u8 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getData(self: @This()) []const u8 {
         return self.data orelse "";
@@ -848,6 +867,7 @@ pub const ProtoWithKeywords = struct {
     @"inline": ?i32 = null,
     concept: ?[]const u8 = null,
     requires: std.ArrayList([]const u8) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getInline(self: @This()) i32 {
         return self.@"inline" orelse 0;
@@ -910,11 +930,13 @@ pub const TestAllRequiredTypesProto2 = struct {
     default_bool: ?bool = null,
     default_string: ?[]const u8 = null,
     default_bytes: ?[]const u8 = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const NestedMessage = struct {
         a: ?i32 = null,
         corecursive: ?*TestAllRequiredTypesProto2 = null,
         optional_corecursive: ?*TestAllRequiredTypesProto2 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getA(self: @This()) i32 {
             return self.a orelse 0;
@@ -936,6 +958,7 @@ pub const TestAllRequiredTypesProto2 = struct {
     pub const Data = struct {
         group_int32: ?i32 = null,
         group_uint32: ?u32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getGroupInt32(self: @This()) i32 {
             return self.group_int32 orelse 0;
@@ -958,6 +981,8 @@ pub const TestAllRequiredTypesProto2 = struct {
     };
 
     pub const MessageSetCorrect = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
@@ -969,6 +994,7 @@ pub const TestAllRequiredTypesProto2 = struct {
 
     pub const MessageSetCorrectExtension1 = struct {
         str: ?[]const u8 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getStr(self: @This()) []const u8 {
             return self.str orelse "";
@@ -987,6 +1013,7 @@ pub const TestAllRequiredTypesProto2 = struct {
 
     pub const MessageSetCorrectExtension2 = struct {
         i: ?i32 = null,
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
         pub fn getI(self: @This()) i32 {
             return self.i orelse 0;
@@ -1204,8 +1231,11 @@ pub const TestLargeOneof = struct {
         a4: *TestLargeOneof.A4,
         a5: *TestLargeOneof.A5,
     } = null,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub const A1 = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
@@ -1216,6 +1246,8 @@ pub const TestLargeOneof = struct {
     };
 
     pub const A2 = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
@@ -1226,6 +1258,8 @@ pub const TestLargeOneof = struct {
     };
 
     pub const A3 = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
@@ -1236,6 +1270,8 @@ pub const TestLargeOneof = struct {
     };
 
     pub const A4 = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }
@@ -1246,6 +1282,8 @@ pub const TestLargeOneof = struct {
     };
 
     pub const A5 = struct {
+        _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
             _codegen.deinit_message(self, allocator);
         }

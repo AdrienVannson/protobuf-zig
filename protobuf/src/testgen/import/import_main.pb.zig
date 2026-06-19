@@ -2,7 +2,8 @@
 // Source: import/import_main.proto
 
 const std = @import("std");
-const _codegen = @import("protobuf")._codegen;
+const _protobuf = @import("protobuf");
+const _codegen = _protobuf._codegen;
 const _metadata = _codegen.metadata;
 const _import_import_dep = @import("import_dep.pb.zig");
 
@@ -11,6 +12,7 @@ pub const ImportMain = struct {
     kind: ?_import_import_dep.DepEnum = null,
     many: std.ArrayList(*_import_import_dep.DepMsg) = .empty,
     kinds: std.ArrayList(_import_import_dep.DepEnum) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
 
     pub fn getKind(self: @This()) _import_import_dep.DepEnum {
         return self.kind orelse @enumFromInt(0);
