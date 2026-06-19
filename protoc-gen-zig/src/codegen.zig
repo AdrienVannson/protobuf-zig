@@ -278,50 +278,40 @@ fn generateMessageMetadata(
     // Oneof variant entries — all variants of a group share the same field_index.
     for (msg.oneofs) |*oneof| {
         for (oneof.fields) |field_ptr| {
+            try f.write(.{
+                ".{ .number = ",
+                field_ptr.number,
+                ", .field_index = ",
+                field_index,
+                ", .oneof_variant = \"",
+                field_ptr.name,
+            });
+
             switch (field_ptr.kind) {
                 .scalar => |sc| {
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field_ptr.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .oneof_variant = \"",
-                        field_ptr.name,
+                    try f.write(.{
                         "\", .kind = .{ .scalar = .{ .scalar = .",
                         @tagName(sc.scalar),
                         " } } }, // ",
-                        field_ptr.name,
                     });
                 },
                 .enum_field => |ef| {
                     const default = ef.default_value orelse 0;
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field_ptr.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .oneof_variant = \"",
-                        field_ptr.name,
+                    try f.write(.{
                         "\", .kind = .{ .enum_field = .{ .default_value = ",
                         default,
                         " } } }, // ",
-                        field_ptr.name,
                     });
                 },
                 .message_field => {
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field_ptr.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .oneof_variant = \"",
-                        field_ptr.name,
+                    try f.write(.{
                         "\", .kind = .{ .message_field = .{} } }, // ",
-                        field_ptr.name,
                     });
                 },
                 else => {},
             }
+
+            try f.writeLine(.{field_ptr.name});
         }
         field_index += 1;
     }
