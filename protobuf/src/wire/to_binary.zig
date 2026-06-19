@@ -91,6 +91,35 @@ fn writeListField(
     }
 }
 
+fn writeMapField(
+    bw: *BinaryWriter,
+    map: anytype,
+    comptime map_meta: anytype,
+    comptime number: u32,
+) WriteMessageError!void {
+    var it = map.iterator();
+    while (it.next()) |entry| {
+        try bw.tag(number, .length_delimited);
+        try bw.fork();
+        try bw.tag(1, comptime scalarWireType(map_meta.key));
+        try writeScalar(bw, map_meta.key, entry.key_ptr.*);
+        switch (comptime map_meta.value) {
+            .scalar => |sc| {
+                try bw.tag(2, comptime scalarWireType(sc));
+                try writeScalar(bw, sc, entry.value_ptr.*);
+            },
+            .enum_type => {
+                try bw.tag(2, .varint);
+                try bw.int32(@intFromEnum(entry.value_ptr.*));
+            },
+            .message => {
+                try writeMessageField(bw, 2, entry.value_ptr.*.*);
+            },
+        }
+        try bw.join();
+    }
+}
+
 /// Callback used by `forEachSetField` inside `writeMessage`.
 /// Receives each set field's payload and writes it to the BinaryWriter.
 fn writeFieldCallback(bw: *BinaryWriter, comptime fm: FieldMetadata, value: anytype) WriteMessageError!void {
@@ -106,10 +135,12 @@ fn writeFieldCallback(bw: *BinaryWriter, comptime fm: FieldMetadata, value: anyt
         .message_field => {
             try writeMessageField(bw, fm.number, value.*);
         },
-        .list => |lm| {
-            try writeListField(bw, value, lm, fm.number);
+        .list => |list_meta| {
+            try writeListField(bw, value, list_meta, fm.number);
         },
-        .map => {},
+        .map => |map_meta| {
+            try writeMapField(bw, value, map_meta, fm.number);
+        },
     }
 }
 

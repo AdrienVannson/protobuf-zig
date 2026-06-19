@@ -84,9 +84,17 @@ fn generateMessage(
     try f.writeLine(.{ "pub const ", safe_name, " = struct {" });
     f.indent();
 
-    // Plain scalar/message/list/enum struct fields (not in a oneof).
+    // TODO iterate over members
+
+    // Plain fields (not in a oneof).
     for (msg.fields) |*field| {
-        if (!isPlainScalar(field) and !isPlainMessage(field) and !isPlainList(field) and !isPlainEnum(field)) continue;
+        switch (field.kind) {
+            .scalar => if (field.kind.scalar.oneof != null) continue,
+            .enum_field => if (field.kind.enum_field.oneof != null) continue,
+            .message_field => if (field.kind.message_field.oneof != null) continue,
+            else => {},
+        }
+
         try generateField(f, field, cur_file, imports);
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
@@ -177,101 +185,143 @@ fn generateMessageMetadata(
 
     var field_index: u32 = 0;
 
-    // Plain scalar/message/list fields (not in a oneof) — must mirror the struct field loop.
+    // Plain fields (not in a oneof) — must mirror the struct field loop.
     for (msg.fields) |*field| {
-        if (isPlainScalar(field)) {
-            try f.write(.{
-                ".{ .number = ",
-                field.number,
-                ", .field_index = ",
-                field_index,
-                ", .kind = .{ .scalar = .{ .scalar = .",
-                @tagName(field.kind.scalar.scalar),
-            });
+        switch (field.kind) {
+            .scalar => {
+                if (field.kind.scalar.oneof == null) {
+                    try f.write(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .kind = .{ .scalar = .{ .scalar = .",
+                        @tagName(field.kind.scalar.scalar),
+                    });
 
-            if (field.kind.scalar.default_value) |dv| {
-                const dv_literal = try defaultValueLiteral(f.alloc, dv);
-                defer f.alloc.free(dv_literal);
+                    if (field.kind.scalar.default_value) |dv| {
+                        const dv_literal = try defaultValueLiteral(f.alloc, dv);
+                        defer f.alloc.free(dv_literal);
+                        try f.write(.{
+                            ", .default_value = ",
+                            dv_literal,
+                        });
+                    }
+
+                    try f.writeLine(.{
+                        presenceClause(field.presence, true),
+                        " } } }, // ",
+                        field.name,
+                    });
+                    field_index += 1;
+                }
+            },
+            .enum_field => {
+                if (field.kind.enum_field.oneof == null) {
+                    const default = field.kind.enum_field.default_value orelse 0;
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .kind = .{ .enum_field = .{ .default_value = ",
+                        default,
+                        presenceClause(field.presence, true),
+                        " } } }, // ",
+                        field.name,
+                    });
+                    field_index += 1;
+                }
+            },
+            .message_field => {
+                if (field.kind.message_field.oneof == null) {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .kind = .{ .message_field = .{",
+                        presenceClause(field.presence, false),
+                        "} } }, // ",
+                        field.name,
+                    });
+                    field_index += 1;
+                }
+            },
+            .list => {
+                const list = field.kind.list;
+                const packed_suffix: []const u8 = if (list.is_packed) ", .is_packed = true" else "";
+                switch (list.element) {
+                    .scalar => |sc| {
+                        try f.writeLine(.{
+                            ".{ .number = ",
+                            field.number,
+                            ", .field_index = ",
+                            field_index,
+                            ", .kind = .{ .list = .{ .element = .{ .scalar = .",
+                            @tagName(sc),
+                            " }",
+                            packed_suffix,
+                            " } } }, // ",
+                            field.name,
+                        });
+                    },
+                    .message => {
+                        try f.writeLine(.{
+                            ".{ .number = ",
+                            field.number,
+                            ", .field_index = ",
+                            field_index,
+                            ", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // ",
+                            field.name,
+                        });
+                    },
+                    .enum_type => {
+                        try f.writeLine(.{
+                            ".{ .number = ",
+                            field.number,
+                            ", .field_index = ",
+                            field_index,
+                            ", .kind = .{ .list = .{ .element = .{ .enum_type = {} }",
+                            packed_suffix,
+                            " } } }, // ",
+                            field.name,
+                        });
+                    },
+                }
+                field_index += 1;
+            },
+            .map => {
+                const map = field.kind.map;
+
                 try f.write(.{
-                    ", .default_value = ",
-                    dv_literal,
+                    ".{ .number = ",
+                    field.number,
+                    ", .field_index = ",
+                    field_index,
+                    ", .kind = .{ .map = .{ .key = .",
+                    @tagName(map.key),
+                    ", .value = .{ ",
                 });
-            }
 
-            try f.writeLine(.{
-                presenceClause(field.presence, true),
-                " } } }, // ",
-                field.name,
-            });
-            field_index += 1;
-        } else if (isPlainMessage(field)) {
-            try f.writeLine(.{
-                ".{ .number = ",
-                field.number,
-                ", .field_index = ",
-                field_index,
-                ", .kind = .{ .message_field = .{",
-                presenceClause(field.presence, false),
-                "} } }, // ",
-                field.name,
-            });
-            field_index += 1;
-        } else if (isPlainEnum(field)) {
-            const default = field.kind.enum_field.default_value orelse 0;
-            try f.writeLine(.{
-                ".{ .number = ",
-                field.number,
-                ", .field_index = ",
-                field_index,
-                ", .kind = .{ .enum_field = .{ .default_value = ",
-                default,
-                presenceClause(field.presence, true),
-                " } } }, // ",
-                field.name,
-            });
-            field_index += 1;
-        } else if (isPlainList(field)) {
-            const list = field.kind.list;
-            const packed_suffix: []const u8 = if (list.is_packed) ", .is_packed = true" else "";
-            switch (list.element) {
-                .scalar => |sc| {
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .kind = .{ .list = .{ .element = .{ .scalar = .",
-                        @tagName(sc),
-                        " }",
-                        packed_suffix,
-                        " } } }, // ",
-                        field.name,
-                    });
-                },
-                .message => {
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // ",
-                        field.name,
-                    });
-                },
-                .enum_type => {
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .kind = .{ .list = .{ .element = .{ .enum_type = {} }",
-                        packed_suffix,
-                        " } } }, // ",
-                        field.name,
-                    });
-                },
-            }
-            field_index += 1;
+                switch (map.value) {
+                    .scalar => |sc| {
+                        try f.writeLine(.{ ".scalar = .", @tagName(sc) });
+                    },
+                    .message => {
+                        try f.writeLine(.{".message = {}"});
+                    },
+                    .enum_type => {
+                        try f.writeLine(.{".enum_type = {}"});
+                    },
+                }
+
+                try f.writeLine(.{
+                    " } } } }, // ",
+                    field.name,
+                });
+                field_index += 1;
+            },
         }
     }
 
@@ -366,7 +416,33 @@ fn generateField(
                 },
             }
         },
-        else => unreachable,
+        .map => |map| {
+            const key_str = scalarZigType(map.key);
+            const use_string_map = (map.key == .string or map.key == .bytes);
+
+            try f.write(field.local_name);
+            if (use_string_map) {
+                try f.write(": std.StringHashMapUnmanaged(");
+            } else {
+                try f.write(.{ ": std.AutoHashMapUnmanaged(", key_str, ", " });
+            }
+
+            switch (map.value) {
+                .scalar => |sc| try f.write(scalarZigType(sc)),
+                .message => |m| {
+                    const type_name = try messageZigTypeName(f.alloc, m, cur_file, imports);
+                    defer f.alloc.free(type_name);
+                    try f.write(.{ "*", type_name });
+                },
+                .enum_type => |e| {
+                    const type_name = try enumZigTypeName(f.alloc, e, cur_file, imports);
+                    defer f.alloc.free(type_name);
+                    try f.write(type_name);
+                },
+            }
+
+            try f.writeLine(") = .{},");
+        },
     }
 }
 
@@ -468,15 +544,6 @@ fn isPlainMessage(field: *const protobuf.DescField) bool {
     if (field.kind != .message_field) return false;
     if (field.kind.message_field.oneof != null) return false;
     return true;
-}
-
-/// Returns true for a repeated scalar, message, or enum field.
-/// Map fields are skipped (not yet supported).
-fn isPlainList(field: *const protobuf.DescField) bool {
-    if (field.kind != .list) return false;
-    return switch (field.kind.list.element) {
-        .scalar, .message, .enum_type => true,
-    };
 }
 
 /// Returns true for a non-oneof singular enum field.

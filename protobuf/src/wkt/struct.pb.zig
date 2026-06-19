@@ -6,12 +6,16 @@ const _codegen = @import("protobuf")._codegen;
 const _metadata = _codegen.metadata;
 
 pub const Struct = struct {
+    fields: std.StringHashMapUnmanaged(*Value) = .{},
+
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
     pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{},
+        .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .kind = .{ .map = .{ .key = .string, .value = .{ .message = {} } } } }, // fields
+        },
     };
 };
 

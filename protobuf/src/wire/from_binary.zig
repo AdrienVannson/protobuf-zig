@@ -99,6 +99,79 @@ fn readListField(
     }
 }
 
+fn readMapEntry(
+    reader: *BinaryReader,
+    map_ptr: anytype,
+    comptime map_meta: anytype,
+    allocator: std.mem.Allocator,
+) ReadMessageError!void {
+    const MapType = std.meta.Child(@TypeOf(map_ptr));
+
+    const KeyType = @FieldType(MapType.KV, "key");
+    var opt_key: ?KeyType = null;
+    errdefer if (opt_key) |k| {
+        if (comptime map_meta.key == .string or map_meta.key == .bytes) allocator.free(k);
+    };
+
+    const ValueType = @FieldType(MapType.KV, "value");
+    var opt_value: ?ValueType = null;
+    errdefer if (opt_value) |v| {
+        switch (comptime map_meta.value) {
+            .scalar => |sc| if (comptime sc == .string or sc == .bytes) allocator.free(v),
+            .message => {
+                v.deinit(allocator);
+                allocator.destroy(v);
+            },
+            .enum_type => {},
+        }
+    };
+
+    try reader.fork();
+    while (reader.remainingInScope() > 0) {
+        const field_tag = try reader.tag();
+        switch (field_tag.number) {
+            1 => opt_key = try readScalar(reader, map_meta.key),
+            2 => switch (comptime map_meta.value) {
+                .scalar => |sc| opt_value = try readScalar(reader, sc),
+                .enum_type => opt_value = @enumFromInt(try reader.int32()),
+                .message => {
+                    const Child = std.meta.Child(ValueType);
+                    const p = try allocator.create(Child);
+                    p.* = .{};
+                    errdefer allocator.destroy(p); // TODO also deinit, same problem elsewhere
+                    try readMessageField(reader, p, allocator);
+                    opt_value = p;
+                },
+            },
+            else => try skipField(reader, field_tag.wire_type),
+        }
+    }
+    try reader.join();
+
+    const key = opt_key orelse switch (comptime map_meta.key) {
+        .string, .bytes => try allocator.alloc(u8, 0),
+        .bool => false,
+        else => 0,
+    };
+
+    const value = opt_value orelse switch (comptime map_meta.value) {
+        .scalar => |sc| switch (comptime sc) {
+            .string, .bytes => try allocator.alloc(u8, 0),
+            .bool => false,
+            else => 0,
+        },
+        .message => blk: {
+            const Child = std.meta.Child(ValueType);
+            const p = try allocator.create(Child);
+            p.* = .{};
+            break :blk p;
+        },
+        .enum_type => @as(ValueType, @enumFromInt(0)),
+    };
+
+    try map_ptr.*.put(allocator, key, value);
+}
+
 fn readMessageField(reader: *BinaryReader, child_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
     try reader.fork();
     try readMessage(reader, child_ptr, allocator);
@@ -142,7 +215,7 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                         try readMessageField(reader, child_ptr, allocator);
                     },
                     .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, field_tag.wire_type, allocator),
-                    .map => @compileError("TODO"),
+                    .map => |map_meta| try readMapEntry(reader, &@field(msg.*, field_name), map_meta, allocator),
                 }
             }
         }
