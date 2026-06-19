@@ -108,12 +108,12 @@ fn writeMapField(
                 try bw.tag(2, comptime scalarWireType(sc));
                 try writeScalar(bw, sc, entry.value_ptr.*);
             },
-            .message => {
-                try writeMessageField(bw, 2, entry.value_ptr.*.*);
-            },
             .enum_type => {
                 try bw.tag(2, .varint);
                 try bw.int32(@intFromEnum(entry.value_ptr.*));
+            },
+            .message => {
+                try writeMessageField(bw, 2, entry.value_ptr.*.*);
             },
         }
         try bw.join();
@@ -135,8 +135,8 @@ fn writeFieldCallback(bw: *BinaryWriter, comptime fm: FieldMetadata, value: anyt
         .message_field => {
             try writeMessageField(bw, fm.number, value.*);
         },
-        .list => |lm| {
-            try writeListField(bw, value, lm, fm.number);
+        .list => |list_meta| {
+            try writeListField(bw, value, list_meta, fm.number);
         },
         .map => |map_meta| {
             try writeMapField(bw, value, map_meta, fm.number);
