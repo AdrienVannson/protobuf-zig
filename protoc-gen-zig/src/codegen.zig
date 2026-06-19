@@ -419,34 +419,29 @@ fn generateField(
         .map => |map| {
             const key_str = scalarZigType(map.key);
             const use_string_map = (map.key == .string or map.key == .bytes);
+
+            try f.write(field.local_name);
+            if (use_string_map) {
+                try f.write(": std.StringHashMapUnmanaged(");
+            } else {
+                try f.write(.{ ": std.AutoHashMapUnmanaged(", key_str, ", " });
+            }
+
             switch (map.value) {
-                .scalar => |sc| {
-                    const val_str = scalarZigType(sc);
-                    if (use_string_map) {
-                        try f.writeLine(.{ field.local_name, ": std.StringHashMapUnmanaged(", val_str, ") = .{}," });
-                    } else {
-                        try f.writeLine(.{ field.local_name, ": std.AutoHashMapUnmanaged(", key_str, ", ", val_str, ") = .{}," });
-                    }
-                },
+                .scalar => |sc| try f.write(scalarZigType(sc)),
                 .message => |m| {
                     const type_name = try messageZigTypeName(f.alloc, m, cur_file, imports);
                     defer f.alloc.free(type_name);
-                    if (use_string_map) {
-                        try f.writeLine(.{ field.local_name, ": std.StringHashMapUnmanaged(*", type_name, ") = .{}," });
-                    } else {
-                        try f.writeLine(.{ field.local_name, ": std.AutoHashMapUnmanaged(", key_str, ", *", type_name, ") = .{}," });
-                    }
+                    try f.write(.{ "*", type_name });
                 },
                 .enum_type => |e| {
                     const type_name = try enumZigTypeName(f.alloc, e, cur_file, imports);
                     defer f.alloc.free(type_name);
-                    if (use_string_map) {
-                        try f.writeLine(.{ field.local_name, ": std.StringHashMapUnmanaged(", type_name, ") = .{}," });
-                    } else {
-                        try f.writeLine(.{ field.local_name, ": std.AutoHashMapUnmanaged(", key_str, ", ", type_name, ") = .{}," });
-                    }
+                    try f.write(type_name);
                 },
             }
+
+            try f.writeLine(") = .{},");
         },
     }
 }
