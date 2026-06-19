@@ -95,6 +95,25 @@ pub const TestAllTypesEdition2023 = struct {
     unpacked_double: std.ArrayList(f64) = .empty,
     unpacked_bool: std.ArrayList(bool) = .empty,
     unpacked_nested_enum: std.ArrayList(TestAllTypesEdition2023.NestedEnum) = .empty,
+    map_int32_int32: std.AutoHashMapUnmanaged(i32, i32) = .{},
+    map_int64_int64: std.AutoHashMapUnmanaged(i64, i64) = .{},
+    map_uint32_uint32: std.AutoHashMapUnmanaged(u32, u32) = .{},
+    map_uint64_uint64: std.AutoHashMapUnmanaged(u64, u64) = .{},
+    map_sint32_sint32: std.AutoHashMapUnmanaged(i32, i32) = .{},
+    map_sint64_sint64: std.AutoHashMapUnmanaged(i64, i64) = .{},
+    map_fixed32_fixed32: std.AutoHashMapUnmanaged(u32, u32) = .{},
+    map_fixed64_fixed64: std.AutoHashMapUnmanaged(u64, u64) = .{},
+    map_sfixed32_sfixed32: std.AutoHashMapUnmanaged(i32, i32) = .{},
+    map_sfixed64_sfixed64: std.AutoHashMapUnmanaged(i64, i64) = .{},
+    map_int32_float: std.AutoHashMapUnmanaged(i32, f32) = .{},
+    map_int32_double: std.AutoHashMapUnmanaged(i32, f64) = .{},
+    map_bool_bool: std.AutoHashMapUnmanaged(bool, bool) = .{},
+    map_string_string: std.StringHashMapUnmanaged([]const u8) = .{},
+    map_string_bytes: std.StringHashMapUnmanaged([]const u8) = .{},
+    map_string_nested_message: std.StringHashMapUnmanaged(*TestAllTypesEdition2023.NestedMessage) = .{},
+    map_string_foreign_message: std.StringHashMapUnmanaged(*ForeignMessageEdition2023) = .{},
+    map_string_nested_enum: std.StringHashMapUnmanaged(TestAllTypesEdition2023.NestedEnum) = .{},
+    map_string_foreign_enum: std.StringHashMapUnmanaged(ForeignEnumEdition2023) = .{},
     groupliketype: ?*TestAllTypesEdition2023.GroupLikeType = null,
     delimited_field: ?*TestAllTypesEdition2023.GroupLikeType = null,
     oneof_field: ?union(enum) {
@@ -363,17 +382,36 @@ pub const TestAllTypesEdition2023 = struct {
             .{ .number = 100, .field_index = 68, .kind = .{ .list = .{ .element = .{ .scalar = .double } } } }, // unpacked_double
             .{ .number = 101, .field_index = 69, .kind = .{ .list = .{ .element = .{ .scalar = .bool } } } }, // unpacked_bool
             .{ .number = 102, .field_index = 70, .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // unpacked_nested_enum
-            .{ .number = 201, .field_index = 71, .kind = .{ .message_field = .{} } }, // groupliketype
-            .{ .number = 202, .field_index = 72, .kind = .{ .message_field = .{} } }, // delimited_field
-            .{ .number = 111, .field_index = 73, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
-            .{ .number = 112, .field_index = 73, .oneof_variant = "oneof_nested_message", .kind = .{ .message_field = .{} } }, // oneof_nested_message
-            .{ .number = 113, .field_index = 73, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
-            .{ .number = 114, .field_index = 73, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
-            .{ .number = 115, .field_index = 73, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
-            .{ .number = 116, .field_index = 73, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
-            .{ .number = 117, .field_index = 73, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
-            .{ .number = 118, .field_index = 73, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
-            .{ .number = 119, .field_index = 73, .oneof_variant = "oneof_enum", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_enum
+            .{ .number = 56, .field_index = 71, .kind = .{ .map = .{ .key = .int32, .value = .{ .scalar = .int32 } } } }, // map_int32_int32
+            .{ .number = 57, .field_index = 72, .kind = .{ .map = .{ .key = .int64, .value = .{ .scalar = .int64 } } } }, // map_int64_int64
+            .{ .number = 58, .field_index = 73, .kind = .{ .map = .{ .key = .uint32, .value = .{ .scalar = .uint32 } } } }, // map_uint32_uint32
+            .{ .number = 59, .field_index = 74, .kind = .{ .map = .{ .key = .uint64, .value = .{ .scalar = .uint64 } } } }, // map_uint64_uint64
+            .{ .number = 60, .field_index = 75, .kind = .{ .map = .{ .key = .sint32, .value = .{ .scalar = .sint32 } } } }, // map_sint32_sint32
+            .{ .number = 61, .field_index = 76, .kind = .{ .map = .{ .key = .sint64, .value = .{ .scalar = .sint64 } } } }, // map_sint64_sint64
+            .{ .number = 62, .field_index = 77, .kind = .{ .map = .{ .key = .fixed32, .value = .{ .scalar = .fixed32 } } } }, // map_fixed32_fixed32
+            .{ .number = 63, .field_index = 78, .kind = .{ .map = .{ .key = .fixed64, .value = .{ .scalar = .fixed64 } } } }, // map_fixed64_fixed64
+            .{ .number = 64, .field_index = 79, .kind = .{ .map = .{ .key = .sfixed32, .value = .{ .scalar = .sfixed32 } } } }, // map_sfixed32_sfixed32
+            .{ .number = 65, .field_index = 80, .kind = .{ .map = .{ .key = .sfixed64, .value = .{ .scalar = .sfixed64 } } } }, // map_sfixed64_sfixed64
+            .{ .number = 66, .field_index = 81, .kind = .{ .map = .{ .key = .int32, .value = .{ .scalar = .float } } } }, // map_int32_float
+            .{ .number = 67, .field_index = 82, .kind = .{ .map = .{ .key = .int32, .value = .{ .scalar = .double } } } }, // map_int32_double
+            .{ .number = 68, .field_index = 83, .kind = .{ .map = .{ .key = .bool, .value = .{ .scalar = .bool } } } }, // map_bool_bool
+            .{ .number = 69, .field_index = 84, .kind = .{ .map = .{ .key = .string, .value = .{ .scalar = .string } } } }, // map_string_string
+            .{ .number = 70, .field_index = 85, .kind = .{ .map = .{ .key = .string, .value = .{ .scalar = .bytes } } } }, // map_string_bytes
+            .{ .number = 71, .field_index = 86, .kind = .{ .map = .{ .key = .string, .value = .{ .message = {} } } } }, // map_string_nested_message
+            .{ .number = 72, .field_index = 87, .kind = .{ .map = .{ .key = .string, .value = .{ .message = {} } } } }, // map_string_foreign_message
+            .{ .number = 73, .field_index = 88, .kind = .{ .map = .{ .key = .string, .value = .{ .enum_type = {} } } } }, // map_string_nested_enum
+            .{ .number = 74, .field_index = 89, .kind = .{ .map = .{ .key = .string, .value = .{ .enum_type = {} } } } }, // map_string_foreign_enum
+            .{ .number = 201, .field_index = 90, .kind = .{ .message_field = .{} } }, // groupliketype
+            .{ .number = 202, .field_index = 91, .kind = .{ .message_field = .{} } }, // delimited_field
+            .{ .number = 111, .field_index = 92, .oneof_variant = "oneof_uint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // oneof_uint32
+            .{ .number = 112, .field_index = 92, .oneof_variant = "oneof_nested_message", .kind = .{ .message_field = .{} } }, // oneof_nested_message
+            .{ .number = 113, .field_index = 92, .oneof_variant = "oneof_string", .kind = .{ .scalar = .{ .scalar = .string } } }, // oneof_string
+            .{ .number = 114, .field_index = 92, .oneof_variant = "oneof_bytes", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // oneof_bytes
+            .{ .number = 115, .field_index = 92, .oneof_variant = "oneof_bool", .kind = .{ .scalar = .{ .scalar = .bool } } }, // oneof_bool
+            .{ .number = 116, .field_index = 92, .oneof_variant = "oneof_uint64", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // oneof_uint64
+            .{ .number = 117, .field_index = 92, .oneof_variant = "oneof_float", .kind = .{ .scalar = .{ .scalar = .float } } }, // oneof_float
+            .{ .number = 118, .field_index = 92, .oneof_variant = "oneof_double", .kind = .{ .scalar = .{ .scalar = .double } } }, // oneof_double
+            .{ .number = 119, .field_index = 92, .oneof_variant = "oneof_enum", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_enum
         },
     };
 };

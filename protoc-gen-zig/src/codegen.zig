@@ -84,9 +84,9 @@ fn generateMessage(
     try f.writeLine(.{ "pub const ", safe_name, " = struct {" });
     f.indent();
 
-    // Plain scalar/message/list/enum struct fields (not in a oneof).
+    // Plain scalar/message/list/enum/map struct fields (not in a oneof).
     for (msg.fields) |*field| {
-        if (!isPlainScalar(field) and !isPlainMessage(field) and !isPlainList(field) and !isPlainEnum(field)) continue;
+        if (!isPlainScalar(field) and !isPlainMessage(field) and !isPlainList(field) and !isPlainEnum(field) and field.kind != .map) continue;
         try generateField(f, field, cur_file, imports);
     }
     // Oneof union fields (synthetic proto3-optional oneofs are excluded from msg.oneofs).
@@ -272,6 +272,49 @@ fn generateMessageMetadata(
                 },
             }
             field_index += 1;
+        } else if (field.kind == .map) {
+            const map = field.kind.map;
+            switch (map.value) {
+                .scalar => |sc| {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .kind = .{ .map = .{ .key = .",
+                        @tagName(map.key),
+                        ", .value = .{ .scalar = .",
+                        @tagName(sc),
+                        " } } } }, // ",
+                        field.name,
+                    });
+                },
+                .message => {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .kind = .{ .map = .{ .key = .",
+                        @tagName(map.key),
+                        ", .value = .{ .message = {} } } } }, // ",
+                        field.name,
+                    });
+                },
+                .enum_type => {
+                    try f.writeLine(.{
+                        ".{ .number = ",
+                        field.number,
+                        ", .field_index = ",
+                        field_index,
+                        ", .kind = .{ .map = .{ .key = .",
+                        @tagName(map.key),
+                        ", .value = .{ .enum_type = {} } } } }, // ",
+                        field.name,
+                    });
+                },
+            }
+            field_index += 1;
         }
     }
 
@@ -366,7 +409,38 @@ fn generateField(
                 },
             }
         },
-        else => unreachable,
+        .map => |map| {
+            const key_str = scalarZigType(map.key);
+            const use_string_map = (map.key == .string or map.key == .bytes);
+            switch (map.value) {
+                .scalar => |sc| {
+                    const val_str = scalarZigType(sc);
+                    if (use_string_map) {
+                        try f.writeLine(.{ field.local_name, ": std.StringHashMapUnmanaged(", val_str, ") = .{}," });
+                    } else {
+                        try f.writeLine(.{ field.local_name, ": std.AutoHashMapUnmanaged(", key_str, ", ", val_str, ") = .{}," });
+                    }
+                },
+                .message => |m| {
+                    const type_name = try messageZigTypeName(f.alloc, m, cur_file, imports);
+                    defer f.alloc.free(type_name);
+                    if (use_string_map) {
+                        try f.writeLine(.{ field.local_name, ": std.StringHashMapUnmanaged(*", type_name, ") = .{}," });
+                    } else {
+                        try f.writeLine(.{ field.local_name, ": std.AutoHashMapUnmanaged(", key_str, ", *", type_name, ") = .{}," });
+                    }
+                },
+                .enum_type => |e| {
+                    const type_name = try enumZigTypeName(f.alloc, e, cur_file, imports);
+                    defer f.alloc.free(type_name);
+                    if (use_string_map) {
+                        try f.writeLine(.{ field.local_name, ": std.StringHashMapUnmanaged(", type_name, ") = .{}," });
+                    } else {
+                        try f.writeLine(.{ field.local_name, ": std.AutoHashMapUnmanaged(", key_str, ", ", type_name, ") = .{}," });
+                    }
+                },
+            }
+        },
     }
 }
 

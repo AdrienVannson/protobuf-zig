@@ -184,7 +184,7 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
         },
         .message_field => field != null,
         .list => field.items.len > 0,
-        .map => false, // TODO
+        .map => @field(msg, field_name).count() > 0,
     };
 }
 
@@ -231,14 +231,22 @@ fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
             },
             else => @compileError("unexpected pointer field type"),
         },
-        // TODO: distinguish maps from lists once maps are generated.
-        .@"struct" => { // list (std.ArrayList)
-            const Elem = @typeInfo(@FieldType(T, "items")).pointer.child;
-            if (T != std.ArrayList(Elem)) @compileError("unexpected struct field type");
-
-            for (value.items) |item| deinitElement(item, allocator);
-            var list = value;
-            list.deinit(allocator);
+        .@"struct" => {
+            if (comptime @hasField(T, "items")) {
+                // std.ArrayList
+                for (value.items) |item| deinitElement(item, allocator);
+                var list = value;
+                list.deinit(allocator);
+            } else {
+                // Hash map (AutoHashMapUnmanaged / StringHashMapUnmanaged)
+                var it = value.iterator();
+                while (it.next()) |entry| {
+                    deinitElement(entry.key_ptr.*, allocator);
+                    deinitElement(entry.value_ptr.*, allocator);
+                }
+                var m = value;
+                m.deinit(allocator);
+            }
         },
         .int, .float, .bool, .@"enum" => {}, // scalars / enums own no heap memory
         else => @compileError("unexpected field type: " ++ @typeName(T)),
