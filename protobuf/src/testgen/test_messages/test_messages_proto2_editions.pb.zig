@@ -98,6 +98,15 @@ pub const TestAllTypesProto2 = struct {
     map_string_foreign_message: std.StringHashMapUnmanaged(*ForeignMessageProto2) = .{},
     map_string_nested_enum: std.StringHashMapUnmanaged(TestAllTypesProto2.NestedEnum) = .{},
     map_string_foreign_enum: std.StringHashMapUnmanaged(ForeignEnumProto2) = .{},
+    oneof_uint32: ?u32 = null,
+    oneof_nested_message: ?*TestAllTypesProto2.NestedMessage = null,
+    oneof_string: ?[]const u8 = null,
+    oneof_bytes: ?[]const u8 = null,
+    oneof_bool: ?bool = null,
+    oneof_uint64: ?u64 = null,
+    oneof_float: ?f32 = null,
+    oneof_double: ?f64 = null,
+    oneof_enum: ?TestAllTypesProto2.NestedEnum = null,
     data: ?*TestAllTypesProto2.Data = null,
     multiwordgroupfield: ?*TestAllTypesProto2.MultiWordGroupField = null,
     default_int32: ?i32 = null,
@@ -261,6 +270,8 @@ pub const TestAllTypesProto2 = struct {
     };
 
     pub const ExtensionWithOneof = struct {
+        a: ?i32 = null,
+        b: ?i32 = null,
         oneof_field: ?union(enum) {
             a: i32,
             b: i32,
@@ -1197,6 +1208,11 @@ pub const TestAllRequiredTypesProto2 = struct {
 };
 
 pub const TestLargeOneof = struct {
+    a1: ?*TestLargeOneof.A1 = null,
+    a2: ?*TestLargeOneof.A2 = null,
+    a3: ?*TestLargeOneof.A3 = null,
+    a4: ?*TestLargeOneof.A4 = null,
+    a5: ?*TestLargeOneof.A5 = null,
     large_oneof: ?union(enum) {
         a1: *TestLargeOneof.A1,
         a2: *TestLargeOneof.A2,

@@ -9,6 +9,8 @@ pub const Foo = struct {
     name: []const u8 = "",
     id: i32 = 0,
     @"struct": u32 = 0,
+    x: ?i32 = null,
+    y: ?[]const u8 = null,
     content: ?union(enum) {
         x: i32,
         y: []const u8,

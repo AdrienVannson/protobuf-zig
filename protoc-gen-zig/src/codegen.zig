@@ -284,46 +284,33 @@ fn generateMessageMetadata(
             },
             .map => {
                 const map = field.kind.map;
+
+                try f.write(.{
+                    ".{ .number = ",
+                    field.number,
+                    ", .field_index = ",
+                    field_index,
+                    ", .kind = .{ .map = .{ .key = .",
+                    @tagName(map.key),
+                    ", .value = .{ ",
+                });
+
                 switch (map.value) {
                     .scalar => |sc| {
-                        try f.writeLine(.{
-                            ".{ .number = ",
-                            field.number,
-                            ", .field_index = ",
-                            field_index,
-                            ", .kind = .{ .map = .{ .key = .",
-                            @tagName(map.key),
-                            ", .value = .{ .scalar = .",
-                            @tagName(sc),
-                            " } } } }, // ",
-                            field.name,
-                        });
+                        try f.writeLine(.{ ".scalar = .", @tagName(sc) });
                     },
                     .message => {
-                        try f.writeLine(.{
-                            ".{ .number = ",
-                            field.number,
-                            ", .field_index = ",
-                            field_index,
-                            ", .kind = .{ .map = .{ .key = .",
-                            @tagName(map.key),
-                            ", .value = .{ .message = {} } } } }, // ",
-                            field.name,
-                        });
+                        try f.writeLine(.{".message = {}"});
                     },
                     .enum_type => {
-                        try f.writeLine(.{
-                            ".{ .number = ",
-                            field.number,
-                            ", .field_index = ",
-                            field_index,
-                            ", .kind = .{ .map = .{ .key = .",
-                            @tagName(map.key),
-                            ", .value = .{ .enum_type = {} } } } }, // ",
-                            field.name,
-                        });
+                        try f.writeLine(.{".enum_type = {}"});
                     },
                 }
+
+                try f.writeLine(.{
+                    " } } } }, // ",
+                    field.name,
+                });
                 field_index += 1;
             },
         }
