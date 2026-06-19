@@ -196,11 +196,11 @@ pub const BinaryReader = struct {
         return self.bytes();
     }
 
-    /// Consume the bytes of a field (given its wire type, after the tag has been read)
+    /// Consume the bytes of a field (given its full tag, after the tag has been read)
     /// and return a non-owning view into the reader's buffer.
-    pub fn skip(self: *BinaryReader, wire_type: WireType) ![]const u8 {
+    pub fn skip(self: *BinaryReader, t: Tag) ![]const u8 {
         const start = self.pos;
-        switch (wire_type) {
+        switch (t.wire_type) {
             .varint => _ = try self.varint(),
             .bit32 => _ = try self.fixed32(),
             .bit64 => _ = try self.fixed64(),
@@ -209,7 +209,17 @@ pub const BinaryReader = struct {
                 if (self.pos + len > self.end) return error.UnexpectedEof;
                 self.pos += @intCast(len);
             },
-            .sgroup, .egroup => return error.UnsupportedWireType,
+            .sgroup => {
+                while (true) {
+                    const inner_tag = try self.tag();
+                    if (inner_tag.wire_type == .egroup) {
+                        if (inner_tag.number != t.number) return error.MismatchedGroupTag;
+                        break;
+                    }
+                    _ = try self.skip(inner_tag);
+                }
+            },
+            .egroup => return error.UnexpectedEgroupTag,
         }
         return self.data[start..self.pos];
     }
@@ -497,6 +507,53 @@ test "finish with unclosed fork returns error" {
     try r.fork();
     try testing.expectError(error.UnclosedFork, r.finish());
     try r.join();
+}
+
+// skip / groups
+
+test "skip simple group" {
+    // sgroup(1), varint(2)=42, egroup(1)
+    var r = BinaryReader.init(testing.allocator, &.{ 0x0b, 0x10, 0x2a, 0x0c });
+    const t = try r.tag();
+    try testing.expectEqual(WireType.sgroup, t.wire_type);
+    const raw = try r.skip(t);
+    // raw should be body + egroup tag: 0x10 0x2a 0x0c
+    try testing.expectEqualSlices(u8, &.{ 0x10, 0x2a, 0x0c }, raw);
+    try expectReaderConsumed(&r);
+}
+
+test "skip nested group" {
+    // sgroup(1), sgroup(2), varint(3)=7, egroup(2), egroup(1)
+    var r = BinaryReader.init(testing.allocator, &.{ 0x0b, 0x13, 0x18, 0x07, 0x14, 0x0c });
+    const t = try r.tag();
+    try testing.expectEqual(WireType.sgroup, t.wire_type);
+    const raw = try r.skip(t);
+    try testing.expectEqualSlices(u8, &.{ 0x13, 0x18, 0x07, 0x14, 0x0c }, raw);
+    try expectReaderConsumed(&r);
+}
+
+test "skip group mismatched egroup field number" {
+    // sgroup(1) closed by egroup(2) — malformed
+    var r = BinaryReader.init(testing.allocator, &.{ 0x0b, 0x14 });
+    defer r.deinit();
+    const t = try r.tag();
+    try testing.expectError(error.MismatchedGroupTag, r.skip(t));
+}
+
+test "skip bare egroup tag" {
+    // egroup(1) with no preceding sgroup — malformed
+    var r = BinaryReader.init(testing.allocator, &.{0x0c});
+    defer r.deinit();
+    const t = try r.tag();
+    try testing.expectError(error.UnexpectedEgroupTag, r.skip(t));
+}
+
+test "skip group truncated" {
+    // sgroup(1) with no egroup — truncated message
+    var r = BinaryReader.init(testing.allocator, &.{ 0x0b, 0x10, 0x2a });
+    defer r.deinit();
+    const t = try r.tag();
+    try testing.expectError(error.UnexpectedEof, r.skip(t));
 }
 
 test "finish with unconsumed bytes returns error" {

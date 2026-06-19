@@ -33,7 +33,8 @@ const ReadMessageError = error{
     InvalidVarint,
     InvalidFieldNumber,
     InvalidWireType,
-    UnsupportedWireType,
+    UnexpectedEgroupTag,
+    MismatchedGroupTag,
     OutOfMemory,
     JoinWithoutFork,
     UnconsumedBytes,
@@ -130,7 +131,7 @@ fn readMapEntry(
                     opt_value = p;
                 },
             },
-            else => _ = try reader.skip(field_tag.wire_type),
+            else => _ = try reader.skip(field_tag),
         }
     }
     try reader.join();
@@ -208,7 +209,7 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
         }
 
         if (!handled) {
-            const raw = try reader.skip(field_tag.wire_type);
+            const raw = try reader.skip(field_tag);
             const owned = try allocator.dupe(u8, raw);
             errdefer allocator.free(owned);
 
