@@ -114,10 +114,6 @@ fn writeFieldCallback(bw: *BinaryWriter, comptime fm: FieldMetadata, value: anyt
 }
 
 /// Encodes all fields of msg into bw.
-///
-/// Uses `field_access.forEachSetField` to iterate over every field that is currently "set"
-/// (presence-aware: implicit fields skip the proto3 default value, explicit fields skip null).
-/// Oneof fields are handled transparently by `hasField` / `getField` in field_access.zig.
 fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
     try field_access.forEachSetField(msg, bw, writeFieldCallback);
 }
