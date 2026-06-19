@@ -17,9 +17,12 @@ pub const Struct = struct {
 
 pub const Value = struct {
     kind: ?union(enum) {
+        null_value: NullValue,
         number_value: f64,
         string_value: []const u8,
         bool_value: bool,
+        struct_value: *Struct,
+        list_value: *ListValue,
     } = null,
 
     pub fn getNumberValue(self: @This()) f64 {
@@ -49,9 +52,12 @@ pub const Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
+            .{ .number = 1, .field_index = 0, .oneof_variant = "null_value", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // null_value
             .{ .number = 2, .field_index = 0, .oneof_variant = "number_value", .kind = .{ .scalar = .{ .scalar = .double } } }, // number_value
             .{ .number = 3, .field_index = 0, .oneof_variant = "string_value", .kind = .{ .scalar = .{ .scalar = .string } } }, // string_value
             .{ .number = 4, .field_index = 0, .oneof_variant = "bool_value", .kind = .{ .scalar = .{ .scalar = .bool } } }, // bool_value
+            .{ .number = 5, .field_index = 0, .oneof_variant = "struct_value", .kind = .{ .message_field = .{} } }, // struct_value
+            .{ .number = 6, .field_index = 0, .oneof_variant = "list_value", .kind = .{ .message_field = .{} } }, // list_value
         },
     };
 };

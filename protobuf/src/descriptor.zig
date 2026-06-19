@@ -37,9 +37,13 @@ pub const SupportedEdition = enum(i32) {
 
 /// Default value for a scalar field.
 pub const DefaultValue = union(enum) {
-    boolean: bool,
-    integer: i64,
-    float: f64,
+    bool: bool,
+    float: f32,
+    double: f64,
+    int32: i32,
+    int64: i64,
+    uint32: u32,
+    uint64: u64,
     string: []const u8,
     bytes: []const u8,
 };

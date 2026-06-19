@@ -1,8 +1,8 @@
 const std = @import("std");
-const tag_mod = @import("tag.zig");
+const tag = @import("tag.zig");
 
-const WireType = tag_mod.WireType;
-const Tag = tag_mod.Tag;
+const WireType = tag.WireType;
+const Tag = tag.Tag;
 
 /// Decodes a base-128 varint from data starting at pos.*. Advances pos.*
 /// past the bytes consumed.
