@@ -5,6 +5,7 @@ const protobuf = @import("protobuf");
 
 const ConformanceRequest = conformance_pb.ConformanceRequest;
 const ConformanceResponse = conformance_pb.ConformanceResponse;
+const WireFormat = conformance_pb.WireFormat;
 
 pub fn main(init: std.process.Init) !void {
     var stdin_buf: [4096]u8 = undefined;
@@ -48,21 +49,30 @@ pub fn main(init: std.process.Init) !void {
 }
 
 fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !ConformanceResponse {
-    // Dispatch proto3 binary roundtrip.
+    // Dispatch proto3 binary/JSON roundtrip.
     if (std.mem.eql(u8, request.getMessageType(), "protobuf_test_messages.proto3.TestAllTypesProto3")) {
-        // Only handle binary protobuf output; skip JSON, text, etc.
-        if (request.getRequestedOutputFormat() != .PROTOBUF) {
-            return .{ .result = .{ .skipped = try alloc.dupe(u8, "non-binary output format not supported") } };
+        const output_format = request.getRequestedOutputFormat();
+        if (output_format != .PROTOBUF and output_format != .JSON) {
+            return .{ .result = .{ .skipped = try alloc.dupe(u8, "TEXT_FORMAT and JSPB output not supported") } };
         }
-        const payload = if (request.payload) |p| switch (p) {
-            .protobuf_payload => |b| b,
-            else => return .{ .result = .{ .skipped = try alloc.dupe(u8, "non-binary payload not supported") } },
-        } else return .{ .result = .{ .skipped = try alloc.dupe(u8, "no payload") } };
 
         var test_gpa = std.heap.DebugAllocator(.{}){};
         const test_alloc = test_gpa.allocator();
 
-        var response = try roundTrip(payload, test_alloc, alloc);
+        var response = if (request.payload) |p| switch (p) {
+            .protobuf_payload => |bytes| switch (output_format) {
+                .PROTOBUF => try binaryRoundTrip(bytes, test_alloc, alloc),
+                .JSON => try binaryToJson(bytes, test_alloc, alloc),
+                else => unreachable,
+            },
+            .json_payload => |json_str| switch (output_format) {
+                .PROTOBUF => try jsonToBinary(json_str, test_alloc, alloc),
+                .JSON => try jsonRoundTrip(json_str, test_alloc, alloc),
+                else => unreachable,
+            },
+            else => return .{ .result = .{ .skipped = try alloc.dupe(u8, "JSPB and TEXT_FORMAT payloads not supported") } },
+        } else return .{ .result = .{ .skipped = try alloc.dupe(u8, "no payload") } };
+
         if (test_gpa.deinit() == .leak) {
             response.deinit(alloc);
             return .{ .result = .{ .runtime_error = try alloc.dupe(u8, "memory leak detected") } };
@@ -74,7 +84,7 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !Confor
     return .{ .result = .{ .skipped = try alloc.dupe(u8, "payload decode not yet supported") } };
 }
 
-fn roundTrip(payload: []const u8, inner_alloc: std.mem.Allocator, result_alloc: std.mem.Allocator) !ConformanceResponse {
+fn binaryRoundTrip(payload: []const u8, inner_alloc: std.mem.Allocator, result_alloc: std.mem.Allocator) !ConformanceResponse {
     var msg: gen_proto3.TestAllTypesProto3 = .{};
     defer msg.deinit(inner_alloc);
     protobuf.from_binary(&msg, payload, inner_alloc) catch |err| {
@@ -84,4 +94,40 @@ fn roundTrip(payload: []const u8, inner_alloc: std.mem.Allocator, result_alloc: 
         return .{ .result = .{ .serialize_error = try result_alloc.dupe(u8, @errorName(err)) } };
     };
     return .{ .result = .{ .protobuf_payload = encoded } };
+}
+
+fn binaryToJson(payload: []const u8, inner_alloc: std.mem.Allocator, result_alloc: std.mem.Allocator) !ConformanceResponse {
+    var msg: gen_proto3.TestAllTypesProto3 = .{};
+    defer msg.deinit(inner_alloc);
+    protobuf.from_binary(&msg, payload, inner_alloc) catch |err| {
+        return .{ .result = .{ .parse_error = try result_alloc.dupe(u8, @errorName(err)) } };
+    };
+    const json_out = protobuf.to_json(result_alloc, msg) catch |err| {
+        return .{ .result = .{ .serialize_error = try result_alloc.dupe(u8, @errorName(err)) } };
+    };
+    return .{ .result = .{ .json_payload = json_out } };
+}
+
+fn jsonToBinary(json_str: []const u8, inner_alloc: std.mem.Allocator, result_alloc: std.mem.Allocator) !ConformanceResponse {
+    var msg: gen_proto3.TestAllTypesProto3 = .{};
+    defer msg.deinit(inner_alloc);
+    protobuf.from_json(&msg, json_str, inner_alloc) catch |err| {
+        return .{ .result = .{ .parse_error = try result_alloc.dupe(u8, @errorName(err)) } };
+    };
+    const encoded = protobuf.to_binary(result_alloc, msg) catch |err| {
+        return .{ .result = .{ .serialize_error = try result_alloc.dupe(u8, @errorName(err)) } };
+    };
+    return .{ .result = .{ .protobuf_payload = encoded } };
+}
+
+fn jsonRoundTrip(json_str: []const u8, inner_alloc: std.mem.Allocator, result_alloc: std.mem.Allocator) !ConformanceResponse {
+    var msg: gen_proto3.TestAllTypesProto3 = .{};
+    defer msg.deinit(inner_alloc);
+    protobuf.from_json(&msg, json_str, inner_alloc) catch |err| {
+        return .{ .result = .{ .parse_error = try result_alloc.dupe(u8, @errorName(err)) } };
+    };
+    const json_out = protobuf.to_json(result_alloc, msg) catch |err| {
+        return .{ .result = .{ .serialize_error = try result_alloc.dupe(u8, @errorName(err)) } };
+    };
+    return .{ .result = .{ .json_payload = json_out } };
 }

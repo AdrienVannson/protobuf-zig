@@ -25,8 +25,8 @@ pub const Any = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // type_url
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "typeUrl", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // type_url
+            .{ .number = 2, .field_index = 1, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .implicit } } }, // value
         },
     };
 };

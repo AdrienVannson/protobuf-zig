@@ -30,9 +30,9 @@ pub const Person = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // age
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // email
+            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .json_name = "age", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // age
+            .{ .number = 3, .field_index = 2, .json_name = "email", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // email
         },
     };
 };

@@ -20,7 +20,7 @@ pub const DoubleValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .double, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .double, .presence = .implicit } } }, // value
         },
     };
 };
@@ -39,7 +39,7 @@ pub const FloatValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .float, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .float, .presence = .implicit } } }, // value
         },
     };
 };
@@ -58,7 +58,7 @@ pub const Int64Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int64, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .int64, .presence = .implicit } } }, // value
         },
     };
 };
@@ -77,7 +77,7 @@ pub const UInt64Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .uint64, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .uint64, .presence = .implicit } } }, // value
         },
     };
 };
@@ -96,7 +96,7 @@ pub const Int32Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
         },
     };
 };
@@ -115,7 +115,7 @@ pub const UInt32Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // value
         },
     };
 };
@@ -134,7 +134,7 @@ pub const BoolValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // value
         },
     };
 };
@@ -153,7 +153,7 @@ pub const StringValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // value
         },
     };
 };
@@ -172,7 +172,7 @@ pub const BytesValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .implicit } } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .bytes, .presence = .implicit } } }, // value
         },
     };
 };

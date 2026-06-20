@@ -16,7 +16,7 @@ pub const Struct = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .map = .{ .key = .string, .value = .{ .message = {} } } } }, // fields
+            .{ .number = 1, .field_index = 0, .json_name = "fields", .kind = .{ .map = .{ .key = .string, .value = .{ .message = {} } } } }, // fields
         },
     };
 };
@@ -59,12 +59,12 @@ pub const Value = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .oneof_variant = "null_value", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // null_value
-            .{ .number = 2, .field_index = 0, .oneof_variant = "number_value", .kind = .{ .scalar = .{ .scalar = .double } } }, // number_value
-            .{ .number = 3, .field_index = 0, .oneof_variant = "string_value", .kind = .{ .scalar = .{ .scalar = .string } } }, // string_value
-            .{ .number = 4, .field_index = 0, .oneof_variant = "bool_value", .kind = .{ .scalar = .{ .scalar = .bool } } }, // bool_value
-            .{ .number = 5, .field_index = 0, .oneof_variant = "struct_value", .kind = .{ .message_field = .{} } }, // struct_value
-            .{ .number = 6, .field_index = 0, .oneof_variant = "list_value", .kind = .{ .message_field = .{} } }, // list_value
+            .{ .number = 1, .field_index = 0, .oneof_variant = "null_value", .json_name = "nullValue", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // null_value
+            .{ .number = 2, .field_index = 0, .oneof_variant = "number_value", .json_name = "numberValue", .kind = .{ .scalar = .{ .scalar = .double } } }, // number_value
+            .{ .number = 3, .field_index = 0, .oneof_variant = "string_value", .json_name = "stringValue", .kind = .{ .scalar = .{ .scalar = .string } } }, // string_value
+            .{ .number = 4, .field_index = 0, .oneof_variant = "bool_value", .json_name = "boolValue", .kind = .{ .scalar = .{ .scalar = .bool } } }, // bool_value
+            .{ .number = 5, .field_index = 0, .oneof_variant = "struct_value", .json_name = "structValue", .kind = .{ .message_field = .{} } }, // struct_value
+            .{ .number = 6, .field_index = 0, .oneof_variant = "list_value", .json_name = "listValue", .kind = .{ .message_field = .{} } }, // list_value
         },
     };
 };
@@ -79,7 +79,7 @@ pub const ListValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // values
+            .{ .number = 1, .field_index = 0, .json_name = "values", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // values
         },
     };
 };

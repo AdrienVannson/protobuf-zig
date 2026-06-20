@@ -36,10 +36,10 @@ pub const Version = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // major
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // minor
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // patch
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string } } }, // suffix
+            .{ .number = 1, .field_index = 0, .json_name = "major", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // major
+            .{ .number = 2, .field_index = 1, .json_name = "minor", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // minor
+            .{ .number = 3, .field_index = 2, .json_name = "patch", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // patch
+            .{ .number = 4, .field_index = 3, .json_name = "suffix", .kind = .{ .scalar = .{ .scalar = .string } } }, // suffix
         },
     };
 };
@@ -62,11 +62,11 @@ pub const CodeGeneratorRequest = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // file_to_generate
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // parameter
-            .{ .number = 15, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // proto_file
-            .{ .number = 17, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // source_file_descriptors
-            .{ .number = 3, .field_index = 4, .kind = .{ .message_field = .{} } }, // compiler_version
+            .{ .number = 1, .field_index = 0, .json_name = "fileToGenerate", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // file_to_generate
+            .{ .number = 2, .field_index = 1, .json_name = "parameter", .kind = .{ .scalar = .{ .scalar = .string } } }, // parameter
+            .{ .number = 15, .field_index = 2, .json_name = "protoFile", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // proto_file
+            .{ .number = 17, .field_index = 3, .json_name = "sourceFileDescriptors", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // source_file_descriptors
+            .{ .number = 3, .field_index = 4, .json_name = "compilerVersion", .kind = .{ .message_field = .{} } }, // compiler_version
         },
     };
 };
@@ -104,10 +104,10 @@ pub const CodeGeneratorResponse = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-                .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .string } } }, // insertion_point
-                .{ .number = 15, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .string } } }, // content
-                .{ .number = 16, .field_index = 3, .kind = .{ .message_field = .{} } }, // generated_code_info
+                .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
+                .{ .number = 2, .field_index = 1, .json_name = "insertionPoint", .kind = .{ .scalar = .{ .scalar = .string } } }, // insertion_point
+                .{ .number = 15, .field_index = 2, .json_name = "content", .kind = .{ .scalar = .{ .scalar = .string } } }, // content
+                .{ .number = 16, .field_index = 3, .json_name = "generatedCodeInfo", .kind = .{ .message_field = .{} } }, // generated_code_info
             },
         };
     };
@@ -141,11 +141,11 @@ pub const CodeGeneratorResponse = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string } } }, // error
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // supported_features
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // minimum_edition
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .int32 } } }, // maximum_edition
-            .{ .number = 15, .field_index = 4, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
+            .{ .number = 1, .field_index = 0, .json_name = "error", .kind = .{ .scalar = .{ .scalar = .string } } }, // error
+            .{ .number = 2, .field_index = 1, .json_name = "supportedFeatures", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // supported_features
+            .{ .number = 3, .field_index = 2, .json_name = "minimumEdition", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // minimum_edition
+            .{ .number = 4, .field_index = 3, .json_name = "maximumEdition", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // maximum_edition
+            .{ .number = 15, .field_index = 4, .json_name = "file", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
         },
     };
 };

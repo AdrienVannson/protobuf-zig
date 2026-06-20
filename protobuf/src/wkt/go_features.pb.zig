@@ -47,9 +47,9 @@ pub const GoFeatures = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_unmarshal_json_enum
-            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // api_level
-            .{ .number = 3, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // strip_enum_prefix
+            .{ .number = 1, .field_index = 0, .json_name = "legacyUnmarshalJsonEnum", .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_unmarshal_json_enum
+            .{ .number = 2, .field_index = 1, .json_name = "apiLevel", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // api_level
+            .{ .number = 3, .field_index = 2, .json_name = "stripEnumPrefix", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // strip_enum_prefix
         },
     };
 };

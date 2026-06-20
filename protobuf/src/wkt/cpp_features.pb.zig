@@ -39,9 +39,9 @@ pub const CppFeatures = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_closed_enum
-            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // string_type
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // enum_name_uses_string_view
+            .{ .number = 1, .field_index = 0, .json_name = "legacyClosedEnum", .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_closed_enum
+            .{ .number = 2, .field_index = 1, .json_name = "stringType", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // string_type
+            .{ .number = 3, .field_index = 2, .json_name = "enumNameUsesStringView", .kind = .{ .scalar = .{ .scalar = .bool } } }, // enum_name_uses_string_view
         },
     };
 };

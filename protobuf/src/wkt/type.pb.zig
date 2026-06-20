@@ -36,13 +36,13 @@ pub const Type = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
-            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
-            .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 5, .field_index = 4, .kind = .{ .message_field = .{} } }, // source_context
-            .{ .number = 6, .field_index = 5, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
-            .{ .number = 7, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
+            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .json_name = "fields", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
+            .{ .number = 3, .field_index = 2, .json_name = "oneofs", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
+            .{ .number = 4, .field_index = 3, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 5, .field_index = 4, .json_name = "sourceContext", .kind = .{ .message_field = .{} } }, // source_context
+            .{ .number = 6, .field_index = 5, .json_name = "syntax", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
+            .{ .number = 7, .field_index = 6, .json_name = "edition", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
 };
@@ -133,16 +133,16 @@ pub const Field = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // kind
-            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // cardinality
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 6, .field_index = 4, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // type_url
-            .{ .number = 7, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // oneof_index
-            .{ .number = 8, .field_index = 6, .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // packed
-            .{ .number = 9, .field_index = 7, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 10, .field_index = 8, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // json_name
-            .{ .number = 11, .field_index = 9, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // default_value
+            .{ .number = 1, .field_index = 0, .json_name = "kind", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // kind
+            .{ .number = 2, .field_index = 1, .json_name = "cardinality", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // cardinality
+            .{ .number = 3, .field_index = 2, .json_name = "number", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
+            .{ .number = 4, .field_index = 3, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 6, .field_index = 4, .json_name = "typeUrl", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // type_url
+            .{ .number = 7, .field_index = 5, .json_name = "oneofIndex", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // oneof_index
+            .{ .number = 8, .field_index = 6, .json_name = "packed", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // packed
+            .{ .number = 9, .field_index = 7, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 10, .field_index = 8, .json_name = "jsonName", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // json_name
+            .{ .number = 11, .field_index = 9, .json_name = "defaultValue", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // default_value
         },
     };
 };
@@ -174,12 +174,12 @@ pub const Enum = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
-            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 4, .field_index = 3, .kind = .{ .message_field = .{} } }, // source_context
-            .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
-            .{ .number = 6, .field_index = 5, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
+            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .json_name = "enumvalue", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
+            .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 4, .field_index = 3, .json_name = "sourceContext", .kind = .{ .message_field = .{} } }, // source_context
+            .{ .number = 5, .field_index = 4, .json_name = "syntax", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
+            .{ .number = 6, .field_index = 5, .json_name = "edition", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
 };
@@ -204,9 +204,9 @@ pub const EnumValue = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
-            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
+            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .json_name = "number", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
+            .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
         },
     };
 };
@@ -226,8 +226,8 @@ pub const Option = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .message_field = .{} } }, // value
+            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .json_name = "value", .kind = .{ .message_field = .{} } }, // value
         },
     };
 };
