@@ -40,7 +40,7 @@ pub const FieldMetadata = struct {
     number: u32,
     field_index: u16,
     oneof_variant: ?[]const u8 = null,
-    json_name: []const u8 = "",
+    json_name: []const u8,
     kind: FieldMetadataKind,
 };
 
