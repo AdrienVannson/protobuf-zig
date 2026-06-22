@@ -4,7 +4,6 @@
 const std = @import("std");
 const _protobuf = @import("protobuf");
 const _codegen = _protobuf._codegen;
-const _metadata = _codegen.metadata;
 
 pub const FileDescriptorSet = struct {
     file: std.ArrayList(*FileDescriptorProto) = .empty,
@@ -14,14 +13,7 @@ pub const FileDescriptorSet = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "file", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const FileDescriptorProto = struct {
@@ -61,27 +53,7 @@ pub const FileDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "package", .kind = .{ .scalar = .{ .scalar = .string } } }, // package
-            .{ .number = 3, .field_index = 2, .json_name = "dependency", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // dependency
-            .{ .number = 10, .field_index = 3, .json_name = "publicDependency", .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // public_dependency
-            .{ .number = 11, .field_index = 4, .json_name = "weakDependency", .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // weak_dependency
-            .{ .number = 15, .field_index = 5, .json_name = "optionDependency", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // option_dependency
-            .{ .number = 4, .field_index = 6, .json_name = "messageType", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // message_type
-            .{ .number = 5, .field_index = 7, .json_name = "enumType", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
-            .{ .number = 6, .field_index = 8, .json_name = "service", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // service
-            .{ .number = 7, .field_index = 9, .json_name = "extension", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
-            .{ .number = 8, .field_index = 10, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 9, .field_index = 11, .json_name = "sourceCodeInfo", .kind = .{ .message_field = .{} } }, // source_code_info
-            .{ .number = 12, .field_index = 12, .json_name = "syntax", .kind = .{ .scalar = .{ .scalar = .string } } }, // syntax
-            .{ .number = 14, .field_index = 13, .json_name = "edition", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const DescriptorProto = struct {
@@ -116,16 +88,7 @@ pub const DescriptorProto = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "start", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // start
-                .{ .number = 2, .field_index = 1, .json_name = "end", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
-                .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 0 });
     };
 
     pub const ReservedRange = struct {
@@ -145,15 +108,7 @@ pub const DescriptorProto = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "start", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // start
-                .{ .number = 2, .field_index = 1, .json_name = "end", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 1 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 1 });
     };
 
     pub fn getName(self: @This()) []const u8 {
@@ -168,24 +123,7 @@ pub const DescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "field", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // field
-            .{ .number = 6, .field_index = 2, .json_name = "extension", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension
-            .{ .number = 3, .field_index = 3, .json_name = "nestedType", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // nested_type
-            .{ .number = 4, .field_index = 4, .json_name = "enumType", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enum_type
-            .{ .number = 5, .field_index = 5, .json_name = "extensionRange", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // extension_range
-            .{ .number = 8, .field_index = 6, .json_name = "oneofDecl", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // oneof_decl
-            .{ .number = 7, .field_index = 7, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 9, .field_index = 8, .json_name = "reservedRange", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
-            .{ .number = 10, .field_index = 9, .json_name = "reservedName", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
-            .{ .number = 11, .field_index = 10, .json_name = "visibility", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const ExtensionRangeOptions = struct {
@@ -227,18 +165,7 @@ pub const ExtensionRangeOptions = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "number", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
-                .{ .number = 2, .field_index = 1, .json_name = "fullName", .kind = .{ .scalar = .{ .scalar = .string } } }, // full_name
-                .{ .number = 3, .field_index = 2, .json_name = "type", .kind = .{ .scalar = .{ .scalar = .string } } }, // type
-                .{ .number = 5, .field_index = 3, .json_name = "reserved", .kind = .{ .scalar = .{ .scalar = .bool } } }, // reserved
-                .{ .number = 6, .field_index = 4, .json_name = "repeated", .kind = .{ .scalar = .{ .scalar = .bool } } }, // repeated
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 });
     };
 
     pub const VerificationState = enum(i32) {
@@ -255,17 +182,7 @@ pub const ExtensionRangeOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 999, .field_index = 0, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-            .{ .number = 2, .field_index = 1, .json_name = "declaration", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // declaration
-            .{ .number = 50, .field_index = 2, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 3, .field_index = 3, .json_name = "verification", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // verification
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const FieldDescriptorProto = struct {
@@ -355,24 +272,7 @@ pub const FieldDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 3, .field_index = 1, .json_name = "number", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
-            .{ .number = 4, .field_index = 2, .json_name = "label", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // label
-            .{ .number = 5, .field_index = 3, .json_name = "type", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // type
-            .{ .number = 6, .field_index = 4, .json_name = "typeName", .kind = .{ .scalar = .{ .scalar = .string } } }, // type_name
-            .{ .number = 2, .field_index = 5, .json_name = "extendee", .kind = .{ .scalar = .{ .scalar = .string } } }, // extendee
-            .{ .number = 7, .field_index = 6, .json_name = "defaultValue", .kind = .{ .scalar = .{ .scalar = .string } } }, // default_value
-            .{ .number = 9, .field_index = 7, .json_name = "oneofIndex", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // oneof_index
-            .{ .number = 10, .field_index = 8, .json_name = "jsonName", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_name
-            .{ .number = 8, .field_index = 9, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 17, .field_index = 10, .json_name = "proto3Optional", .kind = .{ .scalar = .{ .scalar = .bool } } }, // proto3_optional
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
 };
 
 pub const OneofDescriptorProto = struct {
@@ -388,15 +288,7 @@ pub const OneofDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5});
 };
 
 pub const EnumDescriptorProto = struct {
@@ -425,15 +317,7 @@ pub const EnumDescriptorProto = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "start", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // start
-                .{ .number = 2, .field_index = 1, .json_name = "end", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 6, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 6, 0 });
     };
 
     pub fn getName(self: @This()) []const u8 {
@@ -448,19 +332,7 @@ pub const EnumDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "value", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // value
-            .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 4, .field_index = 3, .json_name = "reservedRange", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // reserved_range
-            .{ .number = 5, .field_index = 4, .json_name = "reservedName", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // reserved_name
-            .{ .number = 6, .field_index = 5, .json_name = "visibility", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6});
 };
 
 pub const EnumValueDescriptorProto = struct {
@@ -481,16 +353,7 @@ pub const EnumValueDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "number", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // number
-            .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7});
 };
 
 pub const ServiceDescriptorProto = struct {
@@ -507,16 +370,7 @@ pub const ServiceDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "method", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // method
-            .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8});
 };
 
 pub const MethodDescriptorProto = struct {
@@ -552,19 +406,7 @@ pub const MethodDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "inputType", .kind = .{ .scalar = .{ .scalar = .string } } }, // input_type
-            .{ .number = 3, .field_index = 2, .json_name = "outputType", .kind = .{ .scalar = .{ .scalar = .string } } }, // output_type
-            .{ .number = 4, .field_index = 3, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
-            .{ .number = 5, .field_index = 4, .json_name = "clientStreaming", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // client_streaming
-            .{ .number = 6, .field_index = 5, .json_name = "serverStreaming", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // server_streaming
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9});
 };
 
 pub const FileOptions = struct {
@@ -678,34 +520,7 @@ pub const FileOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "javaPackage", .kind = .{ .scalar = .{ .scalar = .string } } }, // java_package
-            .{ .number = 8, .field_index = 1, .json_name = "javaOuterClassname", .kind = .{ .scalar = .{ .scalar = .string } } }, // java_outer_classname
-            .{ .number = 10, .field_index = 2, .json_name = "javaMultipleFiles", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // java_multiple_files
-            .{ .number = 20, .field_index = 3, .json_name = "javaGenerateEqualsAndHash", .kind = .{ .scalar = .{ .scalar = .bool } } }, // java_generate_equals_and_hash
-            .{ .number = 27, .field_index = 4, .json_name = "javaStringCheckUtf8", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // java_string_check_utf8
-            .{ .number = 9, .field_index = 5, .json_name = "optimizeFor", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // optimize_for
-            .{ .number = 11, .field_index = 6, .json_name = "goPackage", .kind = .{ .scalar = .{ .scalar = .string } } }, // go_package
-            .{ .number = 16, .field_index = 7, .json_name = "ccGenericServices", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // cc_generic_services
-            .{ .number = 17, .field_index = 8, .json_name = "javaGenericServices", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // java_generic_services
-            .{ .number = 18, .field_index = 9, .json_name = "pyGenericServices", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // py_generic_services
-            .{ .number = 23, .field_index = 10, .json_name = "deprecated", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
-            .{ .number = 31, .field_index = 11, .json_name = "ccEnableArenas", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = true } } } }, // cc_enable_arenas
-            .{ .number = 36, .field_index = 12, .json_name = "objcClassPrefix", .kind = .{ .scalar = .{ .scalar = .string } } }, // objc_class_prefix
-            .{ .number = 37, .field_index = 13, .json_name = "csharpNamespace", .kind = .{ .scalar = .{ .scalar = .string } } }, // csharp_namespace
-            .{ .number = 39, .field_index = 14, .json_name = "swiftPrefix", .kind = .{ .scalar = .{ .scalar = .string } } }, // swift_prefix
-            .{ .number = 40, .field_index = 15, .json_name = "phpClassPrefix", .kind = .{ .scalar = .{ .scalar = .string } } }, // php_class_prefix
-            .{ .number = 41, .field_index = 16, .json_name = "phpNamespace", .kind = .{ .scalar = .{ .scalar = .string } } }, // php_namespace
-            .{ .number = 44, .field_index = 17, .json_name = "phpMetadataNamespace", .kind = .{ .scalar = .{ .scalar = .string } } }, // php_metadata_namespace
-            .{ .number = 45, .field_index = 18, .json_name = "rubyPackage", .kind = .{ .scalar = .{ .scalar = .string } } }, // ruby_package
-            .{ .number = 50, .field_index = 19, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 20, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{10}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{10});
 };
 
 pub const MessageOptions = struct {
@@ -742,20 +557,7 @@ pub const MessageOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "messageSetWireFormat", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // message_set_wire_format
-            .{ .number = 2, .field_index = 1, .json_name = "noStandardDescriptorAccessor", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // no_standard_descriptor_accessor
-            .{ .number = 3, .field_index = 2, .json_name = "deprecated", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
-            .{ .number = 7, .field_index = 3, .json_name = "mapEntry", .kind = .{ .scalar = .{ .scalar = .bool } } }, // map_entry
-            .{ .number = 11, .field_index = 4, .json_name = "deprecatedLegacyJsonFieldConflicts", .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
-            .{ .number = 12, .field_index = 5, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 6, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{11}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{11});
 };
 
 pub const FieldOptions = struct {
@@ -792,15 +594,7 @@ pub const FieldOptions = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 3, .field_index = 0, .json_name = "edition", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition
-                .{ .number = 2, .field_index = 1, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .string } } }, // value
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 0 });
     };
 
     pub const FeatureSupport = struct {
@@ -830,17 +624,7 @@ pub const FieldOptions = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "editionIntroduced", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition_introduced
-                .{ .number = 2, .field_index = 1, .json_name = "editionDeprecated", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition_deprecated
-                .{ .number = 3, .field_index = 2, .json_name = "deprecationWarning", .kind = .{ .scalar = .{ .scalar = .string } } }, // deprecation_warning
-                .{ .number = 4, .field_index = 3, .json_name = "editionRemoved", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition_removed
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 1 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 1 });
     };
 
     pub const CType = enum(i32) {
@@ -918,27 +702,7 @@ pub const FieldOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "ctype", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // ctype
-            .{ .number = 2, .field_index = 1, .json_name = "packed", .kind = .{ .scalar = .{ .scalar = .bool } } }, // packed
-            .{ .number = 6, .field_index = 2, .json_name = "jstype", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // jstype
-            .{ .number = 5, .field_index = 3, .json_name = "lazy", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // lazy
-            .{ .number = 15, .field_index = 4, .json_name = "unverifiedLazy", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // unverified_lazy
-            .{ .number = 3, .field_index = 5, .json_name = "deprecated", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
-            .{ .number = 10, .field_index = 6, .json_name = "weak", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // weak
-            .{ .number = 16, .field_index = 7, .json_name = "debugRedact", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // debug_redact
-            .{ .number = 17, .field_index = 8, .json_name = "retention", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // retention
-            .{ .number = 19, .field_index = 9, .json_name = "targets", .kind = .{ .list = .{ .element = .{ .enum_type = {} } } } }, // targets
-            .{ .number = 20, .field_index = 10, .json_name = "editionDefaults", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // edition_defaults
-            .{ .number = 21, .field_index = 11, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 22, .field_index = 12, .json_name = "featureSupport", .kind = .{ .message_field = .{} } }, // feature_support
-            .{ .number = 999, .field_index = 13, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{12}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{12});
 };
 
 pub const OneofOptions = struct {
@@ -950,15 +714,7 @@ pub const OneofOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 1, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{13}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{13});
 };
 
 pub const EnumOptions = struct {
@@ -985,18 +741,7 @@ pub const EnumOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 2, .field_index = 0, .json_name = "allowAlias", .kind = .{ .scalar = .{ .scalar = .bool } } }, // allow_alias
-            .{ .number = 3, .field_index = 1, .json_name = "deprecated", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
-            .{ .number = 6, .field_index = 2, .json_name = "deprecatedLegacyJsonFieldConflicts", .kind = .{ .scalar = .{ .scalar = .bool } } }, // deprecated_legacy_json_field_conflicts
-            .{ .number = 7, .field_index = 3, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 4, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{14}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{14});
 };
 
 pub const EnumValueOptions = struct {
@@ -1019,18 +764,7 @@ pub const EnumValueOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "deprecated", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
-            .{ .number = 2, .field_index = 1, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 3, .field_index = 2, .json_name = "debugRedact", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // debug_redact
-            .{ .number = 4, .field_index = 3, .json_name = "featureSupport", .kind = .{ .message_field = .{} } }, // feature_support
-            .{ .number = 999, .field_index = 4, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{15}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{15});
 };
 
 pub const ServiceOptions = struct {
@@ -1047,16 +781,7 @@ pub const ServiceOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 34, .field_index = 0, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 33, .field_index = 1, .json_name = "deprecated", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
-            .{ .number = 999, .field_index = 2, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{16}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{16});
 };
 
 pub const MethodOptions = struct {
@@ -1085,17 +810,7 @@ pub const MethodOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 33, .field_index = 0, .json_name = "deprecated", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // deprecated
-            .{ .number = 34, .field_index = 1, .json_name = "idempotencyLevel", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // idempotency_level
-            .{ .number = 35, .field_index = 2, .json_name = "features", .kind = .{ .message_field = .{} } }, // features
-            .{ .number = 999, .field_index = 3, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{17}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{17});
 };
 
 pub const UninterpretedOption = struct {
@@ -1125,15 +840,7 @@ pub const UninterpretedOption = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "namePart", .kind = .{ .scalar = .{ .scalar = .string, .presence = .legacy_required } } }, // name_part
-                .{ .number = 2, .field_index = 1, .json_name = "isExtension", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .legacy_required } } }, // is_extension
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 18, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 18, 0 });
     };
 
     pub fn getIdentifierValue(self: @This()) []const u8 {
@@ -1164,20 +871,7 @@ pub const UninterpretedOption = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 2, .field_index = 0, .json_name = "name", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // name
-            .{ .number = 3, .field_index = 1, .json_name = "identifierValue", .kind = .{ .scalar = .{ .scalar = .string } } }, // identifier_value
-            .{ .number = 4, .field_index = 2, .json_name = "positiveIntValue", .kind = .{ .scalar = .{ .scalar = .uint64 } } }, // positive_int_value
-            .{ .number = 5, .field_index = 3, .json_name = "negativeIntValue", .kind = .{ .scalar = .{ .scalar = .int64 } } }, // negative_int_value
-            .{ .number = 6, .field_index = 4, .json_name = "doubleValue", .kind = .{ .scalar = .{ .scalar = .double } } }, // double_value
-            .{ .number = 7, .field_index = 5, .json_name = "stringValue", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // string_value
-            .{ .number = 8, .field_index = 6, .json_name = "aggregateValue", .kind = .{ .scalar = .{ .scalar = .string } } }, // aggregate_value
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{18}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{18});
 };
 
 pub const FeatureSet = struct {
@@ -1207,12 +901,7 @@ pub const FeatureSet = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{},
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 19, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 19, 0 });
     };
 
     pub const FieldPresence = enum(i32) {
@@ -1301,21 +990,7 @@ pub const FeatureSet = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "fieldPresence", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // field_presence
-            .{ .number = 2, .field_index = 1, .json_name = "enumType", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // enum_type
-            .{ .number = 3, .field_index = 2, .json_name = "repeatedFieldEncoding", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // repeated_field_encoding
-            .{ .number = 4, .field_index = 3, .json_name = "utf8Validation", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // utf8_validation
-            .{ .number = 5, .field_index = 4, .json_name = "messageEncoding", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // message_encoding
-            .{ .number = 6, .field_index = 5, .json_name = "jsonFormat", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // json_format
-            .{ .number = 7, .field_index = 6, .json_name = "enforceNamingStyle", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // enforce_naming_style
-            .{ .number = 8, .field_index = 7, .json_name = "defaultSymbolVisibility", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // default_symbol_visibility
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{19}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{19});
 };
 
 pub const FeatureSetDefaults = struct {
@@ -1338,16 +1013,7 @@ pub const FeatureSetDefaults = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 3, .field_index = 0, .json_name = "edition", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition
-                .{ .number = 4, .field_index = 1, .json_name = "overridableFeatures", .kind = .{ .message_field = .{} } }, // overridable_features
-                .{ .number = 5, .field_index = 2, .json_name = "fixedFeatures", .kind = .{ .message_field = .{} } }, // fixed_features
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 20, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 20, 0 });
     };
 
     pub fn getMinimumEdition(self: @This()) Edition {
@@ -1362,16 +1028,7 @@ pub const FeatureSetDefaults = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "defaults", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // defaults
-            .{ .number = 4, .field_index = 1, .json_name = "minimumEdition", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // minimum_edition
-            .{ .number = 5, .field_index = 2, .json_name = "maximumEdition", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // maximum_edition
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{20}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{20});
 };
 
 pub const SourceCodeInfo = struct {
@@ -1398,32 +1055,14 @@ pub const SourceCodeInfo = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "path", .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
-                .{ .number = 2, .field_index = 1, .json_name = "span", .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // span
-                .{ .number = 3, .field_index = 2, .json_name = "leadingComments", .kind = .{ .scalar = .{ .scalar = .string } } }, // leading_comments
-                .{ .number = 4, .field_index = 3, .json_name = "trailingComments", .kind = .{ .scalar = .{ .scalar = .string } } }, // trailing_comments
-                .{ .number = 6, .field_index = 4, .json_name = "leadingDetachedComments", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // leading_detached_comments
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 21, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 21, 0 });
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "location", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // location
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{21}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{21});
 };
 
 pub const GeneratedCodeInfo = struct {
@@ -1465,32 +1104,14 @@ pub const GeneratedCodeInfo = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "path", .kind = .{ .list = .{ .element = .{ .scalar = .int32 }, .is_packed = true } } }, // path
-                .{ .number = 2, .field_index = 1, .json_name = "sourceFile", .kind = .{ .scalar = .{ .scalar = .string } } }, // source_file
-                .{ .number = 3, .field_index = 2, .json_name = "begin", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // begin
-                .{ .number = 4, .field_index = 3, .json_name = "end", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
-                .{ .number = 5, .field_index = 4, .json_name = "semantic", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // semantic
-            },
-        };
-        comptime {
-            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 22, 0 }));
-        }
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 22, 0 });
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "annotation", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // annotation
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{22}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{22});
 };
 
 pub const Edition = enum(i32) {

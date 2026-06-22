@@ -4,7 +4,6 @@
 const std = @import("std");
 const _protobuf = @import("protobuf");
 const _codegen = _protobuf._codegen;
-const _metadata = _codegen.metadata;
 
 pub const Person = struct {
     name: []const u8 = "",
@@ -28,16 +27,7 @@ pub const Person = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "age", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // age
-            .{ .number = 3, .field_index = 2, .json_name = "email", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // email
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const DESCRIPTOR_BYTES: []const u8 = "\x0a\x0d\x65\x78\x61\x6d\x70\x6c\x65\x2e\x70\x72\x6f\x74\x6f\x12\x07\x65\x78\x61\x6d\x70\x6c\x65\x22\x44\x0a\x06\x50\x65\x72\x73\x6f\x6e\x12\x12\x0a\x04\x6e\x61\x6d\x65\x18\x01\x20\x01\x28\x09\x52\x04\x6e\x61\x6d\x65\x12\x10\x0a\x03\x61\x67\x65\x18\x02\x20\x01\x28\x05\x52\x03\x61\x67\x65\x12\x14\x0a\x05\x65\x6d\x61\x69\x6c\x18\x03\x20\x01\x28\x09\x52\x05\x65\x6d\x61\x69\x6c\x62\x06\x70\x72\x6f\x74\x6f\x33";

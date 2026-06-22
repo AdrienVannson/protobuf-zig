@@ -4,7 +4,6 @@
 const std = @import("std");
 const _protobuf = @import("protobuf");
 const _codegen = _protobuf._codegen;
-const _metadata = _codegen.metadata;
 const _google_protobuf_any = @import("any.pb.zig");
 const _google_protobuf_source_context = @import("source_context.pb.zig");
 
@@ -34,20 +33,7 @@ pub const Type = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "fields", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // fields
-            .{ .number = 3, .field_index = 2, .json_name = "oneofs", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // oneofs
-            .{ .number = 4, .field_index = 3, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 5, .field_index = 4, .json_name = "sourceContext", .kind = .{ .message_field = .{} } }, // source_context
-            .{ .number = 6, .field_index = 5, .json_name = "syntax", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
-            .{ .number = 7, .field_index = 6, .json_name = "edition", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const Field = struct {
@@ -134,23 +120,7 @@ pub const Field = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "kind", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // kind
-            .{ .number = 2, .field_index = 1, .json_name = "cardinality", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // cardinality
-            .{ .number = 3, .field_index = 2, .json_name = "number", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
-            .{ .number = 4, .field_index = 3, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 6, .field_index = 4, .json_name = "typeUrl", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // type_url
-            .{ .number = 7, .field_index = 5, .json_name = "oneofIndex", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // oneof_index
-            .{ .number = 8, .field_index = 6, .json_name = "packed", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // packed
-            .{ .number = 9, .field_index = 7, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 10, .field_index = 8, .json_name = "jsonName", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // json_name
-            .{ .number = 11, .field_index = 9, .json_name = "defaultValue", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // default_value
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const Enum = struct {
@@ -178,19 +148,7 @@ pub const Enum = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "enumvalue", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // enumvalue
-            .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-            .{ .number = 4, .field_index = 3, .json_name = "sourceContext", .kind = .{ .message_field = .{} } }, // source_context
-            .{ .number = 5, .field_index = 4, .json_name = "syntax", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // syntax
-            .{ .number = 6, .field_index = 5, .json_name = "edition", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const EnumValue = struct {
@@ -211,16 +169,7 @@ pub const EnumValue = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "number", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // number
-            .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const Option = struct {
@@ -236,15 +185,7 @@ pub const Option = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "value", .kind = .{ .message_field = .{} } }, // value
-        },
-    };
-    comptime {
-        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4}));
-    }
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
 };
 
 pub const Syntax = enum(i32) {
