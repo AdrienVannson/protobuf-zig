@@ -39,7 +39,6 @@ pub const _codegen = struct {
     pub const metadata = @import("_codegen/metadata.zig");
     pub const field_access = @import("_codegen/field_access.zig");
     pub const read_message_metadata = @import("_codegen/read_metadata.zig").read_message_metadata;
-    pub const assert_metadata_eq = @import("_codegen/read_metadata.zig").assert_metadata_eq;
 };
 
 test {

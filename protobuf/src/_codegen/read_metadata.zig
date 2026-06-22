@@ -20,8 +20,7 @@
 //!
 //! The resolution logic (presence/packed/default/map detection) and the
 //! `field_index` ordering mirror `protoc-gen-zig/src/desc_file_from_proto.zig` and
-//! `protoc-gen-zig/src/codegen.zig`. `assert_metadata_eq` lets the generator prove
-//! the two agree on every generated message.
+//! `protoc-gen-zig/src/codegen.zig`.
 
 const std = @import("std");
 const metadata = @import("metadata.zig");
@@ -457,96 +456,4 @@ fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool) Messag
     }
 
     return .{ .fields = out };
-}
-
-// ---------------------------------------------------------------------------
-// Equivalence assertion (used by the generator to validate this reader)
-// ---------------------------------------------------------------------------
-
-/// Comptime-assert that two `MessageMetadata` are equal, comparing string fields
-/// by content. Emits a `@compileError` pinpointing the first difference.
-pub fn assert_metadata_eq(comptime expected: MessageMetadata, comptime actual: MessageMetadata) void {
-    if (expected.fields.len != actual.fields.len) {
-        @compileError(std.fmt.comptimePrint(
-            "metadata mismatch: field count {d} vs {d}",
-            .{ expected.fields.len, actual.fields.len },
-        ));
-    }
-    inline for (expected.fields, actual.fields, 0..) |e, a, i| {
-        if (e.number != a.number) fieldErr(i, "number");
-        if (e.field_index != a.field_index) fieldErr(i, "field_index");
-        if (!optStrEq(e.oneof_variant, a.oneof_variant)) fieldErr(i, "oneof_variant");
-        if (!std.mem.eql(u8, e.json_name, a.json_name)) fieldErr(i, "json_name");
-        assertKindEq(i, e.kind, a.kind);
-    }
-}
-
-fn fieldErr(comptime i: usize, comptime what: []const u8) void {
-    @compileError(std.fmt.comptimePrint("metadata mismatch at field {d}: {s}", .{ i, what }));
-}
-
-fn optStrEq(comptime a: ?[]const u8, comptime b: ?[]const u8) bool {
-    if (a == null and b == null) return true;
-    if (a == null or b == null) return false;
-    return std.mem.eql(u8, a.?, b.?);
-}
-
-fn assertKindEq(comptime i: usize, comptime e: FieldMetadataKind, comptime a: FieldMetadataKind) void {
-    if (std.meta.activeTag(e) != std.meta.activeTag(a)) fieldErr(i, "kind tag");
-    switch (e) {
-        .scalar => |es| {
-            const as = a.scalar;
-            if (es.scalar != as.scalar) fieldErr(i, "scalar type");
-            if (es.presence != as.presence) fieldErr(i, "scalar presence");
-            if (!defaultEq(es.default_value, as.default_value)) fieldErr(i, "scalar default");
-        },
-        .message_field => |em| {
-            const am = a.message_field;
-            if (em.presence != am.presence) fieldErr(i, "message presence");
-            if (em.delimited_encoding != am.delimited_encoding) fieldErr(i, "message delimited_encoding");
-        },
-        .enum_field => |ee| {
-            const ae = a.enum_field;
-            if (ee.presence != ae.presence) fieldErr(i, "enum presence");
-            if (ee.default_value != ae.default_value) fieldErr(i, "enum default");
-        },
-        .list => |el| {
-            const al = a.list;
-            if (!elemEq(el.element, al.element)) fieldErr(i, "list element");
-            if (el.is_packed != al.is_packed) fieldErr(i, "list is_packed");
-            if (el.delimited_encoding != al.delimited_encoding) fieldErr(i, "list delimited_encoding");
-        },
-        .map => |em| {
-            const am = a.map;
-            if (em.key != am.key) fieldErr(i, "map key");
-            if (!elemEq(em.value, am.value)) fieldErr(i, "map value");
-        },
-    }
-}
-
-fn defaultEq(comptime a: ?DefaultValue, comptime b: ?DefaultValue) bool {
-    if (a == null and b == null) return true;
-    if (a == null or b == null) return false;
-    const av = a.?;
-    const bv = b.?;
-    if (std.meta.activeTag(av) != std.meta.activeTag(bv)) return false;
-    return switch (av) {
-        .string => |s| std.mem.eql(u8, s, bv.string),
-        .bytes => |s| std.mem.eql(u8, s, bv.bytes),
-        .bool => |x| x == bv.bool,
-        .float => |x| x == bv.float,
-        .double => |x| x == bv.double,
-        .int32 => |x| x == bv.int32,
-        .int64 => |x| x == bv.int64,
-        .uint32 => |x| x == bv.uint32,
-        .uint64 => |x| x == bv.uint64,
-    };
-}
-
-fn elemEq(comptime a: FieldMetadataElementType, comptime b: FieldMetadataElementType) bool {
-    if (std.meta.activeTag(a) != std.meta.activeTag(b)) return false;
-    return switch (a) {
-        .scalar => |s| s == b.scalar,
-        .message, .enum_type => true,
-    };
 }
