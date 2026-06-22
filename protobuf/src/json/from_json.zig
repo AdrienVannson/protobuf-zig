@@ -18,6 +18,23 @@ fn intFromJson(val: std.json.Value, comptime int_type: type) !int_type {
     }
 }
 
+fn enumFromJson(comptime EnumType: type, val: std.json.Value) !EnumType {
+    switch (val) {
+        .string => |s| {
+            inline for (@typeInfo(EnumType).@"enum".fields) |f| {
+                // TODO the proto name may be different from the local name
+                if (std.mem.eql(u8, s, f.name)) return @enumFromInt(f.value);
+            }
+            return error.InvalidJson;
+        },
+        .number_string => |s| {
+            const n = std.fmt.parseInt(std.meta.Tag(EnumType), s, 10) catch return error.InvalidJson;
+            return @enumFromInt(n);
+        },
+        else => return error.InvalidJson,
+    }
+}
+
 fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value) !metadata.scalarZigType(scalar) {
     switch (scalar) {
         .int32, .sint32, .sfixed32, .uint32, .fixed32, .int64, .sint64, .sfixed64, .uint64, .fixed64 => {
@@ -45,6 +62,21 @@ fn readScalarField(
         const v = try scalarFromJson(field_meta.kind.scalar.scalar, val);
         field_access.setField(msg, field_meta, v, allocator);
     }
+}
+
+fn readEnumField(
+    msg: anytype,
+    comptime field_meta: FieldMetadata,
+    val: std.json.Value,
+    allocator: std.mem.Allocator,
+) !void {
+    if (isResetSentinelNullValue(field_meta, val)) {
+        field_access.clearField(msg, field_meta, allocator);
+        return;
+    }
+    const EnumType = field_access.FieldPayloadType(std.meta.Child(@TypeOf(msg)), field_meta);
+    const v = try enumFromJson(EnumType, val);
+    field_access.setField(msg, field_meta, v, allocator);
 }
 
 /// Returns true when a JSON null should reset the field to its unset state.
@@ -125,7 +157,11 @@ fn readListField(
                 try list_ptr.append(allocator, p);
                 try readMessage(p, &obj, allocator);
             },
-            .enum_type => return error.UnsupportedFieldType,
+            .enum_type => {
+                const EnumType = std.meta.Child(@TypeOf(list_ptr.items));
+                const v = try enumFromJson(EnumType, item);
+                try list_ptr.append(allocator, v);
+            },
         }
     }
 }
@@ -138,7 +174,7 @@ fn readField(
 ) !void {
     switch (comptime field_meta.kind) {
         .scalar => try readScalarField(msg, field_meta, val, allocator),
-        .enum_field => return error.UnsupportedFieldType,
+        .enum_field => try readEnumField(msg, field_meta, val, allocator),
         .message_field => try readMessageField(msg, field_meta, val, allocator),
         .list => try readListField(msg, field_meta, val, allocator),
         .map => return error.UnsupportedFieldType,

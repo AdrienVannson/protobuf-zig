@@ -11,15 +11,12 @@ Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing1 # Should have fa
 Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Output was not equivalent to reference message: deleted: map_string_nested_enum[key1]: FOO
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_enum[0]: FOOdeleted: repeated_nested_enum[1]: FOO
-Recommended.Proto3.JsonInput.NullValueInNormalMessage.Validator # Expected JSON payload but got type 1
-Recommended.Proto3.JsonInput.NullValueInOtherOneofNewFormat.Validator # Expected JSON payload but got type 1
-Recommended.Proto3.JsonInput.NullValueInOtherOneofOldFormat.Validator # Expected JSON payload but got type 1
+Recommended.Proto3.JsonInput.NullValueInOtherOneofNewFormat.Validator # JSON payload validation failed.
+Recommended.Proto3.JsonInput.NullValueInOtherOneofOldFormat.Validator # JSON payload validation failed.
 Recommended.Proto3.JsonInput.OneofZeroBytes.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroBytes.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroDouble.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroDouble.ProtobufOutput # Failed to parse input or produce output.
-Recommended.Proto3.JsonInput.OneofZeroEnum.JsonOutput # Failed to parse input or produce output.
-Recommended.Proto3.JsonInput.OneofZeroEnum.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroFloat.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroFloat.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroString.JsonOutput # Failed to parse input or produce output.
@@ -100,23 +97,12 @@ Required.Proto3.JsonInput.DurationRepeatedValue.JsonOutput # Failed to parse inp
 Required.Proto3.JsonInput.DurationRepeatedValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EmptyFieldMask.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EmptyFieldMask.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumField.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumField.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldNumericValueNonZero.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldNumericValueNonZero.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldNumericValueZero.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldNumericValueZero.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldUnknownValue.Validator # Expected JSON payload but got type 1
-Required.Proto3.JsonInput.EnumFieldWithAlias.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldWithAlias.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasDifferentCase.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasDifferentCase.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumRepeatedField.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumRepeatedField.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.FieldMask.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.FieldMask.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.FloatFieldInfinity.JsonOutput # Failed to parse input or produce output.

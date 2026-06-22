@@ -77,7 +77,7 @@ fn SetFieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadat
 }
 
 /// Computes the payload type for a field, without assuming that the field is set.
-fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
+pub fn FieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
     const field_payload_type = SetFieldPayloadType(MsgType, field_meta);
 
     if (comptime field_meta.kind == .message_field) {
@@ -114,13 +114,15 @@ pub fn getField(
         }
     }
 
-    if (field == null) {
-        return comptime switch (field_meta.kind) {
-            .scalar => |sc| getScalarDefault(sc.scalar, sc.default_value),
-            .enum_field => field_meta.kind.enum_field.default_value,
-            .message_field => null,
-            .list, .map => @compileError("list/map fields are never null"),
-        };
+    if (comptime @typeInfo(@TypeOf(field)) == .optional) {
+        if (field == null) {
+            return comptime switch (field_meta.kind) {
+                .scalar => |sc| getScalarDefault(sc.scalar, sc.default_value),
+                .enum_field => @as(FieldPayloadType(@TypeOf(msg), field_meta), @enumFromInt(field_meta.kind.enum_field.default_value)),
+                .message_field => null,
+                .list, .map => @compileError("list/map fields are never null"),
+            };
+        }
     }
 
     return field;
