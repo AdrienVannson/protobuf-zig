@@ -68,6 +68,28 @@ fn writeList(ctx: *const JsonContext, comptime list_meta: anytype, list: anytype
     try ctx.json_writter.endArray();
 }
 
+fn writeMap(ctx: *const JsonContext, comptime map_meta: anytype, map: anytype) !void {
+    try ctx.json_writter.beginObject();
+    var it = map.iterator();
+    while (it.next()) |entry| {
+        switch (comptime map_meta.key) {
+            .string => try ctx.json_writter.objectField(entry.key_ptr.*),
+            .bool => try ctx.json_writter.objectField(if (entry.key_ptr.*) "true" else "false"),
+            else => {
+                var buf: [20]u8 = undefined;
+                const s = std.fmt.bufPrint(&buf, "{d}", .{entry.key_ptr.*}) catch unreachable;
+                try ctx.json_writter.objectField(s);
+            },
+        }
+        switch (comptime map_meta.value) {
+            .scalar => |sc| try writeScalar(ctx, sc, entry.value_ptr.*),
+            .message => try writeMessage(ctx, entry.value_ptr.*.*),
+            .enum_type => try writeEnum(ctx, entry.value_ptr.*),
+        }
+    }
+    try ctx.json_writter.endObject();
+}
+
 fn writeFieldValue(
     ctx: *const JsonContext,
     comptime field_meta: FieldMetadata,
@@ -78,7 +100,7 @@ fn writeFieldValue(
         .enum_field => try writeEnum(ctx, value),
         .message_field => try writeMessage(ctx, value.*),
         .list => |list_meta| try writeList(ctx, list_meta, value),
-        .map => return error.UnsupportedFieldType,
+        .map => |map_meta| try writeMap(ctx, map_meta, value),
     }
 }
 
@@ -87,7 +109,7 @@ fn writeFieldCallback(ctx: *const JsonContext, comptime field_meta: FieldMetadat
     try writeFieldValue(ctx, field_meta, value);
 }
 
-fn writeMessage(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed, UnsupportedFieldType }!void {
+fn writeMessage(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed }!void {
     try ctx.json_writter.beginObject();
     try field_access.forEachSetField(msg, ctx, writeFieldCallback);
     try ctx.json_writter.endObject();
