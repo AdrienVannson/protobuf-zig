@@ -153,6 +153,18 @@ pub fn getSetField(
     return field;
 }
 
+/// Returns a mutable pointer to a non-oneof field value.
+/// Allows in-place mutation (e.g. appending to a list) without replace-and-clear overhead.
+pub fn getFieldPtr(
+    msg_ptr: anytype,
+    comptime field_meta: FieldMetadata,
+) *SetFieldPayloadType(std.meta.Child(@TypeOf(msg_ptr)), field_meta) {
+    comptime if (field_meta.oneof_variant != null) @compileError("getFieldPtr: oneof fields not supported");
+    const MsgType = std.meta.Child(@TypeOf(msg_ptr));
+    const field_name = comptime std.meta.fields(MsgType)[field_meta.field_index].name;
+    return &@field(msg_ptr.*, field_name);
+}
+
 /// Returns true if the field is set (i.e. would be written to the wire).
 pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
     const struct_fields = std.meta.fields(@TypeOf(msg));
