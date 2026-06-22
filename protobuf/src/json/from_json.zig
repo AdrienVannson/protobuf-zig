@@ -47,6 +47,50 @@ fn readScalarField(
     }
 }
 
+/// Returns true when a JSON null should reset the field to its unset state.
+/// Returns false for types where null is a meaningful value (google.protobuf.Value,
+/// google.protobuf.NullValue), because those need further handling instead.
+fn isResetSentinelNullValue(
+    comptime field_meta: FieldMetadata,
+    val: std.json.Value,
+) bool {
+    if (val != .null) return false;
+    return switch (comptime field_meta.kind) {
+        // TODO: return false when child message type is google.protobuf.Value.
+        // Blocked: MessageMetadata has no fully_qualified_proto_name field.
+        .message_field => true,
+        // TODO: return false when enum type is google.protobuf.NullValue.
+        // Blocked: MessageMetadata has no fully_qualified_proto_name field.
+        .enum_field => true,
+        else => true,
+    };
+}
+
+fn readMessageField(
+    msg: anytype,
+    comptime field_meta: FieldMetadata,
+    val: std.json.Value,
+    allocator: std.mem.Allocator,
+) !void {
+    if (isResetSentinelNullValue(field_meta, val)) {
+        field_access.clearField(msg, field_meta, allocator);
+        return;
+    }
+    const obj = switch (val) {
+        .object => |o| o,
+        else => return error.InvalidJson,
+    };
+    const existing = field_access.getField(msg.*, field_meta);
+    const child_ptr = existing orelse blk: {
+        const Child = std.meta.Child(@typeInfo(@TypeOf(existing)).optional.child);
+        const p = try allocator.create(Child);
+        p.* = .{};
+        field_access.setField(msg, field_meta, p, allocator);
+        break :blk p;
+    };
+    try readMessage(child_ptr, &obj, allocator);
+}
+
 fn readField(
     msg: anytype,
     comptime field_meta: FieldMetadata,
@@ -56,7 +100,7 @@ fn readField(
     switch (comptime field_meta.kind) {
         .scalar => try readScalarField(msg, field_meta, val, allocator),
         .enum_field => return error.UnsupportedFieldType,
-        .message_field => return error.UnsupportedFieldType,
+        .message_field => try readMessageField(msg, field_meta, val, allocator),
         .list => return error.UnsupportedFieldType,
         .map => return error.UnsupportedFieldType,
     }
@@ -66,7 +110,7 @@ fn readMessage(
     msg: anytype,
     obj: *const std.json.ObjectMap,
     allocator: std.mem.Allocator,
-) !void {
+) error{ InvalidJson, UnsupportedFieldType, OutOfMemory }!void {
     const T = std.meta.Child(@TypeOf(msg));
 
     var it = obj.iterator();

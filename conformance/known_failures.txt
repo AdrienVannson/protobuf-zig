@@ -7,6 +7,8 @@ Recommended.Proto3.JsonInput.DurationHas3FractionalDigits.Validator # Expected J
 Recommended.Proto3.JsonInput.DurationHas6FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.DurationHas9FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.DurationHasZeroFractionalDigit.Validator # Expected JSON payload but got type 1
+Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing1 # Should have failed to parse, but didn't.
+Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Output was not equivalent to reference message: deleted: map_string_nested_enum[key1]: FOO
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_enum[0]: FOOdeleted: repeated_nested_enum[1]: FOO
 Recommended.Proto3.JsonInput.NullValueInNormalMessage.Validator # Expected JSON payload but got type 1
@@ -20,8 +22,6 @@ Recommended.Proto3.JsonInput.OneofZeroEnum.JsonOutput # Failed to parse input or
 Recommended.Proto3.JsonInput.OneofZeroEnum.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroFloat.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroFloat.ProtobufOutput # Failed to parse input or produce output.
-Recommended.Proto3.JsonInput.OneofZeroMessage.JsonOutput # Failed to parse input or produce output.
-Recommended.Proto3.JsonInput.OneofZeroMessage.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroString.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.OneofZeroString.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.RejectUnknownEnumStringValueInMapValue # Should have failed to parse, but didn't.
@@ -42,22 +42,18 @@ Required.Proto3.DurationProtoNanosWrongSign.JsonOutput # Should have failed to s
 Required.Proto3.DurationProtoNanosWrongSignNegativeSecs.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.JsonInput.AllFieldAcceptNull.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AllFieldAcceptNull.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Any.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Any.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.JsonInput.Any.JsonOutput # Output was not equivalent to reference message: deleted: optional_any.type_url: "type.googleapis.com/protobuf_test_messages.prot
+Required.Proto3.JsonInput.Any.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.type_url: "type.googleapis.com/protobuf_test_messages.prot
 Required.Proto3.JsonInput.AnyNested.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyNested.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyNull.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyNull.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyUnorderedTypeTag.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyUnorderedTypeTag.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.JsonInput.AnyUnorderedTypeTag.JsonOutput # Output was not equivalent to reference message: deleted: optional_any.type_url: "type.googleapis.com/protobuf_test_messages.prot
+Required.Proto3.JsonInput.AnyUnorderedTypeTag.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.type_url: "type.googleapis.com/protobuf_test_messages.prot
 Required.Proto3.JsonInput.AnyWithDuration.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithDuration.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithFieldMask.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithFieldMask.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithInt32ValueWrapper.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithInt32ValueWrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyWithNoType.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyWithNoType.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithStruct.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithStruct.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithTimestamp.JsonOutput # Failed to parse input or produce output.
@@ -100,8 +96,6 @@ Required.Proto3.JsonInput.DurationNegativeNanos.JsonOutput # Failed to parse inp
 Required.Proto3.JsonInput.DurationNegativeNanos.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationNegativeSeconds.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationNegativeSeconds.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.DurationNull.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.DurationNull.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationRepeatedValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationRepeatedValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EmptyFieldMask.JsonOutput # Failed to parse input or produce output.
@@ -163,8 +157,6 @@ Required.Proto3.JsonInput.Int64MapEscapedKey.JsonOutput # Failed to parse input 
 Required.Proto3.JsonInput.Int64MapEscapedKey.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.Int64MapField.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.Int64MapField.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.MessageField.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.MessageField.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.MessageMapField.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.MessageMapField.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.MessageRepeatedField.JsonOutput # Failed to parse input or produce output.
@@ -235,10 +227,10 @@ Required.Proto3.JsonInput.StringFieldUnicodeEscapeWithLowercaseHexLetters.JsonOu
 Required.Proto3.JsonInput.StringFieldUnicodeEscapeWithLowercaseHexLetters.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.StringRepeatedField.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.StringRepeatedField.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Struct.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Struct.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.StructWithEmptyListValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.StructWithEmptyListValue.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.JsonInput.Struct.JsonOutput
+Required.Proto3.JsonInput.Struct.ProtobufOutput
+Required.Proto3.JsonInput.StructWithEmptyListValue.JsonOutput
+Required.Proto3.JsonInput.StructWithEmptyListValue.ProtobufOutput
 Required.Proto3.JsonInput.TimestampEpochValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampEpochValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampLeap.JsonOutput # Failed to parse input or produce output.
@@ -255,8 +247,6 @@ Required.Proto3.JsonInput.TimestampNanoAfterEpochlValue.JsonOutput # Failed to p
 Required.Proto3.JsonInput.TimestampNanoAfterEpochlValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampNanoBeforeEpochValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampNanoBeforeEpochValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.TimestampNull.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.TimestampNull.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampRepeatedValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampRepeatedValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampTenAndHalfSecondsAfterEpochValue.JsonOutput # Failed to parse input or produce output.
@@ -281,10 +271,10 @@ Required.Proto3.JsonInput.ValueAcceptInteger.JsonOutput # Failed to parse input 
 Required.Proto3.JsonInput.ValueAcceptInteger.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.ValueAcceptList.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.ValueAcceptList.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptNull.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptNull.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptObject.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptObject.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.JsonInput.ValueAcceptNull.JsonOutput # Output was not equivalent to reference message: deleted: optional_value: { null_value: NULL_VALUE }
+Required.Proto3.JsonInput.ValueAcceptNull.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_value: { null_value: NULL_VALUE }
+Required.Proto3.JsonInput.ValueAcceptObject.JsonOutput # Output was not equivalent to reference message: deleted: optional_value.struct_value.fields[value]: { number_value: 1 }
+Required.Proto3.JsonInput.ValueAcceptObject.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_value.struct_value: { fields { key: "value" value { number_val
 Required.Proto3.JsonInput.ValueAcceptString.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.ValueAcceptString.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.WrapperTypesWithNullValue.JsonOutput # Failed to parse input or produce output.
