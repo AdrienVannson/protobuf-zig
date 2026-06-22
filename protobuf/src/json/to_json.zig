@@ -52,7 +52,7 @@ fn writeFieldValue(
     switch (comptime field_meta.kind) {
         .scalar => |sc| try writeScalar(ctx, sc.scalar, value),
         .enum_field => return error.UnsupportedFieldType,
-        .message_field => return error.UnsupportedFieldType,
+        .message_field => try writeMessage(ctx, value.*),
         .list => return error.UnsupportedFieldType,
         .map => return error.UnsupportedFieldType,
     }
@@ -63,7 +63,7 @@ fn writeFieldCallback(ctx: *const JsonContext, comptime field_meta: FieldMetadat
     try writeFieldValue(ctx, field_meta, value);
 }
 
-fn writeMessage(ctx: *const JsonContext, msg: anytype) !void {
+fn writeMessage(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed, UnsupportedFieldType }!void {
     try ctx.json_writter.beginObject();
     try field_access.forEachSetField(msg, ctx, writeFieldCallback);
     try ctx.json_writter.endObject();
