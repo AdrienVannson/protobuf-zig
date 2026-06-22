@@ -184,11 +184,12 @@ fn readMapField(
     const map_ptr = field_access.getFieldPtr(msg, field_meta);
     const MapType = @TypeOf(map_ptr.*);
     const ValueType = @FieldType(MapType.KV, "value");
+    const KeyType = @FieldType(MapType.KV, "key");
 
     var it = obj.iterator();
     while (it.next()) |entry| {
         const key_str = entry.key_ptr.*;
-        const key: @FieldType(MapType.KV, "key") = switch (comptime field_meta.kind.map.key) {
+        const key: KeyType = switch (comptime field_meta.kind.map.key) {
             .string => try allocator.dupe(u8, key_str),
             .bool => if (std.mem.eql(u8, key_str, "true")) true else if (std.mem.eql(u8, key_str, "false")) false else return error.InvalidJson,
             inline else => |sc| std.fmt.parseInt(metadata.scalarZigType(sc), key_str, 10) catch return error.InvalidJson,
@@ -200,6 +201,10 @@ fn readMapField(
                 const v = try scalarFromJson(sc, entry.value_ptr.*);
                 try map_ptr.put(allocator, key, v);
             },
+            .enum_type => {
+                const v = try enumFromJson(ValueType, entry.value_ptr.*);
+                try map_ptr.put(allocator, key, v);
+            },
             .message => {
                 const value_obj = switch (entry.value_ptr.*) {
                     .object => |o| o,
@@ -208,16 +213,8 @@ fn readMapField(
                 const Child = std.meta.Child(ValueType);
                 const p = try allocator.create(Child);
                 p.* = .{};
-                errdefer {
-                    p.deinit(allocator);
-                    allocator.destroy(p);
-                }
                 try readMessage(p, &value_obj, allocator);
                 try map_ptr.put(allocator, key, p);
-            },
-            .enum_type => {
-                const v = try enumFromJson(ValueType, entry.value_ptr.*);
-                try map_ptr.put(allocator, key, v);
             },
         }
     }
