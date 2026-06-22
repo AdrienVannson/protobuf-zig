@@ -56,6 +56,18 @@ fn writeEnum(ctx: *const JsonContext, value: anytype) !void {
     try ctx.json_writter.write(int_val);
 }
 
+fn writeList(ctx: *const JsonContext, comptime list_meta: anytype, list: anytype) !void {
+    try ctx.json_writter.beginArray();
+    for (list.items) |item| {
+        switch (comptime list_meta.element) {
+            .scalar => |sc| try writeScalar(ctx, sc, item),
+            .message => try writeMessage(ctx, item.*),
+            .enum_type => try writeEnum(ctx, item),
+        }
+    }
+    try ctx.json_writter.endArray();
+}
+
 fn writeFieldValue(
     ctx: *const JsonContext,
     comptime field_meta: FieldMetadata,
@@ -65,7 +77,7 @@ fn writeFieldValue(
         .scalar => |sc| try writeScalar(ctx, sc.scalar, value),
         .enum_field => try writeEnum(ctx, value),
         .message_field => try writeMessage(ctx, value.*),
-        .list => return error.UnsupportedFieldType,
+        .list => |list_meta| try writeList(ctx, list_meta, value),
         .map => return error.UnsupportedFieldType,
     }
 }
