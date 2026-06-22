@@ -45,6 +45,9 @@ pub const Type = struct {
             .{ .number = 7, .field_index = 6, .json_name = "edition", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const Field = struct {
@@ -145,6 +148,9 @@ pub const Field = struct {
             .{ .number = 11, .field_index = 9, .json_name = "defaultValue", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // default_value
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const Enum = struct {
@@ -182,6 +188,9 @@ pub const Enum = struct {
             .{ .number = 6, .field_index = 5, .json_name = "edition", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // edition
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
+    }
 };
 
 pub const EnumValue = struct {
@@ -209,6 +218,9 @@ pub const EnumValue = struct {
             .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // options
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
+    }
 };
 
 pub const Option = struct {
@@ -230,6 +242,9 @@ pub const Option = struct {
             .{ .number = 2, .field_index = 1, .json_name = "value", .kind = .{ .message_field = .{} } }, // value
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4}));
+    }
 };
 
 pub const Syntax = enum(i32) {

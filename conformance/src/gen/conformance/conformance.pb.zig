@@ -35,6 +35,9 @@ pub const TestStatus = struct {
             .{ .number = 3, .field_index = 2, .json_name = "matchedName", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // matched_name
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const FailureSet = struct {
@@ -50,6 +53,9 @@ pub const FailureSet = struct {
             .{ .number = 2, .field_index = 0, .json_name = "test", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // test
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const ConformanceRequest = struct {
@@ -127,6 +133,9 @@ pub const ConformanceRequest = struct {
             .{ .number = 8, .field_index = 5, .oneof_variant = "text_payload", .json_name = "textPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
+    }
 };
 
 pub const ConformanceResponse = struct {
@@ -223,6 +232,9 @@ pub const ConformanceResponse = struct {
             .{ .number = 8, .field_index = 0, .oneof_variant = "text_payload", .json_name = "textPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
+    }
 };
 
 pub const JspbEncodingConfig = struct {
@@ -242,6 +254,9 @@ pub const JspbEncodingConfig = struct {
             .{ .number = 1, .field_index = 0, .json_name = "useJspbArrayAnyFormat", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // use_jspb_array_any_format
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4}));
+    }
 };
 
 pub const WireFormat = enum(i32) {

@@ -55,6 +55,9 @@ pub const Foo = struct {
             .{ .number = 5, .field_index = 3, .oneof_variant = "y", .json_name = "y", .kind = .{ .scalar = .{ .scalar = .string } } }, // y
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const Bar = struct {
@@ -81,6 +84,9 @@ pub const Bar = struct {
                 .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 0 }));
+        }
     };
 
     pub fn getColor(self: @This()) Color {
@@ -99,6 +105,9 @@ pub const Bar = struct {
             .{ .number = 4, .field_index = 3, .json_name = "colors", .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // colors
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const Color = enum(i32) {

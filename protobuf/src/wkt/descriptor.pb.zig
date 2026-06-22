@@ -19,6 +19,9 @@ pub const FileDescriptorSet = struct {
             .{ .number = 1, .field_index = 0, .json_name = "file", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // file
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const FileDescriptorProto = struct {
@@ -76,6 +79,9 @@ pub const FileDescriptorProto = struct {
             .{ .number = 14, .field_index = 13, .json_name = "edition", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const DescriptorProto = struct {
@@ -117,6 +123,9 @@ pub const DescriptorProto = struct {
                 .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 0 }));
+        }
     };
 
     pub const ReservedRange = struct {
@@ -142,6 +151,9 @@ pub const DescriptorProto = struct {
                 .{ .number = 2, .field_index = 1, .json_name = "end", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 1 }));
+        }
     };
 
     pub fn getName(self: @This()) []const u8 {
@@ -171,6 +183,9 @@ pub const DescriptorProto = struct {
             .{ .number = 11, .field_index = 10, .json_name = "visibility", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
+    }
 };
 
 pub const ExtensionRangeOptions = struct {
@@ -221,6 +236,9 @@ pub const ExtensionRangeOptions = struct {
                 .{ .number = 6, .field_index = 4, .json_name = "repeated", .kind = .{ .scalar = .{ .scalar = .bool } } }, // repeated
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 }));
+        }
     };
 
     pub const VerificationState = enum(i32) {
@@ -245,6 +263,9 @@ pub const ExtensionRangeOptions = struct {
             .{ .number = 3, .field_index = 3, .json_name = "verification", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // verification
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
+    }
 };
 
 pub const FieldDescriptorProto = struct {
@@ -349,6 +370,9 @@ pub const FieldDescriptorProto = struct {
             .{ .number = 17, .field_index = 10, .json_name = "proto3Optional", .kind = .{ .scalar = .{ .scalar = .bool } } }, // proto3_optional
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4}));
+    }
 };
 
 pub const OneofDescriptorProto = struct {
@@ -370,6 +394,9 @@ pub const OneofDescriptorProto = struct {
             .{ .number = 2, .field_index = 1, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5}));
+    }
 };
 
 pub const EnumDescriptorProto = struct {
@@ -404,6 +431,9 @@ pub const EnumDescriptorProto = struct {
                 .{ .number = 2, .field_index = 1, .json_name = "end", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // end
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 6, 0 }));
+        }
     };
 
     pub fn getName(self: @This()) []const u8 {
@@ -428,6 +458,9 @@ pub const EnumDescriptorProto = struct {
             .{ .number = 6, .field_index = 5, .json_name = "visibility", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // visibility
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6}));
+    }
 };
 
 pub const EnumValueDescriptorProto = struct {
@@ -455,6 +488,9 @@ pub const EnumValueDescriptorProto = struct {
             .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7}));
+    }
 };
 
 pub const ServiceDescriptorProto = struct {
@@ -478,6 +514,9 @@ pub const ServiceDescriptorProto = struct {
             .{ .number = 3, .field_index = 2, .json_name = "options", .kind = .{ .message_field = .{} } }, // options
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8}));
+    }
 };
 
 pub const MethodDescriptorProto = struct {
@@ -523,6 +562,9 @@ pub const MethodDescriptorProto = struct {
             .{ .number = 6, .field_index = 5, .json_name = "serverStreaming", .kind = .{ .scalar = .{ .scalar = .bool, .default_value = .{ .bool = false } } } }, // server_streaming
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9}));
+    }
 };
 
 pub const FileOptions = struct {
@@ -661,6 +703,9 @@ pub const FileOptions = struct {
             .{ .number = 999, .field_index = 20, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{10}));
+    }
 };
 
 pub const MessageOptions = struct {
@@ -708,6 +753,9 @@ pub const MessageOptions = struct {
             .{ .number = 999, .field_index = 6, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{11}));
+    }
 };
 
 pub const FieldOptions = struct {
@@ -750,6 +798,9 @@ pub const FieldOptions = struct {
                 .{ .number = 2, .field_index = 1, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .string } } }, // value
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 0 }));
+        }
     };
 
     pub const FeatureSupport = struct {
@@ -787,6 +838,9 @@ pub const FieldOptions = struct {
                 .{ .number = 4, .field_index = 3, .json_name = "editionRemoved", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // edition_removed
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 1 }));
+        }
     };
 
     pub const CType = enum(i32) {
@@ -882,6 +936,9 @@ pub const FieldOptions = struct {
             .{ .number = 999, .field_index = 13, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{12}));
+    }
 };
 
 pub const OneofOptions = struct {
@@ -899,6 +956,9 @@ pub const OneofOptions = struct {
             .{ .number = 999, .field_index = 1, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{13}));
+    }
 };
 
 pub const EnumOptions = struct {
@@ -934,6 +994,9 @@ pub const EnumOptions = struct {
             .{ .number = 999, .field_index = 4, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{14}));
+    }
 };
 
 pub const EnumValueOptions = struct {
@@ -965,6 +1028,9 @@ pub const EnumValueOptions = struct {
             .{ .number = 999, .field_index = 4, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{15}));
+    }
 };
 
 pub const ServiceOptions = struct {
@@ -988,6 +1054,9 @@ pub const ServiceOptions = struct {
             .{ .number = 999, .field_index = 2, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{16}));
+    }
 };
 
 pub const MethodOptions = struct {
@@ -1024,6 +1093,9 @@ pub const MethodOptions = struct {
             .{ .number = 999, .field_index = 3, .json_name = "uninterpretedOption", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // uninterpreted_option
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{17}));
+    }
 };
 
 pub const UninterpretedOption = struct {
@@ -1059,6 +1131,9 @@ pub const UninterpretedOption = struct {
                 .{ .number = 2, .field_index = 1, .json_name = "isExtension", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .legacy_required } } }, // is_extension
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 18, 0 }));
+        }
     };
 
     pub fn getIdentifierValue(self: @This()) []const u8 {
@@ -1100,6 +1175,9 @@ pub const UninterpretedOption = struct {
             .{ .number = 8, .field_index = 6, .json_name = "aggregateValue", .kind = .{ .scalar = .{ .scalar = .string } } }, // aggregate_value
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{18}));
+    }
 };
 
 pub const FeatureSet = struct {
@@ -1132,6 +1210,9 @@ pub const FeatureSet = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 19, 0 }));
+        }
     };
 
     pub const FieldPresence = enum(i32) {
@@ -1232,6 +1313,9 @@ pub const FeatureSet = struct {
             .{ .number = 8, .field_index = 7, .json_name = "defaultSymbolVisibility", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // default_symbol_visibility
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{19}));
+    }
 };
 
 pub const FeatureSetDefaults = struct {
@@ -1261,6 +1345,9 @@ pub const FeatureSetDefaults = struct {
                 .{ .number = 5, .field_index = 2, .json_name = "fixedFeatures", .kind = .{ .message_field = .{} } }, // fixed_features
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 20, 0 }));
+        }
     };
 
     pub fn getMinimumEdition(self: @This()) Edition {
@@ -1282,6 +1369,9 @@ pub const FeatureSetDefaults = struct {
             .{ .number = 5, .field_index = 2, .json_name = "maximumEdition", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // maximum_edition
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{20}));
+    }
 };
 
 pub const SourceCodeInfo = struct {
@@ -1317,6 +1407,9 @@ pub const SourceCodeInfo = struct {
                 .{ .number = 6, .field_index = 4, .json_name = "leadingDetachedComments", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // leading_detached_comments
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 21, 0 }));
+        }
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1328,6 +1421,9 @@ pub const SourceCodeInfo = struct {
             .{ .number = 1, .field_index = 0, .json_name = "location", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // location
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{21}));
+    }
 };
 
 pub const GeneratedCodeInfo = struct {
@@ -1378,6 +1474,9 @@ pub const GeneratedCodeInfo = struct {
                 .{ .number = 5, .field_index = 4, .json_name = "semantic", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // semantic
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 22, 0 }));
+        }
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1389,6 +1488,9 @@ pub const GeneratedCodeInfo = struct {
             .{ .number = 1, .field_index = 0, .json_name = "annotation", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // annotation
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{22}));
+    }
 };
 
 pub const Edition = enum(i32) {

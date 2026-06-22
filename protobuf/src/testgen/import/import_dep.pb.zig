@@ -23,6 +23,9 @@ pub const DepMsg = struct {
             .{ .number = 1, .field_index = 0, .json_name = "label", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // label
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const DepEnum = enum(i32) {

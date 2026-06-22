@@ -47,8 +47,9 @@ pub fn generateFile(
         try f.emptyLine();
     }
 
-    for (desc_file.messages) |*msg| {
-        try generateMessage(&f, msg, desc_file, &imports);
+    for (desc_file.messages, 0..) |*msg, i| {
+        const path = [_]usize{i};
+        try generateMessage(&f, msg, desc_file, &imports, &path);
     }
 
     for (desc_file.enums) |*e| {
@@ -77,6 +78,9 @@ fn generateMessage(
     msg: *const protobuf.DescMessage,
     cur_file: *const protobuf.DescFile,
     imports: *const ImportTable,
+    // Index path locating this message in the file descriptor (see
+    // read_message_metadata): top-level index, then nested_message indices.
+    path: []const usize,
 ) !void {
     // TODO escape directly local_name
     const safe_name = try escapeZigKeyword(f.alloc, msg.local_name);
@@ -105,8 +109,12 @@ fn generateMessage(
     try f.writeLine("_unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,");
     try f.emptyLine();
 
-    for (msg.nested_messages) |*nested| {
-        try generateMessage(f, nested, cur_file, imports);
+    for (msg.nested_messages, 0..) |*nested, j| {
+        const child_path = try f.alloc.alloc(usize, path.len + 1);
+        defer f.alloc.free(child_path);
+        @memcpy(child_path[0..path.len], path);
+        child_path[path.len] = j;
+        try generateMessage(f, nested, cur_file, imports, child_path);
     }
 
     for (msg.nested_enums) |*e| {
@@ -131,7 +139,7 @@ fn generateMessage(
     try generateMessageDeinit(f);
 
     try f.emptyLine();
-    try generateMessageMetadata(f, msg);
+    try generateMessageMetadata(f, msg, path);
 
     f.unindent();
     try f.writeLine("};");
@@ -179,6 +187,7 @@ fn generateMessageDeinit(f: *GeneratedFile) !void {
 fn generateMessageMetadata(
     f: *GeneratedFile,
     msg: *const protobuf.DescMessage,
+    path: []const usize,
 ) !void {
     try f.writeLine("pub const _desc = _metadata.MessageMetadata{");
     f.indent();
@@ -388,6 +397,22 @@ fn generateMessageMetadata(
     try f.writeLine("},");
     f.unindent();
     try f.writeLine("};");
+
+    // Validate that the same metadata can be derived from the embedded descriptor
+    // bytes at comptime. This compiles only if the comptime reader agrees with the
+    // hand-emitted literal above.
+    try f.writeLine("comptime {");
+    f.indent();
+    // `@This()._desc` (not bare `_desc`) so the reference is unambiguous inside
+    // nested messages, where an enclosing message also declares `_desc`.
+    try f.write("_codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ ");
+    for (path, 0..) |p, i| {
+        if (i != 0) try f.write(", ");
+        try f.write(p);
+    }
+    try f.writeLine(" }));");
+    f.unindent();
+    try f.writeLine("}");
 }
 
 fn generateField(

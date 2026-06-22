@@ -187,6 +187,9 @@ pub const TestAllTypesProto3 = struct {
                 .{ .number = 2, .field_index = 1, .json_name = "corecursive", .kind = .{ .message_field = .{} } }, // corecursive
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 0 }));
+        }
     };
 
     pub const NestedEnum = enum(i32) {
@@ -568,6 +571,9 @@ pub const TestAllTypesProto3 = struct {
             .{ .number = 120, .field_index = 141, .oneof_variant = "oneof_null_value", .json_name = "oneofNullValue", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_null_value
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const ForeignMessage = struct {
@@ -587,6 +593,9 @@ pub const ForeignMessage = struct {
             .{ .number = 1, .field_index = 0, .json_name = "c", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // c
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const NullHypothesisProto3 = struct {
@@ -599,6 +608,9 @@ pub const NullHypothesisProto3 = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
+    }
 };
 
 pub const EnumOnlyProto3 = struct {
@@ -617,6 +629,9 @@ pub const EnumOnlyProto3 = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
+    }
 };
 
 pub const ForeignEnum = enum(i32) {

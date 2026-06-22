@@ -19,6 +19,9 @@ pub const Struct = struct {
             .{ .number = 1, .field_index = 0, .json_name = "fields", .kind = .{ .map = .{ .key = .string, .value = .{ .message = {} } } } }, // fields
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const Value = struct {
@@ -67,6 +70,9 @@ pub const Value = struct {
             .{ .number = 6, .field_index = 0, .oneof_variant = "list_value", .json_name = "listValue", .kind = .{ .message_field = .{} } }, // list_value
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const ListValue = struct {
@@ -82,6 +88,9 @@ pub const ListValue = struct {
             .{ .number = 1, .field_index = 0, .json_name = "values", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // values
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
+    }
 };
 
 pub const NullValue = enum(i32) {

@@ -23,6 +23,9 @@ pub const ComplexMessage = struct {
             .{ .number = 1, .field_index = 0, .json_name = "d", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // d
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const TestAllTypesEdition2023 = struct {
@@ -150,6 +153,9 @@ pub const TestAllTypesEdition2023 = struct {
                 .{ .number = 2, .field_index = 1, .json_name = "corecursive", .kind = .{ .message_field = .{} } }, // corecursive
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 0 }));
+        }
     };
 
     pub const GroupLikeType = struct {
@@ -175,6 +181,9 @@ pub const TestAllTypesEdition2023 = struct {
                 .{ .number = 203, .field_index = 1, .json_name = "groupUint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // group_uint32
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 1 }));
+        }
     };
 
     pub const NestedEnum = enum(i32) {
@@ -419,6 +428,9 @@ pub const TestAllTypesEdition2023 = struct {
             .{ .number = 119, .field_index = 92, .oneof_variant = "oneof_enum", .json_name = "oneofEnum", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_enum
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const ForeignMessageEdition2023 = struct {
@@ -438,6 +450,9 @@ pub const ForeignMessageEdition2023 = struct {
             .{ .number = 1, .field_index = 0, .json_name = "c", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // c
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
+    }
 };
 
 pub const GroupLikeType = struct {
@@ -457,6 +472,9 @@ pub const GroupLikeType = struct {
             .{ .number = 1, .field_index = 0, .json_name = "c", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // c
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
+    }
 };
 
 pub const ForeignEnumEdition2023 = enum(i32) {

@@ -167,6 +167,9 @@ pub const TestAllTypesProto2 = struct {
                 .{ .number = 2, .field_index = 1, .json_name = "corecursive", .kind = .{ .message_field = .{} } }, // corecursive
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 0 }));
+        }
     };
 
     pub const Data = struct {
@@ -192,6 +195,9 @@ pub const TestAllTypesProto2 = struct {
                 .{ .number = 203, .field_index = 1, .json_name = "groupUint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // group_uint32
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 1 }));
+        }
     };
 
     pub const MultiWordGroupField = struct {
@@ -217,6 +223,9 @@ pub const TestAllTypesProto2 = struct {
                 .{ .number = 206, .field_index = 1, .json_name = "groupUint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // group_uint32
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 2 }));
+        }
     };
 
     pub const MessageSetCorrect = struct {
@@ -229,6 +238,9 @@ pub const TestAllTypesProto2 = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 3 }));
+        }
     };
 
     pub const MessageSetCorrectExtension1 = struct {
@@ -248,6 +260,9 @@ pub const TestAllTypesProto2 = struct {
                 .{ .number = 25, .field_index = 0, .json_name = "str", .kind = .{ .scalar = .{ .scalar = .string } } }, // str
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 4 }));
+        }
     };
 
     pub const MessageSetCorrectExtension2 = struct {
@@ -267,6 +282,9 @@ pub const TestAllTypesProto2 = struct {
                 .{ .number = 9, .field_index = 0, .json_name = "i", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // i
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 5 }));
+        }
     };
 
     pub const ExtensionWithOneof = struct {
@@ -300,6 +318,9 @@ pub const TestAllTypesProto2 = struct {
                 .{ .number = 2, .field_index = 0, .oneof_variant = "b", .json_name = "b", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // b
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 6 }));
+        }
     };
 
     pub const NestedEnum = enum(i32) {
@@ -712,6 +733,9 @@ pub const TestAllTypesProto2 = struct {
             .{ .number = 119, .field_index = 128, .oneof_variant = "oneof_enum", .json_name = "oneofEnum", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // oneof_enum
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0}));
+    }
 };
 
 pub const ForeignMessageProto2 = struct {
@@ -731,6 +755,9 @@ pub const ForeignMessageProto2 = struct {
             .{ .number = 1, .field_index = 0, .json_name = "c", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // c
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1}));
+    }
 };
 
 pub const GroupField = struct {
@@ -756,6 +783,9 @@ pub const GroupField = struct {
             .{ .number = 123, .field_index = 1, .json_name = "groupUint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // group_uint32
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2}));
+    }
 };
 
 pub const UnknownToTestAllTypes = struct {
@@ -784,6 +814,9 @@ pub const UnknownToTestAllTypes = struct {
                 .{ .number = 1, .field_index = 0, .json_name = "a", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // a
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 }));
+        }
     };
 
     pub fn getOptionalInt32(self: @This()) i32 {
@@ -812,6 +845,9 @@ pub const UnknownToTestAllTypes = struct {
             .{ .number = 1011, .field_index = 5, .json_name = "repeatedInt32", .kind = .{ .list = .{ .element = .{ .scalar = .int32 } } } }, // repeated_int32
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3}));
+    }
 };
 
 pub const NullHypothesisProto2 = struct {
@@ -824,6 +860,9 @@ pub const NullHypothesisProto2 = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4}));
+    }
 };
 
 pub const EnumOnlyProto2 = struct {
@@ -842,6 +881,9 @@ pub const EnumOnlyProto2 = struct {
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{},
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5}));
+    }
 };
 
 pub const OneStringProto2 = struct {
@@ -861,6 +903,9 @@ pub const OneStringProto2 = struct {
             .{ .number = 1, .field_index = 0, .json_name = "data", .kind = .{ .scalar = .{ .scalar = .string } } }, // data
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6}));
+    }
 };
 
 pub const ProtoWithKeywords = struct {
@@ -888,6 +933,9 @@ pub const ProtoWithKeywords = struct {
             .{ .number = 3, .field_index = 2, .json_name = "requires", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // requires
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7}));
+    }
 };
 
 pub const TestAllRequiredTypesProto2 = struct {
@@ -953,6 +1001,9 @@ pub const TestAllRequiredTypesProto2 = struct {
                 .{ .number = 3, .field_index = 2, .json_name = "optionalCorecursive", .kind = .{ .message_field = .{} } }, // optional_corecursive
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 0 }));
+        }
     };
 
     pub const Data = struct {
@@ -978,6 +1029,9 @@ pub const TestAllRequiredTypesProto2 = struct {
                 .{ .number = 203, .field_index = 1, .json_name = "groupUint32", .kind = .{ .scalar = .{ .scalar = .uint32 } } }, // group_uint32
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 1 }));
+        }
     };
 
     pub const MessageSetCorrect = struct {
@@ -990,6 +1044,9 @@ pub const TestAllRequiredTypesProto2 = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 2 }));
+        }
     };
 
     pub const MessageSetCorrectExtension1 = struct {
@@ -1009,6 +1066,9 @@ pub const TestAllRequiredTypesProto2 = struct {
                 .{ .number = 25, .field_index = 0, .json_name = "str", .kind = .{ .scalar = .{ .scalar = .string } } }, // str
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 3 }));
+        }
     };
 
     pub const MessageSetCorrectExtension2 = struct {
@@ -1028,6 +1088,9 @@ pub const TestAllRequiredTypesProto2 = struct {
                 .{ .number = 9, .field_index = 0, .json_name = "i", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // i
             },
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 4 }));
+        }
     };
 
     pub const NestedEnum = enum(i32) {
@@ -1221,6 +1284,9 @@ pub const TestAllRequiredTypesProto2 = struct {
             .{ .number = 255, .field_index = 38, .json_name = "defaultBytes", .kind = .{ .scalar = .{ .scalar = .bytes, .default_value = .{ .bytes = "joshua" } } } }, // default_bytes
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8}));
+    }
 };
 
 pub const TestLargeOneof = struct {
@@ -1243,6 +1309,9 @@ pub const TestLargeOneof = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 0 }));
+        }
     };
 
     pub const A2 = struct {
@@ -1255,6 +1324,9 @@ pub const TestLargeOneof = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 1 }));
+        }
     };
 
     pub const A3 = struct {
@@ -1267,6 +1339,9 @@ pub const TestLargeOneof = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 2 }));
+        }
     };
 
     pub const A4 = struct {
@@ -1279,6 +1354,9 @@ pub const TestLargeOneof = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 3 }));
+        }
     };
 
     pub const A5 = struct {
@@ -1291,6 +1369,9 @@ pub const TestLargeOneof = struct {
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{},
         };
+        comptime {
+            _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 4 }));
+        }
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1306,6 +1387,9 @@ pub const TestLargeOneof = struct {
             .{ .number = 5, .field_index = 0, .oneof_variant = "a5", .json_name = "a5", .kind = .{ .message_field = .{} } }, // a5
         },
     };
+    comptime {
+        _codegen.assert_metadata_eq(@This()._desc, _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9}));
+    }
 };
 
 pub const ForeignEnumProto2 = enum(i32) {
