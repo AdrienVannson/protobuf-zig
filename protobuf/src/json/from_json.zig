@@ -4,60 +4,24 @@ const metadata = @import("../_codegen/metadata.zig");
 
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
+const MessageMetadata = metadata.MessageMetadata;
 
-fn setFieldFromJson(
-    msg: anytype,
-    comptime field_meta: FieldMetadata,
-    val: std.json.Value,
-    allocator: std.mem.Allocator,
-) !void {
-    switch (comptime field_meta.kind) {
-        .scalar => |sc| {
-            const v = try parseScalar(sc.scalar, val);
-            field_access.setField(msg, field_meta, v, allocator);
+fn intFromJson(val: std.json.Value, comptime int_type: type) !int_type {
+    switch (val) {
+        .number_string, .string => |s| {
+            if (s.len == 0) {
+                return error.InvalidJson;
+            }
+            return std.fmt.parseInt(int_type, s, 10) catch error.InvalidJson;
         },
-        .enum_field => return error.UnsupportedFieldType,
-        .message_field => return error.UnsupportedFieldType,
-        .list => return error.UnsupportedFieldType,
-        .map => return error.UnsupportedFieldType,
+        else => return error.InvalidJson,
     }
 }
 
-fn parseScalar(comptime scalar: ScalarType, val: std.json.Value) !metadata.scalarZigType(scalar) {
+fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value) !metadata.scalarZigType(scalar) {
     switch (scalar) {
-        .int32, .sint32, .sfixed32 => {
-            const n = switch (val) {
-                .integer => |i| i,
-                .float => |f| @as(i64, @intFromFloat(f)),
-                else => return error.InvalidJson,
-            };
-            return std.math.cast(i32, n) orelse error.IntegerOverflow;
-        },
-        .uint32, .fixed32 => {
-            const n = switch (val) {
-                .integer => |i| i,
-                .float => |f| @as(i64, @intFromFloat(f)),
-                else => return error.InvalidJson,
-            };
-            return std.math.cast(u32, n) orelse error.IntegerOverflow;
-        },
-        .int64, .sint64, .sfixed64 => {
-            return switch (val) {
-                .integer => |i| i,
-                .string => |s| std.fmt.parseInt(i64, s, 10) catch error.InvalidJson,
-                .number_string => |s| std.fmt.parseInt(i64, s, 10) catch error.InvalidJson,
-                .float => |f| @as(i64, @intFromFloat(f)),
-                else => error.InvalidJson,
-            };
-        },
-        .uint64, .fixed64 => {
-            return switch (val) {
-                .integer => |i| std.math.cast(u64, i) orelse error.IntegerOverflow,
-                .string => |s| std.fmt.parseInt(u64, s, 10) catch error.InvalidJson,
-                .number_string => |s| std.fmt.parseInt(u64, s, 10) catch error.InvalidJson,
-                .float => |f| @as(u64, @intFromFloat(f)),
-                else => error.InvalidJson,
-            };
+        .int32, .sint32, .sfixed32, .uint32, .fixed32, .int64, .sint64, .sfixed64, .uint64, .fixed64 => {
+            return intFromJson(val, metadata.scalarZigType(scalar));
         },
         .bool => {
             return switch (val) {
@@ -66,6 +30,35 @@ fn parseScalar(comptime scalar: ScalarType, val: std.json.Value) !metadata.scala
             };
         },
         .float, .double, .string, .bytes => return error.UnsupportedFieldType,
+    }
+}
+
+fn readScalarField(
+    msg: anytype,
+    comptime field_meta: FieldMetadata,
+    val: std.json.Value,
+    allocator: std.mem.Allocator,
+) !void {
+    if (val == .null) {
+        field_access.clearField(msg, field_meta, allocator);
+    } else {
+        const v = try scalarFromJson(field_meta.kind.scalar.scalar, val);
+        field_access.setField(msg, field_meta, v, allocator);
+    }
+}
+
+fn readField(
+    msg: anytype,
+    comptime field_meta: FieldMetadata,
+    val: std.json.Value,
+    allocator: std.mem.Allocator,
+) !void {
+    switch (comptime field_meta.kind) {
+        .scalar => try readScalarField(msg, field_meta, val, allocator),
+        .enum_field => return error.UnsupportedFieldType,
+        .message_field => return error.UnsupportedFieldType,
+        .list => return error.UnsupportedFieldType,
+        .map => return error.UnsupportedFieldType,
     }
 }
 
@@ -78,21 +71,20 @@ fn readMessage(
 
     var it = obj.iterator();
     while (it.next()) |entry| {
-        const key = entry.key_ptr.*;
         const val = entry.value_ptr.*;
 
         inline for (T._desc.fields) |field_meta| {
-            if (std.mem.eql(u8, key, field_meta.json_name)) {
-                try setFieldFromJson(msg, field_meta, val, allocator);
-                break;
+            if (std.mem.eql(u8, entry.key_ptr.*, field_meta.json_name)) {
+                try readField(msg, field_meta, val, allocator);
             }
         }
-        // Unknown keys are silently ignored for forward compatibility.
     }
 }
 
 pub fn from_json(msg: anytype, json: []const u8, allocator: std.mem.Allocator) !void {
-    const parsed = try std.json.parseFromSlice(std.json.Value, allocator, json, .{});
+    const parsed = try std.json.parseFromSlice(std.json.Value, allocator, json, .{
+        .parse_numbers = false,
+    });
     defer parsed.deinit();
 
     const obj = switch (parsed.value) {
