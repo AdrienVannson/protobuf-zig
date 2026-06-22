@@ -25,8 +25,8 @@ pub const Duration = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int64, .presence = .implicit } } }, // seconds
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // nanos
+            .{ .number = 1, .field_index = 0, .json_name = "seconds", .kind = .{ .scalar = .{ .scalar = .int64, .presence = .implicit } } }, // seconds
+            .{ .number = 2, .field_index = 1, .json_name = "nanos", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // nanos
         },
     };
 };

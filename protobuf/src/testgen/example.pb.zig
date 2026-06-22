@@ -48,11 +48,11 @@ pub const Foo = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // id
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // struct
-            .{ .number = 4, .field_index = 3, .oneof_variant = "x", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // x
-            .{ .number = 5, .field_index = 3, .oneof_variant = "y", .kind = .{ .scalar = .{ .scalar = .string } } }, // y
+            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
+            .{ .number = 2, .field_index = 1, .json_name = "id", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // id
+            .{ .number = 3, .field_index = 2, .json_name = "struct", .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // struct
+            .{ .number = 4, .field_index = 3, .oneof_variant = "x", .json_name = "x", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // x
+            .{ .number = 5, .field_index = 3, .oneof_variant = "y", .json_name = "y", .kind = .{ .scalar = .{ .scalar = .string } } }, // y
         },
     };
 };
@@ -78,7 +78,7 @@ pub const Bar = struct {
 
         pub const _desc = _metadata.MessageMetadata{
             .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
+                .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
             },
         };
     };
@@ -93,10 +93,10 @@ pub const Bar = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // foo
-            .{ .number = 2, .field_index = 1, .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // tags
-            .{ .number = 3, .field_index = 2, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // color
-            .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // colors
+            .{ .number = 1, .field_index = 0, .json_name = "foo", .kind = .{ .message_field = .{} } }, // foo
+            .{ .number = 2, .field_index = 1, .json_name = "tags", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // tags
+            .{ .number = 3, .field_index = 2, .json_name = "color", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // color
+            .{ .number = 4, .field_index = 3, .json_name = "colors", .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // colors
         },
     };
 };

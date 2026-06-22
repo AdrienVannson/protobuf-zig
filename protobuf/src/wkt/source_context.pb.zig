@@ -20,7 +20,7 @@ pub const SourceContext = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // file_name
+            .{ .number = 1, .field_index = 0, .json_name = "fileName", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // file_name
         },
     };
 };

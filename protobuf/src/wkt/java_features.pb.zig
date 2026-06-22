@@ -68,11 +68,11 @@ pub const JavaFeatures = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_closed_enum
-            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // utf8_validation
-            .{ .number = 3, .field_index = 2, .kind = .{ .scalar = .{ .scalar = .bool } } }, // large_enum
-            .{ .number = 4, .field_index = 3, .kind = .{ .scalar = .{ .scalar = .bool } } }, // use_old_outer_classname_default
-            .{ .number = 5, .field_index = 4, .kind = .{ .enum_field = .{ .default_value = 0 } } }, // nest_in_file_class
+            .{ .number = 1, .field_index = 0, .json_name = "legacyClosedEnum", .kind = .{ .scalar = .{ .scalar = .bool } } }, // legacy_closed_enum
+            .{ .number = 2, .field_index = 1, .json_name = "utf8Validation", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // utf8_validation
+            .{ .number = 3, .field_index = 2, .json_name = "largeEnum", .kind = .{ .scalar = .{ .scalar = .bool } } }, // large_enum
+            .{ .number = 4, .field_index = 3, .json_name = "useOldOuterClassnameDefault", .kind = .{ .scalar = .{ .scalar = .bool } } }, // use_old_outer_classname_default
+            .{ .number = 5, .field_index = 4, .json_name = "nestInFileClass", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // nest_in_file_class
         },
     };
 };

@@ -25,6 +25,8 @@ pub const DescExtension = descriptor.DescExtension;
 
 pub const to_binary = @import("wire/to_binary.zig").to_binary;
 pub const from_binary = @import("wire/from_binary.zig").from_binary;
+pub const to_json = @import("json/to_json.zig").to_json;
+pub const from_json = @import("json/from_json.zig").from_json;
 
 pub const UnknownField = @import("unknown_field.zig").UnknownField;
 
@@ -48,6 +50,8 @@ test {
     _ = @import("_codegen/field_access.zig");
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
+    _ = @import("json/to_json.zig");
+    _ = @import("json/from_json.zig");
     _ = @import("_codegen/message_deinit.zig");
     _ = @import("wkt.zig");
     _ = @import("test/descriptor_roundtrip_test.zig");

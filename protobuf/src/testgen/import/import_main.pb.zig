@@ -24,10 +24,10 @@ pub const ImportMain = struct {
 
     pub const _desc = _metadata.MessageMetadata{
         .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .kind = .{ .message_field = .{} } }, // single
-            .{ .number = 2, .field_index = 1, .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // kind
-            .{ .number = 3, .field_index = 2, .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // many
-            .{ .number = 4, .field_index = 3, .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // kinds
+            .{ .number = 1, .field_index = 0, .json_name = "single", .kind = .{ .message_field = .{} } }, // single
+            .{ .number = 2, .field_index = 1, .json_name = "kind", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // kind
+            .{ .number = 3, .field_index = 2, .json_name = "many", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // many
+            .{ .number = 4, .field_index = 3, .json_name = "kinds", .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // kinds
         },
     };
 };
