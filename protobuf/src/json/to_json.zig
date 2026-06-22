@@ -12,7 +12,7 @@ fn writeScalar(json_writter: *std.json.Stringify, comptime scalar: ScalarType, v
         .bool => try json_writter.write(value),
         .int64, .sint64, .sfixed64, .uint64, .fixed64 => {
             var buf: [20]u8 = undefined;
-            const s = std.field_metat.bufPrint(&buf, "{d}", .{value}) catch unreachable;
+            const s = std.fmt.bufPrint(&buf, "{d}", .{value}) catch unreachable;
             try json_writter.write(s);
         },
         .float, .double, .string, .bytes => return error.UnsupportedFieldType,

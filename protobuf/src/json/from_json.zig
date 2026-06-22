@@ -5,40 +5,6 @@ const metadata = @import("../_codegen/metadata.zig");
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
 
-pub fn from_json(msg: anytype, json: []const u8, allocator: std.mem.Allocator) !void {
-    const parsed = try std.json.parseFromSlice(std.json.Value, allocator, json, .{});
-    defer parsed.deinit();
-
-    const obj = switch (parsed.value) {
-        .object => |o| o,
-        else => return error.InvalidJson,
-    };
-
-    try readMessage(msg, &obj, allocator);
-}
-
-fn readMessage(
-    msg: anytype,
-    obj: *const std.json.ObjectMap,
-    allocator: std.mem.Allocator,
-) !void {
-    const T = std.meta.Child(@TypeOf(msg));
-
-    var it = obj.iterator();
-    while (it.next()) |entry| {
-        const key = entry.key_ptr.*;
-        const val = entry.value_ptr.*;
-
-        inline for (T._desc.fields) |field_meta| {
-            if (std.mem.eql(u8, key, field_meta.json_name)) {
-                try setFieldFromJson(msg, field_meta, val, allocator);
-                break;
-            }
-        }
-        // Unknown keys are silently ignored for forward compatibility.
-    }
-}
-
 fn setFieldFromJson(
     msg: anytype,
     comptime field_meta: FieldMetadata,
@@ -101,4 +67,38 @@ fn parseScalar(comptime scalar: ScalarType, val: std.json.Value) !metadata.scala
         },
         .float, .double, .string, .bytes => return error.UnsupportedFieldType,
     }
+}
+
+fn readMessage(
+    msg: anytype,
+    obj: *const std.json.ObjectMap,
+    allocator: std.mem.Allocator,
+) !void {
+    const T = std.meta.Child(@TypeOf(msg));
+
+    var it = obj.iterator();
+    while (it.next()) |entry| {
+        const key = entry.key_ptr.*;
+        const val = entry.value_ptr.*;
+
+        inline for (T._desc.fields) |field_meta| {
+            if (std.mem.eql(u8, key, field_meta.json_name)) {
+                try setFieldFromJson(msg, field_meta, val, allocator);
+                break;
+            }
+        }
+        // Unknown keys are silently ignored for forward compatibility.
+    }
+}
+
+pub fn from_json(msg: anytype, json: []const u8, allocator: std.mem.Allocator) !void {
+    const parsed = try std.json.parseFromSlice(std.json.Value, allocator, json, .{});
+    defer parsed.deinit();
+
+    const obj = switch (parsed.value) {
+        .object => |o| o,
+        else => return error.InvalidJson,
+    };
+
+    try readMessage(msg, &obj, allocator);
 }
