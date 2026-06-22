@@ -243,7 +243,7 @@ fn parseFieldInfo(comptime fb: []const u8) FieldInfo {
     return .{
         .name = name,
         .number = @intCast(getVarint(fb, F_NUMBER) orelse @compileError("descriptor field missing number")),
-        .json_name = getBytes(fb, F_JSON_NAME) orelse toJsonName(name),
+        .json_name = getBytes(fb, F_JSON_NAME) orelse @compileError("descriptor field missing json_name"),
         .label = getVarint(fb, F_LABEL) orelse @compileError("descriptor field missing label"),
         .type = getVarint(fb, F_TYPE) orelse @compileError("descriptor field missing type"),
         .type_name = getBytes(fb, F_TYPE_NAME),
@@ -258,20 +258,6 @@ fn parseFieldInfo(comptime fb: []const u8) FieldInfo {
 /// is not a proto3 `optional` field (those live in synthetic oneofs).
 fn isRealOneofMember(comptime fi: FieldInfo) bool {
     return fi.oneof_index != null and !fi.proto3_optional;
-}
-
-fn toJsonName(comptime snake: []const u8) []const u8 {
-    var out: []const u8 = &.{};
-    var up = false;
-    for (snake) |c| {
-        if (c == '_') {
-            up = true;
-            continue;
-        }
-        out = out ++ [_]u8{if (up) std.ascii.toUpper(c) else c};
-        up = false;
-    }
-    return out;
 }
 
 fn scalarFromType(comptime t: u64) ?ScalarType {
