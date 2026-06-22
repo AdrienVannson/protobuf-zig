@@ -44,6 +44,18 @@ fn writeScalar(ctx: *const JsonContext, comptime scalar: ScalarType, value: anyt
     }
 }
 
+fn writeEnum(ctx: *const JsonContext, value: anytype) !void {
+    const int_val = @intFromEnum(value);
+    inline for (@typeInfo(@TypeOf(value)).@"enum".fields) |f| {
+        if (int_val == f.value) {
+            // TODO: the proto name may be different from the local name
+            try ctx.json_writter.write(f.name);
+            return;
+        }
+    }
+    try ctx.json_writter.write(int_val);
+}
+
 fn writeFieldValue(
     ctx: *const JsonContext,
     comptime field_meta: FieldMetadata,
@@ -51,7 +63,7 @@ fn writeFieldValue(
 ) !void {
     switch (comptime field_meta.kind) {
         .scalar => |sc| try writeScalar(ctx, sc.scalar, value),
-        .enum_field => return error.UnsupportedFieldType,
+        .enum_field => try writeEnum(ctx, value),
         .message_field => try writeMessage(ctx, value.*),
         .list => return error.UnsupportedFieldType,
         .map => return error.UnsupportedFieldType,
