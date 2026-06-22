@@ -29,7 +29,6 @@ Recommended.Proto3.JsonInput.TimestampHas6FractionalDigits.Validator # Expected 
 Recommended.Proto3.JsonInput.TimestampHas9FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampHasZeroFractionalDigit.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampZeroNormalized.Validator # Expected JSON payload but got type 1
-Recommended.Proto3.ProtobufInput.OneofZeroEnum.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.ValueRejectInfNumberValue.JsonOutput # Should have failed to serialize, but didn't.
 Recommended.Proto3.ValueRejectNanNumberValue.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.DurationProtoInputTooLarge.JsonOutput # Should have failed to serialize, but didn't.
@@ -288,7 +287,6 @@ Required.Proto3.JsonInput.ValueAcceptString.ProtobufOutput # Failed to parse inp
 Required.Proto3.JsonInput.WrapperTypesWithNullValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.WrapperTypesWithNullValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.RepeatedScalarMessageMerge.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.RepeatedScalarSelectsLast.ENUM.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataMap.BOOL.BOOL.Default.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataMap.BOOL.BOOL.DuplicateKey.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataMap.BOOL.BOOL.DuplicateKeyInMapEntry.JsonOutput # Failed to parse input or produce output.
@@ -409,10 +407,6 @@ Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.DuplicateValueInMapEntr
 Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.MissingDefault.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.NonDefault.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataMap.UINT64.UINT64.Unordered.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.DefaultValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.MultipleValuesForDifferentField.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.MultipleValuesForSameField.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataOneof.ENUM.NonDefaultValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataOneof.MESSAGE.Merge.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.JsonOutput # Failed to parse input or produce output.
@@ -445,11 +439,6 @@ Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.JsonOutput # 
 Required.Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[1].JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[2].JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[3].JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[4].JsonOutput # Failed to parse input or produce output.
-Required.Proto3.ProtobufInput.ValidDataScalar.ENUM[5].JsonOutput # Failed to parse input or produce output.
 Required.Proto3.TimestampProtoInputTooLarge.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoInputTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNanoTooLarge.JsonOutput # Should have failed to serialize, but didn't.
