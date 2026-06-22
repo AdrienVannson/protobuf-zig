@@ -159,8 +159,6 @@ Required.Proto3.JsonInput.Int64MapField.JsonOutput # Failed to parse input or pr
 Required.Proto3.JsonInput.Int64MapField.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.MessageMapField.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.MessageMapField.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.MessageRepeatedField.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.MessageRepeatedField.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldNullFirst.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldNullFirst.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldNullSecond.JsonOutput # Failed to parse input or produce output.
@@ -187,8 +185,6 @@ Required.Proto3.JsonInput.OptionalWrapperTypesWithNonDefaultValue.JsonOutput # F
 Required.Proto3.JsonInput.OptionalWrapperTypesWithNonDefaultValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OriginalProtoFieldName.JsonOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
 Required.Proto3.JsonInput.OriginalProtoFieldName.ProtobufOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
-Required.Proto3.JsonInput.PrimitiveRepeatedField.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.PrimitiveRepeatedField.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.RepeatedBoolWrapper.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.RepeatedBoolWrapper.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.RepeatedBytesWrapper.JsonOutput # Failed to parse input or produce output.
@@ -277,8 +273,6 @@ Required.Proto3.JsonInput.ValueAcceptObject.JsonOutput # Output was not equivale
 Required.Proto3.JsonInput.ValueAcceptObject.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_value.struct_value: { fields { key: "value" value { number_val
 Required.Proto3.JsonInput.ValueAcceptString.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.ValueAcceptString.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.WrapperTypesWithNullValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.WrapperTypesWithNullValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.TimestampProtoInputTooLarge.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoInputTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNanoTooLarge.JsonOutput # Should have failed to serialize, but didn't.

@@ -91,6 +91,45 @@ fn readMessageField(
     try readMessage(child_ptr, &obj, allocator);
 }
 
+fn readListField(
+    msg: anytype,
+    comptime field_meta: FieldMetadata,
+    val: std.json.Value,
+    allocator: std.mem.Allocator,
+) !void {
+    if (val == .null) {
+        field_access.clearField(msg, field_meta, allocator);
+        return;
+    }
+    const arr = switch (val) {
+        .array => |a| a,
+        else => return error.InvalidJson,
+    };
+
+    const list_ptr = field_access.getFieldPtr(msg, field_meta);
+
+    for (arr.items) |item| {
+        switch (comptime field_meta.kind.list.element) {
+            .scalar => |sc| {
+                const v = try scalarFromJson(sc, item);
+                try list_ptr.append(allocator, v);
+            },
+            .message => {
+                const obj = switch (item) {
+                    .object => |o| o,
+                    else => return error.InvalidJson,
+                };
+                const ChildMsg = std.meta.Child(@typeInfo(@TypeOf(list_ptr.items)).pointer.child);
+                const p = try allocator.create(ChildMsg);
+                p.* = .{};
+                try list_ptr.append(allocator, p);
+                try readMessage(p, &obj, allocator);
+            },
+            .enum_type => return error.UnsupportedFieldType,
+        }
+    }
+}
+
 fn readField(
     msg: anytype,
     comptime field_meta: FieldMetadata,
@@ -101,7 +140,7 @@ fn readField(
         .scalar => try readScalarField(msg, field_meta, val, allocator),
         .enum_field => return error.UnsupportedFieldType,
         .message_field => try readMessageField(msg, field_meta, val, allocator),
-        .list => return error.UnsupportedFieldType,
+        .list => try readListField(msg, field_meta, val, allocator),
         .map => return error.UnsupportedFieldType,
     }
 }
