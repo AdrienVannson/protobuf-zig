@@ -101,8 +101,6 @@ pub const DescEnum = struct {
     values: []const DescEnumValue,
     /// Map from numeric value to the index of the first DescEnumValue with that number.
     value: std.AutoHashMapUnmanaged(i32, usize),
-    /// Shared prefix stripped from value names in generated code, if any.
-    shared_prefix: ?[]const u8,
     /// Whether this enum is marked deprecated.
     deprecated: bool,
 };

@@ -142,7 +142,6 @@ fn p1Enums(
             .closed = !ctx.is_proto3,
             .values = try p1EnumValues(ctx, ep.value.items),
             .value = .{},
-            .shared_prefix = null,
             .deprecated = if (ep.options) |o| o.deprecated orelse false else false,
         };
         try ctx.enum_index.put(full_name, de);
