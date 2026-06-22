@@ -227,8 +227,8 @@ Required.Proto3.JsonInput.StringFieldUnicodeEscapeWithLowercaseHexLetters.JsonOu
 Required.Proto3.JsonInput.StringFieldUnicodeEscapeWithLowercaseHexLetters.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.StringRepeatedField.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.StringRepeatedField.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Struct.JsonOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[objectValue]: { struct_value { fields { key: "va
-Required.Proto3.JsonInput.Struct.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[objectValue]: { struct_value { fields { key: "va
+Required.Proto3.JsonInput.Struct.JsonOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[intValue]: { number_value: 1234 }deleted: option
+Required.Proto3.JsonInput.Struct.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[intValue]: { number_value: 1234 }deleted: option
 Required.Proto3.JsonInput.StructWithEmptyListValue.JsonOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[listValue]: { list_value { } }
 Required.Proto3.JsonInput.StructWithEmptyListValue.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[listValue]: { list_value { } }
 Required.Proto3.JsonInput.TimestampEpochValue.JsonOutput # Failed to parse input or produce output.
