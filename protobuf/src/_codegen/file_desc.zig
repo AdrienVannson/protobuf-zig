@@ -16,7 +16,7 @@ const DescFile = protobuf.DescFile;
 const DescMessage = protobuf.DescMessage;
 
 /// Accessor for a generated file's lazily-built `DescFile`.
-pub const FileDescFn = *const fn () *const DescFile;
+pub const FileDescFn = *const fn (std.Io) *const DescFile;
 
 /// Per-file static cache. Keyed on `File` so each generated file gets its own
 /// storage (the `File` reference forces a distinct type per instantiation).
@@ -25,7 +25,7 @@ fn Cache(comptime File: type) type {
         comptime {
             _ = File;
         }
-        var mutex: std.Io.Mutex = .{};
+        var mutex: std.Io.Mutex = .init;
         var value: std.atomic.Value(?*const DescFile) = std.atomic.Value(?*const DescFile).init(null);
     };
 }
@@ -40,26 +40,26 @@ pub fn fileDesc(
     comptime File: type,
     comptime descriptor_bytes: []const u8,
     dep_accessors: []const FileDescFn,
+    io: std.Io,
 ) *const DescFile {
     const C = Cache(File);
 
     if (C.value.load(.acquire)) |v| return v;
 
-    // C.mutex.lock();
-    // defer C.mutex.unlock();
+    C.mutex.lockUncancelable(io);
+    // TODO C.mutex.lock(io);
+    defer C.mutex.unlock(io);
 
     if (C.value.load(.acquire)) |v| return v; // Re-check after acquiring the lock
 
-    // We have to build the DescFile
-    // const v = try build(descriptor_bytes, dep_accessors);
-    const v = build(descriptor_bytes, dep_accessors) catch |err| {
+    const v = build(descriptor_bytes, dep_accessors, io) catch |err| {
         std.debug.panic("failed to build DescFile: {}\n", .{err});
     };
     C.value.store(v, .release);
     return v;
 }
 
-fn build(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn) !*const DescFile {
+fn build(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn, io: std.Io) !*const DescFile {
     // Intermediate proto + deps map: only needed during the build, freed here.
     var tmp = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer tmp.deinit();
@@ -71,7 +71,7 @@ fn build(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn) !*cons
 
     var deps = std.StringHashMap(*const DescFile).init(tmp_alloc);
     for (dep_accessors) |dep| {
-        const df = dep();
+        const df = dep(io);
         try deps.put(df.name, df);
     }
 
