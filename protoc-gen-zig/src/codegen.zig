@@ -26,8 +26,6 @@ pub fn generateFile(
     try f.writeLine(.{ "// Source: ", desc_file.name });
     try f.emptyLine();
 
-    // Always emit the runtime imports: every file carries DESCRIPTOR_BYTES and a
-    // `_fileDesc` accessor, and may be imported as a dependency by another file.
     try f.writeLine("const std = @import(\"std\");");
     try f.writeLine("const _protobuf = @import(\"protobuf\");");
     try f.writeLine("const _codegen = _protobuf._codegen;");
