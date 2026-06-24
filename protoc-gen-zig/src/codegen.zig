@@ -77,8 +77,8 @@ fn generateMessage(
     msg: *const protobuf.DescMessage,
     cur_file: *const protobuf.DescFile,
     imports: *const ImportTable,
-    // Index path locating this message in the file descriptor (see
-    // read_message_metadata): top-level index, then nested_message indices.
+    // Index path locating this message in the file descriptor:
+    // top-level index, then nested_message indices.
     path: []const usize,
 ) !void {
     // TODO escape directly local_name
