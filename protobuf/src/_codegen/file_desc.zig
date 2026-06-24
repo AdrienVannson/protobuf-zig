@@ -16,7 +16,7 @@ const DescFile = protobuf.DescFile;
 const DescMessage = protobuf.DescMessage;
 
 /// Accessor for a generated file's lazily-built `DescFile`.
-pub const FileDescFn = *const fn (std.Io) *const DescFile;
+pub const FileDescFn = *const fn (std.Io) anyerror!*const DescFile;
 
 /// Per-file static cache. Keyed on `File` so each generated file gets its own
 /// storage (the `File` reference forces a distinct type per instantiation).
@@ -41,20 +41,18 @@ pub fn fileDesc(
     comptime descriptor_bytes: []const u8,
     dep_accessors: []const FileDescFn,
     io: std.Io,
-) *const DescFile {
+) !*const DescFile {
     const C = Cache(File);
 
     if (C.value.load(.acquire)) |v| return v;
 
-    C.mutex.lockUncancelable(io);
-    // TODO C.mutex.lock(io);
+    // C.mutex.lockUncancelable(io);
+    try C.mutex.lock(io);
     defer C.mutex.unlock(io);
 
     if (C.value.load(.acquire)) |v| return v; // Re-check after acquiring the lock
 
-    const v = build(descriptor_bytes, dep_accessors, io) catch |err| {
-        std.debug.panic("failed to build DescFile: {}\n", .{err});
-    };
+    const v = try build(descriptor_bytes, dep_accessors, io);
     C.value.store(v, .release);
     return v;
 }
@@ -71,7 +69,7 @@ fn build(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn, io: st
 
     var deps = std.StringHashMap(*const DescFile).init(tmp_alloc);
     for (dep_accessors) |dep| {
-        const df = dep(io);
+        const df = try dep(io);
         try deps.put(df.name, df);
     }
 
