@@ -64,5 +64,5 @@ test {
     _ = @import("_codegen/file_desc.zig");
     _ = @import("wkt.zig");
     _ = @import("test/descriptor_roundtrip_test.zig");
-    _ = @import("test/full_desc_test.zig");
+    _ = @import("test/test_desc.zig");
 }
