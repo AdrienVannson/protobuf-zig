@@ -1,5 +1,7 @@
 //! Comptime derivation of message metadata from embedded descriptor bytes.
 //! Doesn't depend on descriptor.proto to allow bootstrapping.
+//!
+//! TODO: fully AI-generated file, review and improve
 
 const std = @import("std");
 const metadata = @import("metadata.zig");
