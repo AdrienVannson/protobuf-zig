@@ -2,7 +2,7 @@ const std = @import("std");
 const plugin = @import("gen/google/protobuf/compiler/plugin.pb.zig");
 const codegen = @import("codegen.zig");
 const protobuf = @import("protobuf");
-const desc_file_from_proto = protobuf._codegen.descFileFromProto;
+const descFileFromProto = protobuf._codegen.descFileFromProto;
 const OwnedDescFile = protobuf._codegen.OwnedDescFile;
 
 pub fn main(init: std.process.Init) !void {
@@ -38,7 +38,7 @@ pub fn main(init: std.process.Init) !void {
         owned_descs.deinit(alloc);
     }
     for (request.proto_file.items) |f| {
-        const owned = try desc_file_from_proto(f, &desc_by_name, alloc);
+        const owned = try descFileFromProto(f, &desc_by_name, alloc);
         try owned_descs.append(alloc, owned);
         // Reference the stable arena-owned file from the just-appended element.
         const last = &owned_descs.items[owned_descs.items.len - 1];
