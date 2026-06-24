@@ -27,7 +27,7 @@ pub const TestStatus = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const FailureSet = struct {
@@ -38,7 +38,7 @@ pub const FailureSet = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const ConformanceRequest = struct {
@@ -103,7 +103,7 @@ pub const ConformanceRequest = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const ConformanceResponse = struct {
@@ -187,7 +187,7 @@ pub const ConformanceResponse = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const JspbEncodingConfig = struct {
@@ -202,7 +202,7 @@ pub const JspbEncodingConfig = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
 };
 
 pub const WireFormat = enum(i32) {

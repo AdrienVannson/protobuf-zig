@@ -13,7 +13,7 @@ pub const Struct = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const Value = struct {
@@ -52,7 +52,7 @@ pub const Value = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const ListValue = struct {
@@ -63,7 +63,7 @@ pub const ListValue = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const NullValue = enum(i32) {

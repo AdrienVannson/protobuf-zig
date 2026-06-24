@@ -17,7 +17,7 @@ pub const ComplexMessage = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const TestAllTypesEdition2023 = struct {
@@ -139,7 +139,7 @@ pub const TestAllTypesEdition2023 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 0 });
     };
 
     pub const GroupLikeType = struct {
@@ -159,7 +159,7 @@ pub const TestAllTypesEdition2023 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 1 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 1 });
     };
 
     pub const NestedEnum = enum(i32) {
@@ -299,7 +299,7 @@ pub const TestAllTypesEdition2023 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const ForeignMessageEdition2023 = struct {
@@ -314,7 +314,7 @@ pub const ForeignMessageEdition2023 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const GroupLikeType = struct {
@@ -329,7 +329,7 @@ pub const GroupLikeType = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const ForeignEnumEdition2023 = enum(i32) {

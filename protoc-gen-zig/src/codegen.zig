@@ -187,7 +187,7 @@ fn generateMessageMetadata(
     f: *GeneratedFile,
     path: []const usize,
 ) !void {
-    try f.write("pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ ");
+    try f.write("pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ ");
     for (path, 0..) |p, i| {
         if (i != 0) try f.write(", ");
         try f.write(p);

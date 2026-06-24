@@ -246,7 +246,7 @@ fn readMessage(
     while (it.next()) |entry| {
         const val = entry.value_ptr.*;
 
-        inline for (T._desc.fields) |field_meta| {
+        inline for (T._metadata.fields) |field_meta| {
             if (std.mem.eql(u8, entry.key_ptr.*, field_meta.json_name)) {
                 try readField(msg, field_meta, val, allocator);
             }

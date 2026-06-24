@@ -180,7 +180,7 @@ pub const TestAllTypesProto3 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 0 });
     };
 
     pub const NestedEnum = enum(i32) {
@@ -407,7 +407,7 @@ pub const TestAllTypesProto3 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const ForeignMessage = struct {
@@ -422,7 +422,7 @@ pub const ForeignMessage = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const NullHypothesisProto3 = struct {
@@ -432,7 +432,7 @@ pub const NullHypothesisProto3 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const EnumOnlyProto3 = struct {
@@ -448,7 +448,7 @@ pub const EnumOnlyProto3 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const ForeignEnum = enum(i32) {

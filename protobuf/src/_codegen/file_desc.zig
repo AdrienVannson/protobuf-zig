@@ -1,4 +1,4 @@
-//! Runtime helpers backing the `_fileDesc` / `_full_desc` accessors emitted in
+//! Runtime helpers backing the `_fileDesc` / `_desc` accessors emitted in
 //! generated `.pb.zig` files. They lazily parse the `DESCRIPTOR_BYTES` embedded
 //! in each file into a fully-linked `DescFile` graph and cache it for the
 //! lifetime of the process.

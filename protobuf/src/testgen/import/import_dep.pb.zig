@@ -17,7 +17,7 @@ pub const DepMsg = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const DepEnum = enum(i32) {

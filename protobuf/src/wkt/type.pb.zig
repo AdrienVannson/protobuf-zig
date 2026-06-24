@@ -33,7 +33,7 @@ pub const Type = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const Field = struct {
@@ -120,7 +120,7 @@ pub const Field = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const Enum = struct {
@@ -148,7 +148,7 @@ pub const Enum = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const EnumValue = struct {
@@ -169,7 +169,7 @@ pub const EnumValue = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const Option = struct {
@@ -185,7 +185,7 @@ pub const Option = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
 };
 
 pub const Syntax = enum(i32) {

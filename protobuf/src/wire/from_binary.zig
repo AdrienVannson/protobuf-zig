@@ -178,7 +178,7 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
         var handled = false;
 
         // TODO: check that the compiler is able to optimize this loop into O(log(n))
-        inline for (T._desc.fields) |field_meta| {
+        inline for (T._metadata.fields) |field_meta| {
             if (field_meta.number == number) {
                 handled = true;
                 const field_name = comptime struct_fields[field_meta.field_index].name;

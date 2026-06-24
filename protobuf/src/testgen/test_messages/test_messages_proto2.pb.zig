@@ -160,7 +160,7 @@ pub const TestAllTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 0 });
     };
 
     pub const Data = struct {
@@ -180,7 +180,7 @@ pub const TestAllTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 1 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 1 });
     };
 
     pub const MultiWordGroupField = struct {
@@ -200,7 +200,7 @@ pub const TestAllTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 2 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 2 });
     };
 
     pub const MessageSetCorrect = struct {
@@ -210,7 +210,7 @@ pub const TestAllTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 3 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 3 });
     };
 
     pub const MessageSetCorrectExtension1 = struct {
@@ -225,7 +225,7 @@ pub const TestAllTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 4 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 4 });
     };
 
     pub const MessageSetCorrectExtension2 = struct {
@@ -240,7 +240,7 @@ pub const TestAllTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 5 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 5 });
     };
 
     pub const ExtensionWithOneof = struct {
@@ -268,7 +268,7 @@ pub const TestAllTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 6 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 0, 6 });
     };
 
     pub const NestedEnum = enum(i32) {
@@ -540,7 +540,7 @@ pub const TestAllTypesProto2 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const ForeignMessageProto2 = struct {
@@ -555,7 +555,7 @@ pub const ForeignMessageProto2 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const GroupField = struct {
@@ -575,7 +575,7 @@ pub const GroupField = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const UnknownToTestAllTypes = struct {
@@ -599,7 +599,7 @@ pub const UnknownToTestAllTypes = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 });
     };
 
     pub fn getOptionalInt32(self: @This()) i32 {
@@ -618,7 +618,7 @@ pub const UnknownToTestAllTypes = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const NullHypothesisProto2 = struct {
@@ -628,7 +628,7 @@ pub const NullHypothesisProto2 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
 };
 
 pub const EnumOnlyProto2 = struct {
@@ -644,7 +644,7 @@ pub const EnumOnlyProto2 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5});
 };
 
 pub const OneStringProto2 = struct {
@@ -659,7 +659,7 @@ pub const OneStringProto2 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6});
 };
 
 pub const ProtoWithKeywords = struct {
@@ -680,7 +680,7 @@ pub const ProtoWithKeywords = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7});
 };
 
 pub const TestAllRequiredTypesProto2 = struct {
@@ -739,7 +739,7 @@ pub const TestAllRequiredTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 0 });
     };
 
     pub const Data = struct {
@@ -759,7 +759,7 @@ pub const TestAllRequiredTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 1 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 1 });
     };
 
     pub const MessageSetCorrect = struct {
@@ -769,7 +769,7 @@ pub const TestAllRequiredTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 2 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 2 });
     };
 
     pub const MessageSetCorrectExtension1 = struct {
@@ -784,7 +784,7 @@ pub const TestAllRequiredTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 3 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 3 });
     };
 
     pub const MessageSetCorrectExtension2 = struct {
@@ -799,7 +799,7 @@ pub const TestAllRequiredTypesProto2 = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 4 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 8, 4 });
     };
 
     pub const NestedEnum = enum(i32) {
@@ -950,7 +950,7 @@ pub const TestAllRequiredTypesProto2 = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8});
 };
 
 pub const TestLargeOneof = struct {
@@ -970,7 +970,7 @@ pub const TestLargeOneof = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 0 });
     };
 
     pub const A2 = struct {
@@ -980,7 +980,7 @@ pub const TestLargeOneof = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 1 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 1 });
     };
 
     pub const A3 = struct {
@@ -990,7 +990,7 @@ pub const TestLargeOneof = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 2 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 2 });
     };
 
     pub const A4 = struct {
@@ -1000,7 +1000,7 @@ pub const TestLargeOneof = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 3 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 3 });
     };
 
     pub const A5 = struct {
@@ -1010,14 +1010,14 @@ pub const TestLargeOneof = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 4 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 9, 4 });
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9});
 };
 
 pub const ForeignEnumProto2 = enum(i32) {

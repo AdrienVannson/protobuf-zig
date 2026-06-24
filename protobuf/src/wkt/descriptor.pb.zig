@@ -13,7 +13,7 @@ pub const FileDescriptorSet = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const FileDescriptorProto = struct {
@@ -53,7 +53,7 @@ pub const FileDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const DescriptorProto = struct {
@@ -88,7 +88,7 @@ pub const DescriptorProto = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 0 });
     };
 
     pub const ReservedRange = struct {
@@ -108,7 +108,7 @@ pub const DescriptorProto = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 1 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 2, 1 });
     };
 
     pub fn getName(self: @This()) []const u8 {
@@ -123,7 +123,7 @@ pub const DescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const ExtensionRangeOptions = struct {
@@ -165,7 +165,7 @@ pub const ExtensionRangeOptions = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 3, 0 });
     };
 
     pub const VerificationState = enum(i32) {
@@ -182,7 +182,7 @@ pub const ExtensionRangeOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const FieldDescriptorProto = struct {
@@ -272,7 +272,7 @@ pub const FieldDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
 };
 
 pub const OneofDescriptorProto = struct {
@@ -288,7 +288,7 @@ pub const OneofDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{5});
 };
 
 pub const EnumDescriptorProto = struct {
@@ -317,7 +317,7 @@ pub const EnumDescriptorProto = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 6, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 6, 0 });
     };
 
     pub fn getName(self: @This()) []const u8 {
@@ -332,7 +332,7 @@ pub const EnumDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{6});
 };
 
 pub const EnumValueDescriptorProto = struct {
@@ -353,7 +353,7 @@ pub const EnumValueDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{7});
 };
 
 pub const ServiceDescriptorProto = struct {
@@ -370,7 +370,7 @@ pub const ServiceDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{8});
 };
 
 pub const MethodDescriptorProto = struct {
@@ -406,7 +406,7 @@ pub const MethodDescriptorProto = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{9});
 };
 
 pub const FileOptions = struct {
@@ -520,7 +520,7 @@ pub const FileOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{10});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{10});
 };
 
 pub const MessageOptions = struct {
@@ -557,7 +557,7 @@ pub const MessageOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{11});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{11});
 };
 
 pub const FieldOptions = struct {
@@ -594,7 +594,7 @@ pub const FieldOptions = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 0 });
     };
 
     pub const FeatureSupport = struct {
@@ -624,7 +624,7 @@ pub const FieldOptions = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 1 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 12, 1 });
     };
 
     pub const CType = enum(i32) {
@@ -702,7 +702,7 @@ pub const FieldOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{12});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{12});
 };
 
 pub const OneofOptions = struct {
@@ -714,7 +714,7 @@ pub const OneofOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{13});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{13});
 };
 
 pub const EnumOptions = struct {
@@ -741,7 +741,7 @@ pub const EnumOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{14});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{14});
 };
 
 pub const EnumValueOptions = struct {
@@ -764,7 +764,7 @@ pub const EnumValueOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{15});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{15});
 };
 
 pub const ServiceOptions = struct {
@@ -781,7 +781,7 @@ pub const ServiceOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{16});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{16});
 };
 
 pub const MethodOptions = struct {
@@ -810,7 +810,7 @@ pub const MethodOptions = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{17});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{17});
 };
 
 pub const UninterpretedOption = struct {
@@ -840,7 +840,7 @@ pub const UninterpretedOption = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 18, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 18, 0 });
     };
 
     pub fn getIdentifierValue(self: @This()) []const u8 {
@@ -871,7 +871,7 @@ pub const UninterpretedOption = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{18});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{18});
 };
 
 pub const FeatureSet = struct {
@@ -901,7 +901,7 @@ pub const FeatureSet = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 19, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 19, 0 });
     };
 
     pub const FieldPresence = enum(i32) {
@@ -990,7 +990,7 @@ pub const FeatureSet = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{19});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{19});
 };
 
 pub const FeatureSetDefaults = struct {
@@ -1013,7 +1013,7 @@ pub const FeatureSetDefaults = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 20, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 20, 0 });
     };
 
     pub fn getMinimumEdition(self: @This()) Edition {
@@ -1028,7 +1028,7 @@ pub const FeatureSetDefaults = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{20});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{20});
 };
 
 pub const SourceCodeInfo = struct {
@@ -1055,14 +1055,14 @@ pub const SourceCodeInfo = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 21, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 21, 0 });
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{21});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{21});
 };
 
 pub const GeneratedCodeInfo = struct {
@@ -1104,14 +1104,14 @@ pub const GeneratedCodeInfo = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 22, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 22, 0 });
     };
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{22});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{22});
 };
 
 pub const Edition = enum(i32) {

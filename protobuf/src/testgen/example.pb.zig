@@ -45,7 +45,7 @@ pub const Foo = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const Bar = struct {
@@ -67,7 +67,7 @@ pub const Bar = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 0 });
+        pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 0 });
     };
 
     pub fn getColor(self: @This()) Color {
@@ -78,7 +78,7 @@ pub const Bar = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
+    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const Color = enum(i32) {
