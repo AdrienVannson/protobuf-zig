@@ -200,14 +200,13 @@ fn generateMessageMetadata(
     try f.writeLine(" });");
 }
 
-/// Emits the per-message `_full_desc` accessor returning the fully-linked
-/// `*const DescMessage` for this message, located via the same index `path`
-/// used for `_desc`.
+/// Emits the per-message `_desc` accessor returning the fully-linked
+/// `*const DescMessage` for this message, located via the index `path`.
 fn generateFullDesc(
     f: *GeneratedFile,
     path: []const usize,
 ) !void {
-    try f.writeLine("pub fn _full_desc() *const _protobuf.DescMessage {");
+    try f.writeLine("pub fn _desc() *const _protobuf.DescMessage {");
     f.indent();
     try f.write("return _codegen.messageDescAt(_fileDesc(), &[_]usize{ ");
     for (path, 0..) |p, i| {
