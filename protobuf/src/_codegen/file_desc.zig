@@ -51,30 +51,32 @@ pub fn fileDesc(
 
     if (C.value.load(.acquire)) |v| return v; // Re-check after acquiring the lock
 
-    const v = try build(descriptor_bytes, dep_accessors, io);
+    const v = try build_desc_file(descriptor_bytes, dep_accessors, io);
     C.value.store(v, .release);
     return v;
 }
 
-fn build(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn, io: std.Io) !*const DescFile {
-    // Intermediate proto + deps map: only needed during the build, freed here.
-    var tmp = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer tmp.deinit();
-    const tmp_alloc = tmp.allocator();
+fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn, io: std.Io) !*const DescFile {
+    // Reuse the same allocator across calls
+    const AllocatorState = struct {
+        var arena: std.heap.ArenaAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    };
+    var allocator = AllocatorState.arena.allocator();
 
-    const proto = try tmp_alloc.create(descriptor.FileDescriptorProto);
+    const proto = try allocator.create(descriptor.FileDescriptorProto);
     proto.* = .{};
-    try protobuf.from_binary(proto, descriptor_bytes, tmp_alloc);
+    try protobuf.from_binary(proto, descriptor_bytes, allocator);
 
-    var deps = std.StringHashMap(*const DescFile).init(tmp_alloc);
+    // name -> *const DescFile
+    var deps = std.StringHashMap(*const DescFile).init(allocator);
     for (dep_accessors) |dep| {
-        const df = try dep(io);
-        try deps.put(df.name, df);
+        const desc_file = try dep(io);
+        try deps.put(desc_file.name, desc_file);
     }
 
     // The DescFile graph must outlive the process. descFileFromProto builds it into
     // its own arena (backed by page_allocator); we intentionally leak that arena.
-    const owned = try desc_file_from_proto.descFileFromProto(proto, &deps, std.heap.page_allocator);
+    const owned = try desc_file_from_proto.descFileFromProto(proto, &deps, allocator);
     return owned.file;
 }
 
