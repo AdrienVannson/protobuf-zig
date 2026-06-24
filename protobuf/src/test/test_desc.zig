@@ -7,13 +7,11 @@ test "_desc exposes the linked message descriptor" {
     try std.testing.expectEqualStrings("Foo", foo.local_name);
     try std.testing.expectEqualStrings("example.Foo", foo.fully_qualified_proto_name);
     try std.testing.expectEqualStrings("example.proto", foo.file.name);
-    // name, id, struct, and the two oneof members x/y.
     try std.testing.expectEqual(@as(usize, 5), foo.fields.len);
 }
 
 test "_desc resolves within-file message references by pointer identity" {
     const bar = try example.Bar._desc(std.testing.io);
-    // Fields are in field-number order: foo(1), tags(2), color(3), colors(4).
     const foo_field = bar.fields[0];
     try std.testing.expectEqualStrings("foo", foo_field.name);
     // The message_field points at the very same cached DescMessage as Foo._desc().
