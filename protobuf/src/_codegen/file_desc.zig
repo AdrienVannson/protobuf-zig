@@ -25,8 +25,8 @@ fn Cache(comptime File: type) type {
         comptime {
             _ = File;
         }
-        var mutex: std.atomic.Mutex = .unlocked;
-        var value: ?*const DescFile = null;
+        var mutex: std.Io.Mutex = .{};
+        var value: std.atomic.Value(?*const DescFile) = std.atomic.Value(?*const DescFile).init(null);
     };
 }
 
@@ -42,15 +42,20 @@ pub fn fileDesc(
     dep_accessors: []const FileDescFn,
 ) *const DescFile {
     const C = Cache(File);
-    // Fast path: already built, no locking.
-    if (@atomicLoad(?*const DescFile, &C.value, .acquire)) |v| return v;
-    // Slow path: one-time init under the lock.
-    while (!C.mutex.tryLock()) {}
-    defer C.mutex.unlock();
-    if (C.value) |v| return v; // another thread won the race
-    const v = build(descriptor_bytes, dep_accessors) catch |err|
-        std.debug.panic("failed to build descriptor for {s}: {}", .{ @typeName(File), err });
-    @atomicStore(?*const DescFile, &C.value, v, .release);
+
+    if (C.value.load(.acquire)) |v| return v;
+
+    // C.mutex.lock();
+    // defer C.mutex.unlock();
+
+    if (C.value.load(.acquire)) |v| return v; // Re-check after acquiring the lock
+
+    // We have to build the DescFile
+    // const v = try build(descriptor_bytes, dep_accessors);
+    const v = build(descriptor_bytes, dep_accessors) catch |err| {
+        std.debug.panic("failed to build DescFile: {}\n", .{err});
+    };
+    C.value.store(v, .release);
     return v;
 }
 
