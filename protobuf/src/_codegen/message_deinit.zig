@@ -9,7 +9,7 @@ const field_access = @import("field_access.zig");
 /// TODO make it work for constant messages as well, and update plugin accordingly.
 pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
     const T = std.meta.Child(@TypeOf(msg));
-    inline for (T._desc.fields) |field_meta| {
+    inline for (T._metadata.fields) |field_meta| {
         field_access.clearField(msg, field_meta, allocator);
     }
 

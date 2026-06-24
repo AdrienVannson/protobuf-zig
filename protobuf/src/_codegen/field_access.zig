@@ -304,7 +304,7 @@ pub fn forEachSetField(
 ) !void {
     const MsgType = @TypeOf(msg);
 
-    inline for (MsgType._desc.fields) |field_meta| {
+    inline for (MsgType._metadata.fields) |field_meta| {
         if (hasField(msg, field_meta)) {
             const field = getSetField(msg, field_meta) catch unreachable;
             try callback(context, field_meta, field);

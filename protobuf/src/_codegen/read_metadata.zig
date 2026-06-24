@@ -327,7 +327,7 @@ fn mapKeyValue(comptime entry: []const u8) MapKV {
     };
 }
 
-/// Kind for a plain (non-oneof) field. Mirrors codegen's `_desc` emission:
+/// Kind for a plain (non-oneof) field. Mirrors codegen's `_metadata` emission:
 /// `message_field`/`list`/`map` carry only the fields codegen writes.
 fn buildPlainKind(comptime msg_bytes: []const u8, comptime fi: FieldInfo, comptime is_proto3: bool) FieldMetadataKind {
     const repeated = fi.label == LABEL_REPEATED;
