@@ -141,7 +141,7 @@ fn generateMessage(
     try generateMessageMetadata(f, path);
 
     try f.emptyLine();
-    try generateFullDesc(f, path);
+    try generateMessageDesc(f, path);
 
     f.unindent();
     try f.writeLine("};");
@@ -200,7 +200,7 @@ fn generateMessageMetadata(
 
 /// Emits the per-message `_desc` accessor returning the fully-linked
 /// `*const DescMessage` for this message, located via the index `path`.
-fn generateFullDesc(
+fn generateMessageDesc(
     f: *GeneratedFile,
     path: []const usize,
 ) !void {
@@ -539,23 +539,19 @@ fn emitDescriptorBytes(
     try f.writeLine("\";");
 }
 
-/// Emits the file-level `_fileDesc` accessor: a lazily-built, process-lifetime
-/// cached `*const DescFile` parsed from DESCRIPTOR_BYTES, with one `_fileDesc`
-/// accessor per direct import so cross-file references resolve.
+/// Emits the file-level `_fileDesc` accessor
 fn generateFileDesc(f: *GeneratedFile, imports: *const ImportTable) !void {
     try f.writeLine("pub fn _fileDesc(io: std.Io) !*const _protobuf.DescFile {");
     f.indent();
-    if (imports.count() == 0) {
-        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_codegen.FileDescFn{}, io);");
-    } else {
-        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_codegen.FileDescFn{");
-        f.indent();
-        for (imports.values()) |alias| {
-            try f.writeLine(.{ alias, "._fileDesc," });
-        }
-        f.unindent();
-        try f.writeLine("}, io);");
+
+    try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_codegen.FileDescFn{");
+    f.indent();
+    for (imports.values()) |alias| {
+        try f.writeLine(.{ alias, "._fileDesc," });
     }
+    f.unindent();
+    try f.writeLine("}, io);");
+
     f.unindent();
     try f.writeLine("}");
 }
