@@ -4,7 +4,6 @@
 const std = @import("std");
 const _protobuf = @import("protobuf");
 const _codegen = _protobuf._codegen;
-const _metadata = _codegen.metadata;
 
 pub const TestStatus = struct {
     name: []const u8 = "",
@@ -28,13 +27,7 @@ pub const TestStatus = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "failureMessage", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // failure_message
-            .{ .number = 3, .field_index = 2, .json_name = "matchedName", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // matched_name
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const FailureSet = struct {
@@ -45,11 +38,7 @@ pub const FailureSet = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 2, .field_index = 0, .json_name = "test", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // test
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const ConformanceRequest = struct {
@@ -114,19 +103,7 @@ pub const ConformanceRequest = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 3, .field_index = 0, .json_name = "requestedOutputFormat", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // requested_output_format
-            .{ .number = 4, .field_index = 1, .json_name = "messageType", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // message_type
-            .{ .number = 5, .field_index = 2, .json_name = "testCategory", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // test_category
-            .{ .number = 6, .field_index = 3, .json_name = "jspbEncodingOptions", .kind = .{ .message_field = .{} } }, // jspb_encoding_options
-            .{ .number = 9, .field_index = 4, .json_name = "printUnknownFields", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // print_unknown_fields
-            .{ .number = 1, .field_index = 5, .oneof_variant = "protobuf_payload", .json_name = "protobufPayload", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // protobuf_payload
-            .{ .number = 2, .field_index = 5, .oneof_variant = "json_payload", .json_name = "jsonPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_payload
-            .{ .number = 7, .field_index = 5, .oneof_variant = "jspb_payload", .json_name = "jspbPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // jspb_payload
-            .{ .number = 8, .field_index = 5, .oneof_variant = "text_payload", .json_name = "textPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const ConformanceResponse = struct {
@@ -210,19 +187,7 @@ pub const ConformanceResponse = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .oneof_variant = "parse_error", .json_name = "parseError", .kind = .{ .scalar = .{ .scalar = .string } } }, // parse_error
-            .{ .number = 6, .field_index = 0, .oneof_variant = "serialize_error", .json_name = "serializeError", .kind = .{ .scalar = .{ .scalar = .string } } }, // serialize_error
-            .{ .number = 9, .field_index = 0, .oneof_variant = "timeout_error", .json_name = "timeoutError", .kind = .{ .scalar = .{ .scalar = .string } } }, // timeout_error
-            .{ .number = 2, .field_index = 0, .oneof_variant = "runtime_error", .json_name = "runtimeError", .kind = .{ .scalar = .{ .scalar = .string } } }, // runtime_error
-            .{ .number = 3, .field_index = 0, .oneof_variant = "protobuf_payload", .json_name = "protobufPayload", .kind = .{ .scalar = .{ .scalar = .bytes } } }, // protobuf_payload
-            .{ .number = 4, .field_index = 0, .oneof_variant = "json_payload", .json_name = "jsonPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // json_payload
-            .{ .number = 5, .field_index = 0, .oneof_variant = "skipped", .json_name = "skipped", .kind = .{ .scalar = .{ .scalar = .string } } }, // skipped
-            .{ .number = 7, .field_index = 0, .oneof_variant = "jspb_payload", .json_name = "jspbPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // jspb_payload
-            .{ .number = 8, .field_index = 0, .oneof_variant = "text_payload", .json_name = "textPayload", .kind = .{ .scalar = .{ .scalar = .string } } }, // text_payload
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{3});
 };
 
 pub const JspbEncodingConfig = struct {
@@ -237,11 +202,7 @@ pub const JspbEncodingConfig = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "useJspbArrayAnyFormat", .kind = .{ .scalar = .{ .scalar = .bool, .presence = .implicit } } }, // use_jspb_array_any_format
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{4});
 };
 
 pub const WireFormat = enum(i32) {

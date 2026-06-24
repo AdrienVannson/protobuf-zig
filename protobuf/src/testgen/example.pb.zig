@@ -4,7 +4,6 @@
 const std = @import("std");
 const _protobuf = @import("protobuf");
 const _codegen = _protobuf._codegen;
-const _metadata = _codegen.metadata;
 
 pub const Foo = struct {
     name: []const u8 = "",
@@ -46,15 +45,7 @@ pub const Foo = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "name", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // name
-            .{ .number = 2, .field_index = 1, .json_name = "id", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // id
-            .{ .number = 3, .field_index = 2, .json_name = "struct", .kind = .{ .scalar = .{ .scalar = .uint32, .presence = .implicit } } }, // struct
-            .{ .number = 4, .field_index = 3, .oneof_variant = "x", .json_name = "x", .kind = .{ .scalar = .{ .scalar = .int32 } } }, // x
-            .{ .number = 5, .field_index = 3, .oneof_variant = "y", .json_name = "y", .kind = .{ .scalar = .{ .scalar = .string } } }, // y
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const Bar = struct {
@@ -76,11 +67,7 @@ pub const Bar = struct {
             _codegen.deinit_message(self, allocator);
         }
 
-        pub const _desc = _metadata.MessageMetadata{
-            .fields = &[_]_metadata.FieldMetadata{
-                .{ .number = 1, .field_index = 0, .json_name = "value", .kind = .{ .scalar = .{ .scalar = .int32, .presence = .implicit } } }, // value
-            },
-        };
+        pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ 1, 0 });
     };
 
     pub fn getColor(self: @This()) Color {
@@ -91,14 +78,7 @@ pub const Bar = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "foo", .kind = .{ .message_field = .{} } }, // foo
-            .{ .number = 2, .field_index = 1, .json_name = "tags", .kind = .{ .list = .{ .element = .{ .scalar = .string } } } }, // tags
-            .{ .number = 3, .field_index = 2, .json_name = "color", .kind = .{ .enum_field = .{ .default_value = 0, .presence = .implicit } } }, // color
-            .{ .number = 4, .field_index = 3, .json_name = "colors", .kind = .{ .list = .{ .element = .{ .enum_type = {} }, .is_packed = true } } }, // colors
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const Color = enum(i32) {

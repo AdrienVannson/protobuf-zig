@@ -31,7 +31,6 @@ pub fn generateFile(
         try f.writeLine("const std = @import(\"std\");");
         try f.writeLine("const _protobuf = @import(\"protobuf\");");
         try f.writeLine("const _codegen = _protobuf._codegen;");
-        try f.writeLine("const _metadata = _codegen.metadata;");
         const current_is_wkt = wktModuleName(desc_file.name) != null;
         for (imports.keys(), imports.values()) |dep_file, alias| {
             if (!current_is_wkt) {
@@ -47,8 +46,9 @@ pub fn generateFile(
         try f.emptyLine();
     }
 
-    for (desc_file.messages) |*msg| {
-        try generateMessage(&f, msg, desc_file, &imports);
+    for (desc_file.messages, 0..) |*msg, i| {
+        const path = [_]usize{i};
+        try generateMessage(&f, msg, desc_file, &imports, &path);
     }
 
     for (desc_file.enums) |*e| {
@@ -77,6 +77,9 @@ fn generateMessage(
     msg: *const protobuf.DescMessage,
     cur_file: *const protobuf.DescFile,
     imports: *const ImportTable,
+    // Index path locating this message in the file descriptor (see
+    // read_message_metadata): top-level index, then nested_message indices.
+    path: []const usize,
 ) !void {
     // TODO escape directly local_name
     const safe_name = try escapeZigKeyword(f.alloc, msg.local_name);
@@ -105,8 +108,12 @@ fn generateMessage(
     try f.writeLine("_unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,");
     try f.emptyLine();
 
-    for (msg.nested_messages) |*nested| {
-        try generateMessage(f, nested, cur_file, imports);
+    for (msg.nested_messages, 0..) |*nested, j| {
+        const child_path = try f.alloc.alloc(usize, path.len + 1);
+        defer f.alloc.free(child_path);
+        @memcpy(child_path[0..path.len], path);
+        child_path[path.len] = j;
+        try generateMessage(f, nested, cur_file, imports, child_path);
     }
 
     for (msg.nested_enums) |*e| {
@@ -131,7 +138,7 @@ fn generateMessage(
     try generateMessageDeinit(f);
 
     try f.emptyLine();
-    try generateMessageMetadata(f, msg);
+    try generateMessageMetadata(f, path);
 
     f.unindent();
     try f.writeLine("};");
@@ -178,216 +185,14 @@ fn generateMessageDeinit(f: *GeneratedFile) !void {
 
 fn generateMessageMetadata(
     f: *GeneratedFile,
-    msg: *const protobuf.DescMessage,
+    path: []const usize,
 ) !void {
-    try f.writeLine("pub const _desc = _metadata.MessageMetadata{");
-    f.indent();
-    try f.writeLine(".fields = &[_]_metadata.FieldMetadata{");
-    f.indent();
-
-    var field_index: u32 = 0;
-
-    // Plain fields (not in a oneof) — must mirror the struct field loop.
-    for (msg.fields) |*field| {
-        switch (field.kind) {
-            .scalar => {
-                if (field.kind.scalar.oneof == null) {
-                    try f.write(.{
-                        ".{ .number = ",
-                        field.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .json_name = \"",
-                        field.json_name,
-                        "\", .kind = .{ .scalar = .{ .scalar = .",
-                        @tagName(field.kind.scalar.scalar),
-                    });
-
-                    if (field.kind.scalar.default_value) |dv| {
-                        const dv_literal = try defaultValueLiteral(f.alloc, dv);
-                        defer f.alloc.free(dv_literal);
-                        try f.write(.{
-                            ", .default_value = ",
-                            dv_literal,
-                        });
-                    }
-
-                    try f.writeLine(.{
-                        presenceClause(field.presence, true),
-                        " } } }, // ",
-                        field.name,
-                    });
-                    field_index += 1;
-                }
-            },
-            .enum_field => {
-                if (field.kind.enum_field.oneof == null) {
-                    const default = field.kind.enum_field.default_value orelse 0;
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .json_name = \"",
-                        field.json_name,
-                        "\", .kind = .{ .enum_field = .{ .default_value = ",
-                        default,
-                        presenceClause(field.presence, true),
-                        " } } }, // ",
-                        field.name,
-                    });
-                    field_index += 1;
-                }
-            },
-            .message_field => {
-                if (field.kind.message_field.oneof == null) {
-                    try f.writeLine(.{
-                        ".{ .number = ",
-                        field.number,
-                        ", .field_index = ",
-                        field_index,
-                        ", .json_name = \"",
-                        field.json_name,
-                        "\", .kind = .{ .message_field = .{",
-                        presenceClause(field.presence, false),
-                        "} } }, // ",
-                        field.name,
-                    });
-                    field_index += 1;
-                }
-            },
-            .list => {
-                const list = field.kind.list;
-                const packed_suffix: []const u8 = if (list.is_packed) ", .is_packed = true" else "";
-                switch (list.element) {
-                    .scalar => |sc| {
-                        try f.writeLine(.{
-                            ".{ .number = ",
-                            field.number,
-                            ", .field_index = ",
-                            field_index,
-                            ", .json_name = \"",
-                            field.json_name,
-                            "\", .kind = .{ .list = .{ .element = .{ .scalar = .",
-                            @tagName(sc),
-                            " }",
-                            packed_suffix,
-                            " } } }, // ",
-                            field.name,
-                        });
-                    },
-                    .message => {
-                        try f.writeLine(.{
-                            ".{ .number = ",
-                            field.number,
-                            ", .field_index = ",
-                            field_index,
-                            ", .json_name = \"",
-                            field.json_name,
-                            "\", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // ",
-                            field.name,
-                        });
-                    },
-                    .enum_type => {
-                        try f.writeLine(.{
-                            ".{ .number = ",
-                            field.number,
-                            ", .field_index = ",
-                            field_index,
-                            ", .json_name = \"",
-                            field.json_name,
-                            "\", .kind = .{ .list = .{ .element = .{ .enum_type = {} }",
-                            packed_suffix,
-                            " } } }, // ",
-                            field.name,
-                        });
-                    },
-                }
-                field_index += 1;
-            },
-            .map => {
-                const map = field.kind.map;
-
-                try f.write(.{
-                    ".{ .number = ",
-                    field.number,
-                    ", .field_index = ",
-                    field_index,
-                    ", .json_name = \"",
-                    field.json_name,
-                    "\", .kind = .{ .map = .{ .key = .",
-                    @tagName(map.key),
-                    ", .value = .{ ",
-                });
-
-                switch (map.value) {
-                    .scalar => |sc| {
-                        try f.writeLine(.{ ".scalar = .", @tagName(sc) });
-                    },
-                    .message => {
-                        try f.writeLine(.{".message = {}"});
-                    },
-                    .enum_type => {
-                        try f.writeLine(.{".enum_type = {}"});
-                    },
-                }
-
-                try f.writeLine(.{
-                    " } } } }, // ",
-                    field.name,
-                });
-                field_index += 1;
-            },
-        }
+    try f.write("pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{ ");
+    for (path, 0..) |p, i| {
+        if (i != 0) try f.write(", ");
+        try f.write(p);
     }
-
-    // Oneof variant entries — all variants of a group share the same field_index.
-    for (msg.oneofs) |*oneof| {
-        for (oneof.fields) |field_ptr| {
-            try f.write(.{
-                ".{ .number = ",
-                field_ptr.number,
-                ", .field_index = ",
-                field_index,
-                ", .oneof_variant = \"",
-                field_ptr.name,
-                "\", .json_name = \"",
-                field_ptr.json_name,
-            });
-
-            switch (field_ptr.kind) {
-                .scalar => |sc| {
-                    try f.write(.{
-                        "\", .kind = .{ .scalar = .{ .scalar = .",
-                        @tagName(sc.scalar),
-                        " } } }, // ",
-                    });
-                },
-                .enum_field => |ef| {
-                    const default = ef.default_value orelse 0;
-                    try f.write(.{
-                        "\", .kind = .{ .enum_field = .{ .default_value = ",
-                        default,
-                        " } } }, // ",
-                    });
-                },
-                .message_field => {
-                    try f.write(.{
-                        "\", .kind = .{ .message_field = .{} } }, // ",
-                    });
-                },
-                else => {},
-            }
-
-            try f.writeLine(.{field_ptr.name});
-        }
-        field_index += 1;
-    }
-
-    f.unindent();
-    try f.writeLine("},");
-    f.unindent();
-    try f.writeLine("};");
+    try f.writeLine(" });");
 }
 
 fn generateField(
@@ -673,34 +478,6 @@ fn scalarZigType(t: protobuf.ScalarType) []const u8 {
         .uint32, .fixed32 => "u32",
         .bool => "bool",
         .string, .bytes => "[]const u8",
-    };
-}
-
-/// Renders the `.presence = ...` clause for a field metadata literal.
-///
-/// Returns "" when presence is `.explicit` (the metadata default, so it is
-/// omitted). When `leading_comma` is true the clause is prefixed with ", " to
-/// follow an existing field (scalar/enum); when false it is wrapped in spaces to
-/// stand alone inside an otherwise-empty struct literal (`.{ .presence = ... }`).
-fn presenceClause(presence: protobuf.SupportedFieldPresence, leading_comma: bool) []const u8 {
-    return switch (presence) {
-        .explicit => "",
-        .implicit => if (leading_comma) ", .presence = .implicit" else " .presence = .implicit ",
-        .legacy_required => if (leading_comma) ", .presence = .legacy_required" else " .presence = .legacy_required ",
-    };
-}
-
-fn defaultValueLiteral(alloc: std.mem.Allocator, dv: protobuf.DefaultValue) ![]u8 {
-    return switch (dv) {
-        .bool => |v| try std.fmt.allocPrint(alloc, ".{{ .bool = {} }}", .{v}),
-        .float => |v| try std.fmt.allocPrint(alloc, ".{{ .float = {d} }}", .{v}),
-        .double => |v| try std.fmt.allocPrint(alloc, ".{{ .double = {d} }}", .{v}),
-        .int32 => |v| try std.fmt.allocPrint(alloc, ".{{ .int32 = {} }}", .{v}),
-        .int64 => |v| try std.fmt.allocPrint(alloc, ".{{ .int64 = {} }}", .{v}),
-        .uint32 => |v| try std.fmt.allocPrint(alloc, ".{{ .uint32 = {} }}", .{v}),
-        .uint64 => |v| try std.fmt.allocPrint(alloc, ".{{ .uint64 = {} }}", .{v}),
-        .string => |v| try std.fmt.allocPrint(alloc, ".{{ .string = \"{f}\" }}", .{std.zig.fmtString(v)}),
-        .bytes => |v| try std.fmt.allocPrint(alloc, ".{{ .bytes = \"{f}\" }}", .{std.zig.fmtString(v)}),
     };
 }
 

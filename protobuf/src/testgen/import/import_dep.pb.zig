@@ -4,7 +4,6 @@
 const std = @import("std");
 const _protobuf = @import("protobuf");
 const _codegen = _protobuf._codegen;
-const _metadata = _codegen.metadata;
 
 pub const DepMsg = struct {
     label: []const u8 = "",
@@ -18,11 +17,7 @@ pub const DepMsg = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "label", .kind = .{ .scalar = .{ .scalar = .string, .presence = .implicit } } }, // label
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const DepEnum = enum(i32) {

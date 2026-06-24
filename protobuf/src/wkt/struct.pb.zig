@@ -4,7 +4,6 @@
 const std = @import("std");
 const _protobuf = @import("protobuf");
 const _codegen = _protobuf._codegen;
-const _metadata = _codegen.metadata;
 
 pub const Struct = struct {
     fields: std.StringHashMapUnmanaged(*Value) = .{},
@@ -14,11 +13,7 @@ pub const Struct = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "fields", .kind = .{ .map = .{ .key = .string, .value = .{ .message = {} } } } }, // fields
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 };
 
 pub const Value = struct {
@@ -57,16 +52,7 @@ pub const Value = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .oneof_variant = "null_value", .json_name = "nullValue", .kind = .{ .enum_field = .{ .default_value = 0 } } }, // null_value
-            .{ .number = 2, .field_index = 0, .oneof_variant = "number_value", .json_name = "numberValue", .kind = .{ .scalar = .{ .scalar = .double } } }, // number_value
-            .{ .number = 3, .field_index = 0, .oneof_variant = "string_value", .json_name = "stringValue", .kind = .{ .scalar = .{ .scalar = .string } } }, // string_value
-            .{ .number = 4, .field_index = 0, .oneof_variant = "bool_value", .json_name = "boolValue", .kind = .{ .scalar = .{ .scalar = .bool } } }, // bool_value
-            .{ .number = 5, .field_index = 0, .oneof_variant = "struct_value", .json_name = "structValue", .kind = .{ .message_field = .{} } }, // struct_value
-            .{ .number = 6, .field_index = 0, .oneof_variant = "list_value", .json_name = "listValue", .kind = .{ .message_field = .{} } }, // list_value
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{1});
 };
 
 pub const ListValue = struct {
@@ -77,11 +63,7 @@ pub const ListValue = struct {
         _codegen.deinit_message(self, allocator);
     }
 
-    pub const _desc = _metadata.MessageMetadata{
-        .fields = &[_]_metadata.FieldMetadata{
-            .{ .number = 1, .field_index = 0, .json_name = "values", .kind = .{ .list = .{ .element = .{ .message = {} } } } }, // values
-        },
-    };
+    pub const _desc = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{2});
 };
 
 pub const NullValue = enum(i32) {

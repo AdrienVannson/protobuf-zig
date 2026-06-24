@@ -360,10 +360,7 @@ fn p2OneMessage(ctx: *Ctx, mp: *const descriptor.DescriptorProto, dm: *protobuf.
             .local_name = try escapeZigKeyword(alloc, field_name),
             .parent = dm,
             .number = fp.number orelse return error.InvalidDescriptor,
-            .json_name = if (fp.json_name) |jn|
-                try alloc.dupe(u8, jn)
-            else
-                try toJsonName(alloc, field_name),
+            .json_name = try alloc.dupe(u8, fp.json_name orelse return error.InvalidDescriptor),
             .deprecated = if (fp.options) |o| o.deprecated orelse false else false,
             .presence = computePresence(fp, ctx.is_proto3),
             .kind = try buildFieldKind(ctx, fp, oneof_ptr),
@@ -549,20 +546,6 @@ fn parseDefaultValue(alloc: std.mem.Allocator, sc: protobuf.ScalarType, raw: ?[]
         .string => .{ .string = try alloc.dupe(u8, s) },
         .bytes => .{ .bytes = try alloc.dupe(u8, s) },
     };
-}
-
-fn toJsonName(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
-    var out: std.ArrayList(u8) = .empty;
-    var up = false;
-    for (snake) |c| {
-        if (c == '_') {
-            up = true;
-            continue;
-        }
-        try out.append(alloc, if (up) std.ascii.toUpper(c) else c);
-        up = false;
-    }
-    return out.toOwnedSlice(alloc);
 }
 
 fn escapeZigKeyword(alloc: std.mem.Allocator, name: []const u8) ![]u8 {
