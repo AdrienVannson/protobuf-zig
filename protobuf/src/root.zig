@@ -22,6 +22,7 @@ pub const DescFieldKind = descriptor.DescFieldKind;
 pub const DescField = descriptor.DescField;
 pub const DescExtensionKind = descriptor.DescExtensionKind;
 pub const DescExtension = descriptor.DescExtension;
+pub const FileDescFn = @import("_codegen/file_desc.zig").FileDescFn;
 
 pub const to_binary = @import("wire/to_binary.zig").to_binary;
 pub const from_binary = @import("wire/from_binary.zig").from_binary;
@@ -39,6 +40,10 @@ pub const _codegen = struct {
     pub const metadata = @import("_codegen/metadata.zig");
     pub const field_access = @import("_codegen/field_access.zig");
     pub const read_message_metadata = @import("_codegen/read_metadata.zig").read_message_metadata;
+    pub const descFileFromProto = @import("_codegen/desc_file_from_proto.zig").descFileFromProto;
+    pub const OwnedDescFile = @import("_codegen/desc_file_from_proto.zig").OwnedDescFile;
+    pub const fileDesc = @import("_codegen/file_desc.zig").fileDesc;
+    pub const messageDescAt = @import("_codegen/file_desc.zig").messageDescAt;
 };
 
 test {
@@ -55,6 +60,9 @@ test {
     _ = @import("json/to_json.zig");
     _ = @import("json/from_json.zig");
     _ = @import("_codegen/message_deinit.zig");
+    _ = @import("_codegen/desc_file_from_proto.zig");
+    _ = @import("_codegen/file_desc.zig");
     _ = @import("wkt.zig");
     _ = @import("test/descriptor_roundtrip_test.zig");
+    _ = @import("test/full_desc_test.zig");
 }

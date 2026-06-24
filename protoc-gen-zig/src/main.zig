@@ -1,8 +1,9 @@
 const std = @import("std");
 const plugin = @import("gen/google/protobuf/compiler/plugin.pb.zig");
 const codegen = @import("codegen.zig");
-const desc_file_from_proto = @import("desc_file_from_proto.zig");
 const protobuf = @import("protobuf");
+const desc_file_from_proto = protobuf._codegen.descFileFromProto;
+const OwnedDescFile = protobuf._codegen.OwnedDescFile;
 
 pub fn main(init: std.process.Init) !void {
     const alloc = init.gpa;
@@ -31,13 +32,13 @@ pub fn main(init: std.process.Init) !void {
     // so each file's imports are already in desc_by_name when we process it.
     var desc_by_name = std.StringHashMap(*const protobuf.DescFile).init(alloc);
     defer desc_by_name.deinit();
-    var owned_descs: std.ArrayList(desc_file_from_proto.OwnedDescFile) = .empty;
+    var owned_descs: std.ArrayList(OwnedDescFile) = .empty;
     defer {
         for (owned_descs.items) |*o| o.deinit();
         owned_descs.deinit(alloc);
     }
     for (request.proto_file.items) |f| {
-        const owned = try desc_file_from_proto.descFileFromProto(f, &desc_by_name, alloc);
+        const owned = try desc_file_from_proto(f, &desc_by_name, alloc);
         try owned_descs.append(alloc, owned);
         // Reference the stable arena-owned file from the just-appended element.
         const last = &owned_descs.items[owned_descs.items.len - 1];

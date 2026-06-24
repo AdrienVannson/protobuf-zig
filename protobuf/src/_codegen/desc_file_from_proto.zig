@@ -2,8 +2,8 @@
 // TODO: rewrite properly
 
 const std = @import("std");
-const descriptor = @import("protobuf").wkt.descriptor;
-const protobuf = @import("protobuf");
+const protobuf = @import("../root.zig");
+const descriptor = protobuf.wkt.descriptor;
 
 const FieldType = descriptor.FieldDescriptorProto.Type;
 

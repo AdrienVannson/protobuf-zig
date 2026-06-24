@@ -26,25 +26,24 @@ pub fn generateFile(
     try f.writeLine(.{ "// Source: ", desc_file.name });
     try f.emptyLine();
 
-    // TODO make sure this is always correct
-    if (desc_file.messages.len > 0) {
-        try f.writeLine("const std = @import(\"std\");");
-        try f.writeLine("const _protobuf = @import(\"protobuf\");");
-        try f.writeLine("const _codegen = _protobuf._codegen;");
-        const current_is_wkt = wktModuleName(desc_file.name) != null;
-        for (imports.keys(), imports.values()) |dep_file, alias| {
-            if (!current_is_wkt) {
-                if (wktModuleName(dep_file.name)) |module| {
-                    try f.writeLine(.{ "const ", alias, " = _protobuf.wkt.", module, ";" });
-                    continue;
-                }
+    // Always emit the runtime imports: every file carries DESCRIPTOR_BYTES and a
+    // `_fileDesc` accessor, and may be imported as a dependency by another file.
+    try f.writeLine("const std = @import(\"std\");");
+    try f.writeLine("const _protobuf = @import(\"protobuf\");");
+    try f.writeLine("const _codegen = _protobuf._codegen;");
+    const current_is_wkt = wktModuleName(desc_file.name) != null;
+    for (imports.keys(), imports.values()) |dep_file, alias| {
+        if (!current_is_wkt) {
+            if (wktModuleName(dep_file.name)) |module| {
+                try f.writeLine(.{ "const ", alias, " = _protobuf.wkt.", module, ";" });
+                continue;
             }
-            const rel_path = try relativeImportPath(alloc, desc_file.name, dep_file.name);
-            defer alloc.free(rel_path);
-            try f.writeLine(.{ "const ", alias, " = @import(\"", rel_path, "\");" });
         }
-        try f.emptyLine();
+        const rel_path = try relativeImportPath(alloc, desc_file.name, dep_file.name);
+        defer alloc.free(rel_path);
+        try f.writeLine(.{ "const ", alias, " = @import(\"", rel_path, "\");" });
     }
+    try f.emptyLine();
 
     for (desc_file.messages, 0..) |*msg, i| {
         const path = [_]usize{i};
@@ -57,6 +56,9 @@ pub fn generateFile(
 
     try f.emptyLine();
     try emitDescriptorBytes(&f, file_proto, alloc);
+
+    try f.emptyLine();
+    try generateFileDesc(&f, &imports);
 
     const raw = try f.toOwnedSlice();
     defer alloc.free(raw);
@@ -140,6 +142,9 @@ fn generateMessage(
     try f.emptyLine();
     try generateMessageMetadata(f, path);
 
+    try f.emptyLine();
+    try generateFullDesc(f, path);
+
     f.unindent();
     try f.writeLine("};");
 
@@ -193,6 +198,25 @@ fn generateMessageMetadata(
         try f.write(p);
     }
     try f.writeLine(" });");
+}
+
+/// Emits the per-message `_full_desc` accessor returning the fully-linked
+/// `*const DescMessage` for this message, located via the same index `path`
+/// used for `_desc`.
+fn generateFullDesc(
+    f: *GeneratedFile,
+    path: []const usize,
+) !void {
+    try f.writeLine("pub fn _full_desc() *const _protobuf.DescMessage {");
+    f.indent();
+    try f.write("return _codegen.messageDescAt(_fileDesc(), &[_]usize{ ");
+    for (path, 0..) |p, i| {
+        if (i != 0) try f.write(", ");
+        try f.write(p);
+    }
+    try f.writeLine(" });");
+    f.unindent();
+    try f.writeLine("}");
 }
 
 fn generateField(
@@ -516,6 +540,27 @@ fn emitDescriptorBytes(
         try f.write(s);
     }
     try f.writeLine("\";");
+}
+
+/// Emits the file-level `_fileDesc` accessor: a lazily-built, process-lifetime
+/// cached `*const DescFile` parsed from DESCRIPTOR_BYTES, with one `_fileDesc`
+/// accessor per direct import so cross-file references resolve.
+fn generateFileDesc(f: *GeneratedFile, imports: *const ImportTable) !void {
+    try f.writeLine("pub fn _fileDesc() *const _protobuf.DescFile {");
+    f.indent();
+    if (imports.count() == 0) {
+        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_protobuf.FileDescFn{});");
+    } else {
+        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_protobuf.FileDescFn{");
+        f.indent();
+        for (imports.values()) |alias| {
+            try f.writeLine(.{ alias, "._fileDesc," });
+        }
+        f.unindent();
+        try f.writeLine("});");
+    }
+    f.unindent();
+    try f.writeLine("}");
 }
 
 pub fn toCamelCase(alloc: std.mem.Allocator, snake: []const u8) ![]u8 {
