@@ -548,9 +548,9 @@ fn generateFileDesc(f: *GeneratedFile, imports: *const ImportTable) !void {
     try f.writeLine("pub fn _fileDesc(io: std.Io) !*const _protobuf.DescFile {");
     f.indent();
     if (imports.count() == 0) {
-        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_protobuf.FileDescFn{}, io);");
+        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_codegen.FileDescFn{}, io);");
     } else {
-        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_protobuf.FileDescFn{");
+        try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_codegen.FileDescFn{");
         f.indent();
         for (imports.values()) |alias| {
             try f.writeLine(.{ alias, "._fileDesc," });

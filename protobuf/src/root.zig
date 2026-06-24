@@ -22,7 +22,6 @@ pub const DescFieldKind = descriptor.DescFieldKind;
 pub const DescField = descriptor.DescField;
 pub const DescExtensionKind = descriptor.DescExtensionKind;
 pub const DescExtension = descriptor.DescExtension;
-pub const FileDescFn = @import("_codegen/file_desc.zig").FileDescFn;
 
 pub const to_binary = @import("wire/to_binary.zig").to_binary;
 pub const from_binary = @import("wire/from_binary.zig").from_binary;
@@ -42,6 +41,7 @@ pub const _codegen = struct {
     pub const read_message_metadata = @import("_codegen/read_metadata.zig").read_message_metadata;
     pub const descFileFromProto = @import("_codegen/desc_file_from_proto.zig").descFileFromProto;
     pub const OwnedDescFile = @import("_codegen/desc_file_from_proto.zig").OwnedDescFile;
+    pub const FileDescFn = @import("_codegen/file_desc.zig").FileDescFn;
     pub const fileDesc = @import("_codegen/file_desc.zig").fileDesc;
     pub const messageDescAt = @import("_codegen/file_desc.zig").messageDescAt;
 };
