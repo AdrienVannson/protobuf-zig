@@ -1,26 +1,5 @@
 //! Comptime derivation of message metadata from embedded descriptor bytes.
-//!
-//! Generated `.pb.zig` files embed the serialized `FileDescriptorProto` as
-//! `DESCRIPTOR_BYTES`. `read_message_metadata` parses those bytes **at comptime**
-//! and reconstructs the exact `MessageMetadata` that the code generator otherwise
-//! emits by hand — so the descriptor bytes can become the single source of truth
-//! with no runtime cost.
-//!
-//! Two constraints shape this code:
-//!
-//!   * **No allocator.** Comptime cannot use `std.mem.Allocator`. Instead we
-//!     "allocate" by concatenating into comptime slices (`out = out ++ ...`) and
-//!     return `[]const T` views into comptime memory.
-//!   * **No bootstrap loop.** We must not decode the bytes with the generated
-//!     `wkt/descriptor.pb.zig` bindings (that would make `FileDescriptorProto`'s
-//!     own metadata depend on parsing descriptor.proto). This reader hardcodes the
-//!     descriptor-schema field numbers and consults no `_desc`, so it breaks the
-//!     cycle by construction — descriptor.pb.zig derives its metadata exactly like
-//!     every other file.
-//!
-//! The resolution logic (presence/packed/default/map detection) and the
-//! `field_index` ordering mirror `protoc-gen-zig/src/desc_file_from_proto.zig` and
-//! `protoc-gen-zig/src/codegen.zig`.
+//! Doesn't depend on descriptor.proto to allow bootstrapping.
 
 const std = @import("std");
 const metadata = @import("metadata.zig");
@@ -33,7 +12,7 @@ const ScalarType = metadata.ScalarType;
 const DefaultValue = metadata.DefaultValue;
 const SupportedFieldPresence = metadata.SupportedFieldPresence;
 
-// Descriptor-schema field numbers (hardcoded — see module doc comment).
+// Hard-coded field numbers from descriptor.proto
 const FILE_MESSAGE_TYPE = 4; // FileDescriptorProto.message_type
 const FILE_SYNTAX = 12; // FileDescriptorProto.syntax
 const FILE_EDITION = 14; // FileDescriptorProto.edition
@@ -42,16 +21,16 @@ const MSG_NESTED_TYPE = 3; // DescriptorProto.nested_type
 const MSG_OPTIONS = 7; // DescriptorProto.options
 const MSG_ONEOF_DECL = 8; // DescriptorProto.oneof_decl
 const MSGOPT_MAP_ENTRY = 7; // MessageOptions.map_entry
-const F_NAME = 1; // FieldDescriptorProto.name
-const F_NUMBER = 3; // FieldDescriptorProto.number
-const F_LABEL = 4; // FieldDescriptorProto.label
-const F_TYPE = 5; // FieldDescriptorProto.type
-const F_TYPE_NAME = 6; // FieldDescriptorProto.type_name
-const F_DEFAULT_VALUE = 7; // FieldDescriptorProto.default_value
-const F_OPTIONS = 8; // FieldDescriptorProto.options
-const F_ONEOF_INDEX = 9; // FieldDescriptorProto.oneof_index
-const F_JSON_NAME = 10; // FieldDescriptorProto.json_name
-const F_PROTO3_OPTIONAL = 17; // FieldDescriptorProto.proto3_optional
+const FIELD_NAME = 1; // FieldDescriptorProto.name
+const FIELD_NUMBER = 3; // FieldDescriptorProto.number
+const FIELD_LABEL = 4; // FieldDescriptorProto.label
+const FIELD_TYPE = 5; // FieldDescriptorProto.type
+const FIELD_TYPE_NAME = 6; // FieldDescriptorProto.type_name
+const FIELD_DEFAULT_VALUE = 7; // FieldDescriptorProto.default_value
+const FIELD_OPTIONS = 8; // FieldDescriptorProto.options
+const FIELD_ONEOF_INDEX = 9; // FieldDescriptorProto.oneof_index
+const FIELD_JSON_NAME = 10; // FieldDescriptorProto.json_name
+const FIELD_PROTO3_OPTIONAL = 17; // FieldDescriptorProto.proto3_optional
 const FOPT_PACKED = 2; // FieldOptions.packed
 
 // FieldDescriptorProto.Type values.
@@ -238,18 +217,18 @@ const FieldInfo = struct {
 };
 
 fn parseFieldInfo(comptime fb: []const u8) FieldInfo {
-    const name = getBytes(fb, F_NAME) orelse @compileError("descriptor field missing name");
-    const opts = getBytes(fb, F_OPTIONS);
+    const name = getBytes(fb, FIELD_NAME) orelse @compileError("descriptor field missing name");
+    const opts = getBytes(fb, FIELD_OPTIONS);
     return .{
         .name = name,
-        .number = @intCast(getVarint(fb, F_NUMBER) orelse @compileError("descriptor field missing number")),
-        .json_name = getBytes(fb, F_JSON_NAME) orelse @compileError("descriptor field missing json_name"),
-        .label = getVarint(fb, F_LABEL) orelse @compileError("descriptor field missing label"),
-        .type = getVarint(fb, F_TYPE) orelse @compileError("descriptor field missing type"),
-        .type_name = getBytes(fb, F_TYPE_NAME),
-        .default_value = getBytes(fb, F_DEFAULT_VALUE),
-        .oneof_index = if (getVarint(fb, F_ONEOF_INDEX)) |o| @intCast(o) else null,
-        .proto3_optional = (getVarint(fb, F_PROTO3_OPTIONAL) orelse 0) != 0,
+        .number = @intCast(getVarint(fb, FIELD_NUMBER) orelse @compileError("descriptor field missing number")),
+        .json_name = getBytes(fb, FIELD_JSON_NAME) orelse @compileError("descriptor field missing json_name"),
+        .label = getVarint(fb, FIELD_LABEL) orelse @compileError("descriptor field missing label"),
+        .type = getVarint(fb, FIELD_TYPE) orelse @compileError("descriptor field missing type"),
+        .type_name = getBytes(fb, FIELD_TYPE_NAME),
+        .default_value = getBytes(fb, FIELD_DEFAULT_VALUE),
+        .oneof_index = if (getVarint(fb, FIELD_ONEOF_INDEX)) |o| @intCast(o) else null,
+        .proto3_optional = (getVarint(fb, FIELD_PROTO3_OPTIONAL) orelse 0) != 0,
         .packed_opt = if (opts) |o| (if (getVarint(o, FOPT_PACKED)) |p| (p != 0) else null) else null,
     };
 }
@@ -324,7 +303,7 @@ fn simpleName(comptime tn: []const u8) []const u8 {
 fn findMapEntry(comptime msg_bytes: []const u8, comptime type_name: []const u8) ?[]const u8 {
     const target = simpleName(type_name);
     for (collectBytes(msg_bytes, MSG_NESTED_TYPE)) |nb| {
-        const nm = getBytes(nb, F_NAME) orelse continue;
+        const nm = getBytes(nb, FIELD_NAME) orelse continue;
         if (std.mem.eql(u8, nm, target) and isMapEntry(nb)) return nb;
     }
     return null;
