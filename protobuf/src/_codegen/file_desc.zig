@@ -46,7 +46,6 @@ pub fn fileDesc(
 
     if (C.value.load(.acquire)) |v| return v;
 
-    // C.mutex.lockUncancelable(io);
     try C.mutex.lock(io);
     defer C.mutex.unlock(io);
 
