@@ -1,13 +1,16 @@
 const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
+const descriptor = @import("../descriptor.zig");
 
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
+const DescMessage = descriptor.DescMessage;
 
 const JsonContext = struct {
     json_writter: *std.json.Stringify,
     allocator: std.mem.Allocator,
+    desc: *const DescMessage,
 };
 
 fn writeScalar(ctx: *const JsonContext, comptime scalar: ScalarType, value: anytype) !void {
@@ -105,13 +108,26 @@ fn writeFieldValue(
 }
 
 fn writeFieldCallback(ctx: *const JsonContext, comptime field_meta: FieldMetadata, value: anytype) !void {
-    try ctx.json_writter.objectField(field_meta.json_name);
+    const json_name = blk: {
+        for (ctx.desc.fields) |df| {
+            if (df.number == field_meta.number) break :blk df.json_name;
+        }
+        unreachable;
+    };
+    try ctx.json_writter.objectField(json_name);
     try writeFieldValue(ctx, field_meta, value);
 }
 
-fn writeMessage(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed }!void {
+fn writeMessage(ctx: *const JsonContext, msg: anytype) anyerror!void {
+    const T = @TypeOf(msg);
+    const desc = try T._desc();
+    const msg_ctx: JsonContext = .{
+        .json_writter = ctx.json_writter,
+        .allocator = ctx.allocator,
+        .desc = desc,
+    };
     try ctx.json_writter.beginObject();
-    try field_access.forEachSetField(msg, ctx, writeFieldCallback);
+    try field_access.forEachSetField(msg, &msg_ctx, writeFieldCallback);
     try ctx.json_writter.endObject();
 }
 
@@ -120,7 +136,9 @@ pub fn to_json(allocator: std.mem.Allocator, msg: anytype) ![]u8 {
     errdefer aw.deinit();
 
     var json_writter: std.json.Stringify = .{ .writer = &aw.writer };
-    const ctx: JsonContext = .{ .json_writter = &json_writter, .allocator = allocator };
+    const T = @TypeOf(msg);
+    const desc = try T._desc();
+    const ctx: JsonContext = .{ .json_writter = &json_writter, .allocator = allocator, .desc = desc };
 
     try writeMessage(&ctx, msg);
 

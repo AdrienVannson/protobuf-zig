@@ -31,7 +31,6 @@ const FIELD_TYPE_NAME = 6; // FieldDescriptorProto.type_name
 const FIELD_DEFAULT_VALUE = 7; // FieldDescriptorProto.default_value
 const FIELD_OPTIONS = 8; // FieldDescriptorProto.options
 const FIELD_ONEOF_INDEX = 9; // FieldDescriptorProto.oneof_index
-const FIELD_JSON_NAME = 10; // FieldDescriptorProto.json_name
 const FIELD_PROTO3_OPTIONAL = 17; // FieldDescriptorProto.proto3_optional
 const FOPT_PACKED = 2; // FieldOptions.packed
 
@@ -208,7 +207,6 @@ fn navigateToMessage(comptime file_bytes: []const u8, comptime path: anytype) []
 const FieldInfo = struct {
     name: []const u8,
     number: u32,
-    json_name: []const u8,
     label: u64,
     type: u64,
     type_name: ?[]const u8,
@@ -224,7 +222,6 @@ fn parseFieldInfo(comptime fb: []const u8) FieldInfo {
     return .{
         .name = name,
         .number = @intCast(getVarint(fb, FIELD_NUMBER) orelse @compileError("descriptor field missing number")),
-        .json_name = getBytes(fb, FIELD_JSON_NAME) orelse @compileError("descriptor field missing json_name"),
         .label = getVarint(fb, FIELD_LABEL) orelse @compileError("descriptor field missing label"),
         .type = getVarint(fb, FIELD_TYPE) orelse @compileError("descriptor field missing type"),
         .type_name = getBytes(fb, FIELD_TYPE_NAME),
@@ -393,7 +390,6 @@ fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool) Messag
         out = out ++ [_]FieldMetadata{.{
             .number = fi.number,
             .field_index = field_index,
-            .json_name = fi.json_name,
             .kind = buildPlainKind(msg_bytes, fi, is_proto3),
         }};
         field_index += 1;
@@ -415,7 +411,6 @@ fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool) Messag
                 .number = fi.number,
                 .field_index = field_index,
                 .oneof_variant = fi.name,
-                .json_name = fi.json_name,
                 .kind = buildOneofKind(fi),
             }};
         }

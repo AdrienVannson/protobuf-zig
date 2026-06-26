@@ -239,15 +239,25 @@ fn readMessage(
     msg: anytype,
     obj: *const std.json.ObjectMap,
     allocator: std.mem.Allocator,
-) error{ InvalidJson, UnsupportedFieldType, OutOfMemory }!void {
+) anyerror!void {
     const T = std.meta.Child(@TypeOf(msg));
+    const desc = try T._desc();
 
     var it = obj.iterator();
     while (it.next()) |entry| {
         const val = entry.value_ptr.*;
 
+        var field_number: ?u32 = null;
+        for (desc.fields) |df| {
+            if (std.mem.eql(u8, entry.key_ptr.*, df.json_name)) {
+                field_number = @intCast(df.number);
+                break;
+            }
+        }
+        const number = field_number orelse continue;
+
         inline for (T._metadata.fields) |field_meta| {
-            if (std.mem.eql(u8, entry.key_ptr.*, field_meta.json_name)) {
+            if (field_meta.number == number) {
                 try readField(msg, field_meta, val, allocator);
             }
         }
