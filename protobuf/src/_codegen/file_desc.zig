@@ -75,10 +75,10 @@ fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDesc
         try deps.put(desc_file.name, desc_file);
     }
 
-    // descFileFromProto builds its graph into a child arena backed by `allocator`,
-    // so its memory lives as long as `arena`. We keep `owned.file` only; the
-    // arena is leaked on the winning path and freed on a lost race.
-    return (try desc_file_from_proto.descFileFromProto(proto, &deps, allocator)).file;
+    // TODO: descFileFromProto is already creating an arena, so we have two arenas each time.
+    // Re-consider this after reviewing descFileFromProto.
+    const owned = (try desc_file_from_proto.descFileFromProto(proto, &deps, allocator));
+    return owned.file;
 }
 
 /// Navigate from a file descriptor to the message addressed by `path`: the first
