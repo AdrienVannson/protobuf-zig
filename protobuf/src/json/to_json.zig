@@ -64,7 +64,7 @@ fn writeList(ctx: *const JsonContext, comptime list_meta: anytype, list: anytype
     for (list.items) |item| {
         switch (comptime list_meta.element) {
             .scalar => |sc| try writeScalar(ctx, sc, item),
-            .message => try writeMessage(ctx, item.*),
+            .message => try writeMessage(item.*, ctx.json_writter, ctx.allocator),
             .enum_type => try writeEnum(ctx, item),
         }
     }
@@ -86,7 +86,7 @@ fn writeMap(ctx: *const JsonContext, comptime map_meta: anytype, map: anytype) !
         }
         switch (comptime map_meta.value) {
             .scalar => |sc| try writeScalar(ctx, sc, entry.value_ptr.*),
-            .message => try writeMessage(ctx, entry.value_ptr.*.*),
+            .message => try writeMessage(entry.value_ptr.*.*, ctx.json_writter, ctx.allocator),
             .enum_type => try writeEnum(ctx, entry.value_ptr.*),
         }
     }
@@ -101,7 +101,7 @@ fn writeFieldValue(
     switch (comptime field_meta.kind) {
         .scalar => |sc| try writeScalar(ctx, sc.scalar, value),
         .enum_field => try writeEnum(ctx, value),
-        .message_field => try writeMessage(ctx, value.*),
+        .message_field => try writeMessage(value.*, ctx.json_writter, ctx.allocator),
         .list => |list_meta| try writeList(ctx, list_meta, value),
         .map => |map_meta| try writeMap(ctx, map_meta, value),
     }
@@ -118,17 +118,17 @@ fn writeFieldCallback(ctx: *const JsonContext, comptime field_meta: FieldMetadat
     try writeFieldValue(ctx, field_meta, value);
 }
 
-fn writeMessage(ctx: *const JsonContext, msg: anytype) anyerror!void {
+fn writeMessage(msg: anytype, json_writter: *std.json.Stringify, allocator: std.mem.Allocator) anyerror!void {
     const T = @TypeOf(msg);
     const desc = try T._desc();
     const msg_ctx: JsonContext = .{
-        .json_writter = ctx.json_writter,
-        .allocator = ctx.allocator,
+        .json_writter = json_writter,
+        .allocator = allocator,
         .desc = desc,
     };
-    try ctx.json_writter.beginObject();
+    try json_writter.beginObject();
     try field_access.forEachSetField(msg, &msg_ctx, writeFieldCallback);
-    try ctx.json_writter.endObject();
+    try json_writter.endObject();
 }
 
 pub fn to_json(allocator: std.mem.Allocator, msg: anytype) ![]u8 {
@@ -136,11 +136,8 @@ pub fn to_json(allocator: std.mem.Allocator, msg: anytype) ![]u8 {
     errdefer aw.deinit();
 
     var json_writter: std.json.Stringify = .{ .writer = &aw.writer };
-    const T = @TypeOf(msg);
-    const desc = try T._desc();
-    const ctx: JsonContext = .{ .json_writter = &json_writter, .allocator = allocator, .desc = desc };
 
-    try writeMessage(&ctx, msg);
+    try writeMessage(msg, &json_writter, allocator);
 
     return aw.toOwnedSlice();
 }
