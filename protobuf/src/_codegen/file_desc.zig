@@ -43,19 +43,6 @@ pub fn fileDesc(
 
     if (C.value.load(.acquire)) |v| return v;
 
-    const built = try build_desc_file(descriptor_bytes, dep_accessors);
-    if (C.value.cmpxchgStrong(null, built.file, .release, .acquire)) |winner| {
-        // Lost the race: another thread cached first. Discard our copy.
-        built.arena.deinit();
-        std.heap.page_allocator.destroy(built.arena);
-        return winner.?; // non-null: the CAS only fails when another value is present
-    }
-    return built.file;
-}
-
-const Built = struct { arena: *std.heap.ArenaAllocator, file: *const DescFile };
-
-fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn) !Built {
     // Each build gets its own arena, kept at a stable heap address so the
     // allocator captured by descFileFromProto never dangles.
     const arena = try std.heap.page_allocator.create(std.heap.ArenaAllocator);
@@ -66,6 +53,17 @@ fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDesc
     }
     const allocator = arena.allocator();
 
+    const desc_file = try build_desc_file(descriptor_bytes, dep_accessors, allocator);
+    if (C.value.cmpxchgStrong(null, desc_file, .release, .acquire)) |winner| {
+        // Lost the race: another thread cached first. Discard our copy.
+        arena.deinit();
+        std.heap.page_allocator.destroy(arena);
+        return winner.?; // non-null: the CAS only fails when another value is present
+    }
+    return desc_file;
+}
+
+fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn, allocator: std.mem.Allocator) !*const DescFile {
     const proto = try allocator.create(descriptor.FileDescriptorProto);
     proto.* = .{};
     try protobuf.from_binary(proto, descriptor_bytes, allocator);
@@ -80,8 +78,7 @@ fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDesc
     // descFileFromProto builds its graph into a child arena backed by `allocator`,
     // so its memory lives as long as `arena`. We keep `owned.file` only; the
     // arena is leaked on the winning path and freed on a lost race.
-    const owned = try desc_file_from_proto.descFileFromProto(proto, &deps, allocator);
-    return .{ .arena = arena, .file = owned.file };
+    return (try desc_file_from_proto.descFileFromProto(proto, &deps, allocator)).file;
 }
 
 /// Navigate from a file descriptor to the message addressed by `path`: the first
