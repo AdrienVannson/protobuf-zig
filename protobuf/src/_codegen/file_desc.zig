@@ -43,8 +43,6 @@ pub fn fileDesc(
 
     if (C.value.load(.acquire)) |v| return v;
 
-    // Each build gets its own arena, kept at a stable heap address so the
-    // allocator captured by descFileFromProto never dangles.
     const arena = try std.heap.page_allocator.create(std.heap.ArenaAllocator);
     arena.* = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     errdefer {
@@ -54,11 +52,13 @@ pub fn fileDesc(
     const allocator = arena.allocator();
 
     const desc_file = try build_desc_file(descriptor_bytes, dep_accessors, allocator);
+
+    // TODO: check values for success_order and failure_order
     if (C.value.cmpxchgStrong(null, desc_file, .release, .acquire)) |winner| {
-        // Lost the race: another thread cached first. Discard our copy.
+        // Lost the race: another thread cached first.
         arena.deinit();
         std.heap.page_allocator.destroy(arena);
-        return winner.?; // non-null: the CAS only fails when another value is present
+        return winner.?;
     }
     return desc_file;
 }
