@@ -1,11 +1,10 @@
 //! Runtime helpers backing the `_fileDesc` / `_desc` accessors emitted in
 //! generated `.pb.zig` files. They lazily parse the `DESCRIPTOR_BYTES` embedded
 //! in each file into a fully-linked `DescFile` graph and cache it for the
-//! lifetime of the process.
+//! lifetime of the process. The caching mechanism is thread-safe.
 //!
-//! Memory model: the resulting descriptor arena is intentionally never freed;
-//! descriptors live for the whole program. The intermediate decoded
-//! `FileDescriptorProto` is only needed during the build and is freed afterwards.
+//! Memory model: the winning arena is intentionally never freed; descriptors
+//! live for the whole program.
 
 const std = @import("std");
 const protobuf = @import("../root.zig");
@@ -16,7 +15,7 @@ const DescFile = protobuf.DescFile;
 const DescMessage = protobuf.DescMessage;
 
 /// Accessor for a generated file's lazily-built `DescFile`.
-pub const FileDescFn = *const fn (std.Io) anyerror!*const DescFile;
+pub const FileDescFn = *const fn () anyerror!*const DescFile;
 
 /// Per-file static cache. Keyed on `File` so each generated file gets its own
 /// storage (the `File` reference forces a distinct type per instantiation).
@@ -25,7 +24,6 @@ fn Cache(comptime File: type) type {
         comptime {
             _ = File;
         }
-        var mutex: std.Io.Mutex = .init;
         var value: std.atomic.Value(?*const DescFile) = std.atomic.Value(?*const DescFile).init(null);
     };
 }
@@ -40,28 +38,33 @@ pub fn fileDesc(
     comptime File: type,
     comptime descriptor_bytes: []const u8,
     dep_accessors: []const FileDescFn,
-    io: std.Io,
 ) !*const DescFile {
     const C = Cache(File);
 
     if (C.value.load(.acquire)) |v| return v;
 
-    try C.mutex.lock(io);
-    defer C.mutex.unlock(io);
-
-    if (C.value.load(.acquire)) |v| return v; // Re-check after acquiring the lock
-
-    const v = try build_desc_file(descriptor_bytes, dep_accessors, io);
-    C.value.store(v, .release);
-    return v;
+    const built = try build_desc_file(descriptor_bytes, dep_accessors);
+    if (C.value.cmpxchgStrong(null, built.file, .release, .acquire)) |winner| {
+        // Lost the race: another thread cached first. Discard our copy.
+        built.arena.deinit();
+        std.heap.page_allocator.destroy(built.arena);
+        return winner.?; // non-null: the CAS only fails when another value is present
+    }
+    return built.file;
 }
 
-fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn, io: std.Io) !*const DescFile {
-    // Reuse the same allocator across calls
-    const AllocatorState = struct {
-        var arena: std.heap.ArenaAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    };
-    var allocator = AllocatorState.arena.allocator();
+const Built = struct { arena: *std.heap.ArenaAllocator, file: *const DescFile };
+
+fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn) !Built {
+    // Each build gets its own arena, kept at a stable heap address so the
+    // allocator captured by descFileFromProto never dangles.
+    const arena = try std.heap.page_allocator.create(std.heap.ArenaAllocator);
+    arena.* = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    errdefer {
+        arena.deinit();
+        std.heap.page_allocator.destroy(arena);
+    }
+    const allocator = arena.allocator();
 
     const proto = try allocator.create(descriptor.FileDescriptorProto);
     proto.* = .{};
@@ -70,14 +73,15 @@ fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDesc
     // name -> *const DescFile
     var deps = std.StringHashMap(*const DescFile).init(allocator);
     for (dep_accessors) |dep| {
-        const desc_file = try dep(io);
+        const desc_file = try dep();
         try deps.put(desc_file.name, desc_file);
     }
 
-    // The DescFile graph must outlive the process. descFileFromProto builds it into
-    // its own arena (backed by page_allocator); we intentionally leak that arena.
+    // descFileFromProto builds its graph into a child arena backed by `allocator`,
+    // so its memory lives as long as `arena`. We keep `owned.file` only; the
+    // arena is leaked on the winning path and freed on a lost race.
     const owned = try desc_file_from_proto.descFileFromProto(proto, &deps, allocator);
-    return owned.file;
+    return .{ .arena = arena, .file = owned.file };
 }
 
 /// Navigate from a file descriptor to the message addressed by `path`: the first

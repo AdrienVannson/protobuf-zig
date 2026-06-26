@@ -204,9 +204,9 @@ fn generateMessageDesc(
     f: *GeneratedFile,
     path: []const usize,
 ) !void {
-    try f.writeLine("pub fn _desc(io: std.Io) !*const _protobuf.DescMessage {");
+    try f.writeLine("pub fn _desc() !*const _protobuf.DescMessage {");
     f.indent();
-    try f.write("return _codegen.messageDescAt(try _fileDesc(io), &[_]usize{ ");
+    try f.write("return _codegen.messageDescAt(try _fileDesc(), &[_]usize{ ");
     for (path, 0..) |p, i| {
         if (i != 0) try f.write(", ");
         try f.write(p);
@@ -541,7 +541,7 @@ fn emitDescriptorBytes(
 
 /// Emits the file-level `_fileDesc` accessor
 fn generateFileDesc(f: *GeneratedFile, imports: *const ImportTable) !void {
-    try f.writeLine("pub fn _fileDesc(io: std.Io) !*const _protobuf.DescFile {");
+    try f.writeLine("pub fn _fileDesc() !*const _protobuf.DescFile {");
     f.indent();
 
     try f.writeLine("return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_codegen.FileDescFn{");
@@ -550,7 +550,7 @@ fn generateFileDesc(f: *GeneratedFile, imports: *const ImportTable) !void {
         try f.writeLine(.{ alias, "._fileDesc," });
     }
     f.unindent();
-    try f.writeLine("}, io);");
+    try f.writeLine("});");
 
     f.unindent();
     try f.writeLine("}");
