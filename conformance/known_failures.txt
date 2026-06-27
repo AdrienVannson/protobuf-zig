@@ -88,26 +88,6 @@ Required.Proto3.JsonInput.Int32FieldQuotedExponentialValue.ProtobufOutput # Fail
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
 Required.Proto3.JsonInput.OriginalProtoFieldName.JsonOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
 Required.Proto3.JsonInput.OriginalProtoFieldName.ProtobufOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
-Required.Proto3.JsonInput.RepeatedBoolWrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedBoolWrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedBytesWrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedBytesWrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedDoubleWrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedDoubleWrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedFloatWrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedFloatWrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedInt32Wrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedInt32Wrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedInt64Wrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedInt64Wrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedListValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedListValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedStringWrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedStringWrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedUint32Wrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedUint32Wrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedUint64Wrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedUint64Wrapper.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.RepeatedValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.RepeatedValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.Struct.JsonOutput
@@ -160,3 +140,5 @@ Required.Proto3.TimestampProtoInputTooLarge.JsonOutput # Should have failed to s
 Required.Proto3.TimestampProtoInputTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNanoTooLarge.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNegativeNanos.JsonOutput # Should have failed to serialize, but didn't.
+Required.Proto3.JsonInput.RepeatedListValue.JsonOutput # Failed to parse input or produce output.
+Required.Proto3.JsonInput.RepeatedListValue.ProtobufOutput # Failed to parse input or produce output.
