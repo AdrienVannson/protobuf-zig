@@ -73,7 +73,7 @@ fn enumFromJson(comptime EnumType: type, val: std.json.Value) !EnumType {
     }
 }
 
-fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value) !metadata.scalarZigType(scalar) {
+fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value, allocator: std.mem.Allocator) !metadata.scalarZigType(scalar) {
     switch (scalar) {
         .int32, .sint32, .sfixed32, .uint32, .fixed32, .int64, .sint64, .sfixed64, .uint64, .fixed64 => {
             return intFromJson(val, metadata.scalarZigType(scalar));
@@ -81,7 +81,18 @@ fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value) !metadata.sc
         .bool => {
             return boolFromJson(val);
         },
-        .float, .double, .string, .bytes => return error.UnsupportedFieldType,
+        .float => {
+            return floatFromJson(val, f32);
+        },
+        .double => {
+            return floatFromJson(val, f64);
+        },
+        .string => {
+            return stringFromJson(val, allocator);
+        },
+        .bytes => {
+            return bytesFromJson(val, allocator);
+        },
     }
 }
 
@@ -94,7 +105,7 @@ fn readScalarField(
     if (val == .null) {
         field_access.clearField(msg, field_meta, allocator);
     } else {
-        const v = try scalarFromJson(field_meta.kind.scalar.scalar, val);
+        const v = try scalarFromJson(field_meta.kind.scalar.scalar, val, allocator);
         field_access.setField(msg, field_meta, v, allocator);
     }
 }
@@ -224,7 +235,7 @@ fn readListField(
     for (arr.items) |item| {
         switch (comptime field_meta.kind.list.element) {
             .scalar => |sc| {
-                const v = try scalarFromJson(sc, item);
+                const v = try scalarFromJson(sc, item, allocator);
                 try list_ptr.append(allocator, v);
             },
             .message => {
@@ -279,7 +290,7 @@ fn readMapField(
 
         switch (comptime field_meta.kind.map.value) {
             .scalar => |sc| {
-                const v = try scalarFromJson(sc, entry.value_ptr.*);
+                const v = try scalarFromJson(sc, entry.value_ptr.*, allocator);
                 try map_ptr.put(allocator, key, v);
             },
             .enum_type => {
