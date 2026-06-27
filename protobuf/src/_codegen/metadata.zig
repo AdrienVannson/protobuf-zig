@@ -46,6 +46,7 @@ pub const FieldMetadata = struct {
 
 pub const MessageMetadata = struct {
     fields: []const FieldMetadata,
+    fully_qualified_proto_name: []const u8,
 };
 
 pub fn scalarZigType(comptime scalar: ScalarType) type {
