@@ -109,7 +109,49 @@ fn writeFieldCallback(ctx: *const JsonContext, comptime field_meta: FieldMetadat
     try writeFieldValue(ctx, field_meta, value);
 }
 
+fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
+    const name = comptime @TypeOf(msg)._metadata.fully_qualified_proto_name;
+    if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
+        try writeScalar(ctx, .double, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.FloatValue")) {
+        try writeScalar(ctx, .float, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Int64Value")) {
+        try writeScalar(ctx, .int64, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.UInt64Value")) {
+        try writeScalar(ctx, .uint64, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Int32Value")) {
+        try writeScalar(ctx, .int32, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.UInt32Value")) {
+        try writeScalar(ctx, .uint32, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.BoolValue")) {
+        try writeScalar(ctx, .bool, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.StringValue")) {
+        try writeScalar(ctx, .string, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.BytesValue")) {
+        try writeScalar(ctx, .bytes, msg.value);
+        return true;
+    }
+    return false;
+}
+
 fn writeMessage(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed }!void {
+    if (try tryWriteWkt(ctx, msg)) return;
     try ctx.json_writter.beginObject();
     try field_access.forEachSetField(msg, ctx, writeFieldCallback);
     try ctx.json_writter.endObject();

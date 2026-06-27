@@ -18,6 +18,44 @@ fn intFromJson(val: std.json.Value, comptime int_type: type) !int_type {
     }
 }
 
+fn boolFromJson(val: std.json.Value) !bool {
+    return switch (val) {
+        .bool => |b| b,
+        else => error.InvalidJson,
+    };
+}
+
+fn floatFromJson(val: std.json.Value, comptime T: type) !T {
+    return switch (val) {
+        .number_string => |s| std.fmt.parseFloat(T, s) catch error.InvalidJson,
+        .string => |s| {
+            if (std.mem.eql(u8, s, "NaN")) return std.math.nan(T);
+            if (std.mem.eql(u8, s, "Infinity")) return std.math.inf(T);
+            if (std.mem.eql(u8, s, "-Infinity")) return -std.math.inf(T);
+            return std.fmt.parseFloat(T, s) catch error.InvalidJson;
+        },
+        else => error.InvalidJson,
+    };
+}
+
+fn stringFromJson(val: std.json.Value, allocator: std.mem.Allocator) ![]const u8 {
+    return switch (val) {
+        .string => |s| try allocator.dupe(u8, s),
+        else => return error.InvalidJson,
+    };
+}
+
+fn bytesFromJson(val: std.json.Value, allocator: std.mem.Allocator) ![]const u8 {
+    const s = switch (val) {
+        .string => |s| s,
+        else => return error.InvalidJson,
+    };
+    const decoded_len = std.base64.standard.Decoder.calcSizeForSlice(s) catch return error.InvalidJson;
+    const buf = try allocator.alloc(u8, decoded_len);
+    std.base64.standard.Decoder.decode(buf, s) catch return error.InvalidJson;
+    return buf;
+}
+
 fn enumFromJson(comptime EnumType: type, val: std.json.Value) !EnumType {
     switch (val) {
         .string => |s| {
@@ -41,10 +79,7 @@ fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value) !metadata.sc
             return intFromJson(val, metadata.scalarZigType(scalar));
         },
         .bool => {
-            return switch (val) {
-                .bool => |b| b,
-                else => error.InvalidJson,
-            };
+            return boolFromJson(val);
         },
         .float, .double, .string, .bytes => return error.UnsupportedFieldType,
     }
@@ -98,6 +133,51 @@ fn isResetSentinelNullValue(
     };
 }
 
+fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !bool {
+    const name = comptime std.meta.Child(@TypeOf(msg))._metadata.fully_qualified_proto_name;
+    if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
+        msg.value = try floatFromJson(val, f64);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.FloatValue")) {
+        msg.value = try floatFromJson(val, f32);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Int64Value")) {
+        msg.value = try intFromJson(val, i64);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.UInt64Value")) {
+        msg.value = try intFromJson(val, u64);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Int32Value")) {
+        msg.value = try intFromJson(val, i32);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.UInt32Value")) {
+        msg.value = try intFromJson(val, u32);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.BoolValue")) {
+        msg.value = try boolFromJson(val);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.StringValue")) {
+        msg.value = try stringFromJson(val, allocator);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.BytesValue")) {
+        msg.value = try bytesFromJson(val, allocator);
+        return true;
+    }
+    return false;
+}
+
+fn tryReadWkt(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !bool {
+    return try tryReadWktValue(msg, val, allocator);
+}
+
 fn readMessageField(
     msg: anytype,
     comptime field_meta: FieldMetadata,
@@ -108,10 +188,6 @@ fn readMessageField(
         field_access.clearField(msg, field_meta, allocator);
         return;
     }
-    const obj = switch (val) {
-        .object => |o| o,
-        else => return error.InvalidJson,
-    };
     const existing = field_access.getField(msg.*, field_meta);
     const child_ptr = existing orelse blk: {
         const Child = std.meta.Child(@typeInfo(@TypeOf(existing)).optional.child);
@@ -119,6 +195,11 @@ fn readMessageField(
         p.* = .{};
         field_access.setField(msg, field_meta, p, allocator);
         break :blk p;
+    };
+    if (try tryReadWkt(child_ptr, val, allocator)) return;
+    const obj = switch (val) {
+        .object => |o| o,
+        else => return error.InvalidJson,
     };
     try readMessage(child_ptr, &obj, allocator);
 }

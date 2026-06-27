@@ -16,8 +16,10 @@ const SupportedFieldPresence = metadata.SupportedFieldPresence;
 
 // Hard-coded field numbers from descriptor.proto
 const FILE_MESSAGE_TYPE = 4; // FileDescriptorProto.message_type
+const FILE_PACKAGE = 2; // FileDescriptorProto.package
 const FILE_SYNTAX = 12; // FileDescriptorProto.syntax
 const FILE_EDITION = 14; // FileDescriptorProto.edition
+const MSG_NAME = 1; // DescriptorProto.name
 const MSG_FIELD = 2; // DescriptorProto.field
 const MSG_NESTED_TYPE = 3; // DescriptorProto.nested_type
 const MSG_OPTIONS = 7; // DescriptorProto.options
@@ -57,7 +59,8 @@ pub fn read_message_metadata(comptime bytes: []const u8, comptime path: anytype)
     @setEvalBranchQuota(100_000_000);
     const is_proto3 = fileIsProto3(bytes);
     const msg_bytes = navigateToMessage(bytes, path);
-    return parseMessage(msg_bytes, is_proto3);
+    const fqn = buildFqn(bytes, path);
+    return parseMessage(msg_bytes, is_proto3, fqn);
 }
 
 // ---------------------------------------------------------------------------
@@ -188,6 +191,24 @@ fn nthRealMessage(comptime bytes: []const u8, comptime field_no: u32, comptime n
         } else pos = skipPayload(bytes, pos, tg.wire);
     }
     @compileError("read_message_metadata: message path index out of range");
+}
+
+fn buildFqn(comptime file_bytes: []const u8, comptime path: anytype) []const u8 {
+    comptime var fqn: []const u8 = getBytes(file_bytes, FILE_PACKAGE) orelse "";
+    comptime var cur: []const u8 = file_bytes;
+    comptime var depth: usize = 0;
+    inline for (path) |idx| {
+        const field_no: u32 = if (depth == 0) FILE_MESSAGE_TYPE else MSG_NESTED_TYPE;
+        cur = nthRealMessage(cur, field_no, idx);
+        const msg_name: []const u8 = getBytes(cur, MSG_NAME) orelse
+            @compileError("read_message_metadata: message descriptor missing name field");
+        fqn = if (fqn.len > 0)
+            std.fmt.comptimePrint("{s}.{s}", .{ fqn, msg_name })
+        else
+            msg_name;
+        depth += 1;
+    }
+    return fqn;
 }
 
 fn navigateToMessage(comptime file_bytes: []const u8, comptime path: anytype) []const u8 {
@@ -374,7 +395,7 @@ fn buildOneofKind(comptime fi: FieldInfo) FieldMetadataKind {
     return .{ .scalar = .{ .scalar = sc } };
 }
 
-fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool) MessageMetadata {
+fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool, comptime fqn: []const u8) MessageMetadata {
     const field_protos = collectBytes(msg_bytes, MSG_FIELD);
     const oneof_protos = collectBytes(msg_bytes, MSG_ONEOF_DECL);
 
@@ -422,5 +443,5 @@ fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool) Messag
         field_index += 1;
     }
 
-    return .{ .fields = out };
+    return .{ .fields = out, .fully_qualified_proto_name = fqn };
 }
