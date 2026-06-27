@@ -110,8 +110,8 @@ Required.Proto3.JsonInput.RepeatedUint64Wrapper.JsonOutput # Failed to parse inp
 Required.Proto3.JsonInput.RepeatedUint64Wrapper.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.RepeatedValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.RepeatedValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Struct.JsonOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[objectValue]: { struct_value { fields { key: "va
-Required.Proto3.JsonInput.Struct.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[doubleValue]: { number_value: 1234.5678 }deleted
+Required.Proto3.JsonInput.Struct.JsonOutput
+Required.Proto3.JsonInput.Struct.ProtobufOutput
 Required.Proto3.JsonInput.StructWithEmptyListValue.JsonOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[listValue]: { list_value { } }
 Required.Proto3.JsonInput.StructWithEmptyListValue.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[listValue]: { list_value { } }
 Required.Proto3.JsonInput.TimestampEpochValue.JsonOutput # Failed to parse input or produce output.
