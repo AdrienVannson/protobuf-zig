@@ -207,12 +207,8 @@ fn readMessageField(
         field_access.setField(msg, field_meta, p, allocator);
         break :blk p;
     };
-    if (try tryReadWkt(child_ptr, val, allocator)) return;
-    const obj = switch (val) {
-        .object => |o| o,
-        else => return error.InvalidJson,
-    };
-    try readMessage(child_ptr, &obj, allocator);
+
+    try readMessage(child_ptr, val, allocator);
 }
 
 fn readListField(
@@ -239,15 +235,11 @@ fn readListField(
                 try list_ptr.append(allocator, v);
             },
             .message => {
-                const obj = switch (item) {
-                    .object => |o| o,
-                    else => return error.InvalidJson,
-                };
                 const ChildMsg = std.meta.Child(@typeInfo(@TypeOf(list_ptr.items)).pointer.child);
                 const p = try allocator.create(ChildMsg);
                 p.* = .{};
                 try list_ptr.append(allocator, p);
-                try readMessage(p, &obj, allocator);
+                try readMessage(p, item, allocator);
             },
             .enum_type => {
                 const EnumType = std.meta.Child(@TypeOf(list_ptr.items));
@@ -298,14 +290,10 @@ fn readMapField(
                 try map_ptr.put(allocator, key, v);
             },
             .message => {
-                const value_obj = switch (entry.value_ptr.*) {
-                    .object => |o| o,
-                    else => return error.InvalidJson,
-                };
                 const Child = std.meta.Child(ValueType);
                 const p = try allocator.create(Child);
                 p.* = .{};
-                try readMessage(p, &value_obj, allocator);
+                try readMessage(p, entry.value_ptr.*, allocator);
                 try map_ptr.put(allocator, key, p);
             },
         }
@@ -329,10 +317,17 @@ fn readField(
 
 fn readMessage(
     msg: anytype,
-    obj: *const std.json.ObjectMap,
+    json_value: std.json.Value,
     allocator: std.mem.Allocator,
 ) error{ InvalidJson, UnsupportedFieldType, OutOfMemory }!void {
     const T = std.meta.Child(@TypeOf(msg));
+
+    if (try tryReadWkt(msg, json_value, allocator)) return;
+
+    const obj = switch (json_value) {
+        .object => |o| o,
+        else => return error.InvalidJson,
+    };
 
     var it = obj.iterator();
     while (it.next()) |entry| {
@@ -352,10 +347,5 @@ pub fn from_json(msg: anytype, json: []const u8, allocator: std.mem.Allocator) !
     });
     defer parsed.deinit();
 
-    const obj = switch (parsed.value) {
-        .object => |o| o,
-        else => return error.InvalidJson,
-    };
-
-    try readMessage(msg, &obj, allocator);
+    try readMessage(msg, parsed.value, allocator);
 }
