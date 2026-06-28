@@ -1,3 +1,5 @@
+// TODO: fix leaks when updating / setting fields that already exist and need to be freed
+
 const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
@@ -116,7 +118,7 @@ fn readEnumField(
     val: std.json.Value,
     allocator: std.mem.Allocator,
 ) !void {
-    if (isResetSentinelNullValue(field_meta, val)) {
+    if (isResetSentinelNullValue(msg, field_meta, val)) {
         field_access.clearField(msg, field_meta, allocator);
         return;
     }
@@ -129,19 +131,78 @@ fn readEnumField(
 /// Returns false for types where null is a meaningful value (google.protobuf.Value,
 /// google.protobuf.NullValue), because those need further handling instead.
 fn isResetSentinelNullValue(
+    msg: anytype,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
 ) bool {
     if (val != .null) return false;
     return switch (comptime field_meta.kind) {
-        // TODO: return false when child message type is google.protobuf.Value.
-        // Blocked: MessageMetadata has no fully_qualified_proto_name field.
-        .message_field => true,
+        .message_field => blk: {
+            const MsgType = std.meta.Child(@TypeOf(msg));
+            const MsgFieldType = std.meta.Child(@typeInfo(field_access.FieldPayloadType(MsgType, field_meta)).optional.child);
+            break :blk !comptime std.mem.eql(u8, MsgFieldType._metadata.fully_qualified_proto_name, "google.protobuf.Value");
+        },
         // TODO: return false when enum type is google.protobuf.NullValue.
-        // Blocked: MessageMetadata has no fully_qualified_proto_name field.
         .enum_field => true,
         else => true,
     };
+}
+
+fn readWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+    const KindUnion = @typeInfo(@TypeOf(msg.kind)).optional.child;
+    const StructType = std.meta.Child(@FieldType(KindUnion, "struct_value"));
+    const ListValueType = std.meta.Child(@FieldType(KindUnion, "list_value"));
+    switch (val) {
+        .null => msg.kind = .{ .null_value = .NULL_VALUE },
+        .bool => |b| msg.kind = .{ .bool_value = b },
+        .number_string => |s| msg.kind = .{
+            .number_value = std.fmt.parseFloat(f64, s) catch return error.InvalidJson,
+        },
+        .string => |s| msg.kind = .{ .string_value = try allocator.dupe(u8, s) },
+        .array => {
+            const lv = try allocator.create(ListValueType);
+            lv.* = .{};
+            try readWktListValue(lv, val, allocator);
+            msg.kind = .{ .list_value = lv };
+        },
+        .object => {
+            const sv = try allocator.create(StructType);
+            sv.* = .{};
+            try readWktStruct(sv, val, allocator);
+            msg.kind = .{ .struct_value = sv };
+        },
+        else => return error.InvalidJson,
+    }
+}
+
+fn readWktStruct(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+    const obj = switch (val) {
+        .object => |o| o,
+        else => return error.InvalidJson,
+    };
+    const ValueType = std.meta.Child(@FieldType(@TypeOf(msg.fields).KV, "value"));
+    var it = obj.iterator();
+    while (it.next()) |entry| {
+        const key = try allocator.dupe(u8, entry.key_ptr.*);
+        const v = try allocator.create(ValueType);
+        v.* = .{};
+        try readMessage(v, entry.value_ptr.*, allocator);
+        try msg.fields.put(allocator, key, v);
+    }
+}
+
+fn readWktListValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+    const arr = switch (val) {
+        .array => |a| a,
+        else => return error.InvalidJson,
+    };
+    const ValueType = std.meta.Child(std.meta.Child(@TypeOf(msg.values.items)));
+    for (arr.items) |item| {
+        const v = try allocator.create(ValueType);
+        v.* = .{};
+        try readMessage(v, item, allocator);
+        try msg.values.append(allocator, v);
+    }
 }
 
 fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !bool {
@@ -182,6 +243,18 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
         msg.value = try bytesFromJson(val, allocator);
         return true;
     }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Value")) {
+        try readWktValue(msg, val, allocator);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Struct")) {
+        try readWktStruct(msg, val, allocator);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.ListValue")) {
+        try readWktListValue(msg, val, allocator);
+        return true;
+    }
     return false;
 }
 
@@ -195,7 +268,7 @@ fn readMessageField(
     val: std.json.Value,
     allocator: std.mem.Allocator,
 ) !void {
-    if (isResetSentinelNullValue(field_meta, val)) {
+    if (isResetSentinelNullValue(msg, field_meta, val)) {
         field_access.clearField(msg, field_meta, allocator);
         return;
     }

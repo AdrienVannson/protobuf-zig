@@ -88,12 +88,6 @@ Required.Proto3.JsonInput.Int32FieldQuotedExponentialValue.ProtobufOutput # Fail
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
 Required.Proto3.JsonInput.OriginalProtoFieldName.JsonOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
 Required.Proto3.JsonInput.OriginalProtoFieldName.ProtobufOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
-Required.Proto3.JsonInput.RepeatedValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Struct.JsonOutput
-Required.Proto3.JsonInput.Struct.ProtobufOutput
-Required.Proto3.JsonInput.StructWithEmptyListValue.JsonOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[listValue]: { list_value { } }
-Required.Proto3.JsonInput.StructWithEmptyListValue.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_struct.fields[listValue]: { list_value { } }
 Required.Proto3.JsonInput.TimestampEpochValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampEpochValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampLeap.JsonOutput # Failed to parse input or produce output.
@@ -122,23 +116,7 @@ Required.Proto3.JsonInput.TimestampWithPositiveOffset.JsonOutput # Failed to par
 Required.Proto3.JsonInput.TimestampWithPositiveOffset.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.Uint32FieldMaxFloatValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.Uint32FieldMaxFloatValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptBool.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptBool.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptFloat.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptFloat.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptInteger.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptInteger.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptList.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptList.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptNull.JsonOutput # Output was not equivalent to reference message: deleted: optional_value: { null_value: NULL_VALUE }
-Required.Proto3.JsonInput.ValueAcceptNull.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_value: { null_value: NULL_VALUE }
-Required.Proto3.JsonInput.ValueAcceptObject.JsonOutput # Output was not equivalent to reference message: deleted: optional_value.struct_value.fields[value]: { number_value: 1 }
-Required.Proto3.JsonInput.ValueAcceptObject.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_value.struct_value: { fields { key: "value" value { number_val
-Required.Proto3.JsonInput.ValueAcceptString.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.ValueAcceptString.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.TimestampProtoInputTooLarge.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoInputTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNanoTooLarge.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNegativeNanos.JsonOutput # Should have failed to serialize, but didn't.
-Required.Proto3.JsonInput.RepeatedListValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.RepeatedListValue.ProtobufOutput # Failed to parse input or produce output.
