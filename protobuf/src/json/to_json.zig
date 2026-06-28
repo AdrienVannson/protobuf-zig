@@ -109,6 +109,40 @@ fn writeFieldCallback(ctx: *const JsonContext, comptime field_meta: FieldMetadat
     try writeFieldValue(ctx, field_meta, value);
 }
 
+fn writeWktValue(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed }!void {
+    if (msg.kind) |kind| {
+        switch (kind) {
+            .null_value => try ctx.json_writter.write(null),
+            .bool_value => |v| try writeScalar(ctx, .bool, v),
+            .number_value => |v| try writeScalar(ctx, .double, v),
+            .string_value => |v| try writeScalar(ctx, .string, v),
+            .struct_value => |v| try writeWktStruct(ctx, v.*),
+            .list_value => |v| try writeWktListValue(ctx, v.*),
+        }
+    } else {
+        // TODO: check, add parameter to control
+        try ctx.json_writter.write(null);
+    }
+}
+
+fn writeWktStruct(ctx: *const JsonContext, msg: anytype) !void {
+    try ctx.json_writter.beginObject();
+    var it = msg.fields.iterator();
+    while (it.next()) |entry| {
+        try ctx.json_writter.objectField(entry.key_ptr.*);
+        try writeWktValue(ctx, entry.value_ptr.*.*);
+    }
+    try ctx.json_writter.endObject();
+}
+
+fn writeWktListValue(ctx: *const JsonContext, msg: anytype) !void {
+    try ctx.json_writter.beginArray();
+    for (msg.values.items) |item| {
+        try writeWktValue(ctx, item.*);
+    }
+    try ctx.json_writter.endArray();
+}
+
 fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     const name = comptime @TypeOf(msg)._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -145,6 +179,18 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.BytesValue")) {
         try writeScalar(ctx, .bytes, msg.value);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Value")) {
+        try writeWktValue(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Struct")) {
+        try writeWktStruct(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.ListValue")) {
+        try writeWktListValue(ctx, msg);
         return true;
     }
     return false;

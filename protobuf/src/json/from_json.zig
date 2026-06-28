@@ -144,6 +144,63 @@ fn isResetSentinelNullValue(
     };
 }
 
+fn readWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+    const KindUnion = @typeInfo(@TypeOf(msg.kind)).optional.child;
+    const StructType = std.meta.Child(@FieldType(KindUnion, "struct_value"));
+    const ListValueType = std.meta.Child(@FieldType(KindUnion, "list_value"));
+    switch (val) {
+        .null => msg.kind = .{ .null_value = .NULL_VALUE },
+        .bool => |b| msg.kind = .{ .bool_value = b },
+        .number_string => |s| msg.kind = .{
+            .number_value = std.fmt.parseFloat(f64, s) catch return error.InvalidJson,
+        },
+        .string => |s| msg.kind = .{ .string_value = try allocator.dupe(u8, s) },
+        .array => {
+            const lv = try allocator.create(ListValueType);
+            lv.* = .{};
+            try readWktListValue(lv, val, allocator);
+            msg.kind = .{ .list_value = lv };
+        },
+        .object => {
+            const sv = try allocator.create(StructType);
+            sv.* = .{};
+            try readWktStruct(sv, val, allocator);
+            msg.kind = .{ .struct_value = sv };
+        },
+        else => return error.InvalidJson,
+    }
+}
+
+fn readWktStruct(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+    const obj = switch (val) {
+        .object => |o| o,
+        else => return error.InvalidJson,
+    };
+    const ValueType = std.meta.Child(@FieldType(@TypeOf(msg.fields).KV, "value"));
+    var it = obj.iterator();
+    while (it.next()) |entry| {
+        const key = try allocator.dupe(u8, entry.key_ptr.*);
+        const v = try allocator.create(ValueType);
+        v.* = .{};
+        try readMessage(v, entry.value_ptr.*, allocator);
+        try msg.fields.put(allocator, key, v);
+    }
+}
+
+fn readWktListValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+    const arr = switch (val) {
+        .array => |a| a,
+        else => return error.InvalidJson,
+    };
+    const ValueType = std.meta.Child(std.meta.Child(@TypeOf(msg.values.items)));
+    for (arr.items) |item| {
+        const v = try allocator.create(ValueType);
+        v.* = .{};
+        try readMessage(v, item, allocator);
+        try msg.values.append(allocator, v);
+    }
+}
+
 fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !bool {
     const name = comptime std.meta.Child(@TypeOf(msg))._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -182,6 +239,18 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
         msg.value = try bytesFromJson(val, allocator);
         return true;
     }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Value")) {
+        try readWktValue(msg, val, allocator);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Struct")) {
+        try readWktStruct(msg, val, allocator);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.ListValue")) {
+        try readWktListValue(msg, val, allocator);
+        return true;
+    }
     return false;
 }
 
@@ -195,13 +264,17 @@ fn readMessageField(
     val: std.json.Value,
     allocator: std.mem.Allocator,
 ) !void {
-    if (isResetSentinelNullValue(field_meta, val)) {
+    const existing = field_access.getField(msg.*, field_meta);
+    const Child = std.meta.Child(@typeInfo(@TypeOf(existing)).optional.child);
+
+    const is_value_wkt = comptime std.mem.eql(u8, Child._metadata.fully_qualified_proto_name, "google.protobuf.Value");
+
+    if (val == .null and !is_value_wkt) {
         field_access.clearField(msg, field_meta, allocator);
         return;
     }
-    const existing = field_access.getField(msg.*, field_meta);
+
     const child_ptr = existing orelse blk: {
-        const Child = std.meta.Child(@typeInfo(@TypeOf(existing)).optional.child);
         const p = try allocator.create(Child);
         p.* = .{};
         field_access.setField(msg, field_meta, p, allocator);
