@@ -1,3 +1,5 @@
+// TODO: fix leaks when updating / setting fields that already exist and need to be freed
+
 const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
