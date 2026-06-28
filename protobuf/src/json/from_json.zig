@@ -116,7 +116,7 @@ fn readEnumField(
     val: std.json.Value,
     allocator: std.mem.Allocator,
 ) !void {
-    if (isResetSentinelNullValue(field_meta, val)) {
+    if (isResetSentinelNullValue(msg, field_meta, val)) {
         field_access.clearField(msg, field_meta, allocator);
         return;
     }
@@ -129,16 +129,18 @@ fn readEnumField(
 /// Returns false for types where null is a meaningful value (google.protobuf.Value,
 /// google.protobuf.NullValue), because those need further handling instead.
 fn isResetSentinelNullValue(
+    msg: anytype,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
 ) bool {
     if (val != .null) return false;
     return switch (comptime field_meta.kind) {
-        // TODO: return false when child message type is google.protobuf.Value.
-        // Blocked: MessageMetadata has no fully_qualified_proto_name field.
-        .message_field => true,
+        .message_field => blk: {
+            const MsgType = std.meta.Child(@TypeOf(msg));
+            const MsgFieldType = std.meta.Child(@typeInfo(field_access.FieldPayloadType(MsgType, field_meta)).optional.child);
+            break :blk !comptime std.mem.eql(u8, MsgFieldType._metadata.fully_qualified_proto_name, "google.protobuf.Value");
+        },
         // TODO: return false when enum type is google.protobuf.NullValue.
-        // Blocked: MessageMetadata has no fully_qualified_proto_name field.
         .enum_field => true,
         else => true,
     };
@@ -264,17 +266,13 @@ fn readMessageField(
     val: std.json.Value,
     allocator: std.mem.Allocator,
 ) !void {
-    const existing = field_access.getField(msg.*, field_meta);
-    const Child = std.meta.Child(@typeInfo(@TypeOf(existing)).optional.child);
-
-    const is_value_wkt = comptime std.mem.eql(u8, Child._metadata.fully_qualified_proto_name, "google.protobuf.Value");
-
-    if (val == .null and !is_value_wkt) {
+    if (isResetSentinelNullValue(msg, field_meta, val)) {
         field_access.clearField(msg, field_meta, allocator);
         return;
     }
-
+    const existing = field_access.getField(msg.*, field_meta);
     const child_ptr = existing orelse blk: {
+        const Child = std.meta.Child(@typeInfo(@TypeOf(existing)).optional.child);
         const p = try allocator.create(Child);
         p.* = .{};
         field_access.setField(msg, field_meta, p, allocator);
