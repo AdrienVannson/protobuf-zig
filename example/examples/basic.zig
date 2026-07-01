@@ -1,5 +1,5 @@
 const std = @import("std");
-const example = @import("gen/example.pb.zig");
+const example = @import("example_pb");
 const protobuf = @import("protobuf");
 
 pub fn main(init: std.process.Init) !void {

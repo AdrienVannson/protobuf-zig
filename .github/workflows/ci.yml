@@ -56,6 +56,7 @@ jobs:
           just generate-example
           just generate-conformance
           just generate-plugin
+          just sync-readme
           git status
           test -z "$(git status --porcelain)" # Check for uncommitted changes after generation
 
