@@ -26,27 +26,14 @@ Encoding a message to the binary wire format:
 
 <!-- include: example/examples/basic.zig -->
 ```zig
-const std = @import("std");
-const example = @import("example_pb");
-const protobuf = @import("protobuf");
+const person = example.Person{
+    .name = "Alice",
+    .age = 30,
+    .email = "alice@example.com",
+};
 
-pub fn main(init: std.process.Init) !void {
-    const allocator = init.gpa;
-
-    const person = example.Person{
-        .name = "Alice",
-        .age = 30,
-        .email = "alice@example.com",
-    };
-
-    const encoded = try protobuf.to_binary(allocator, person);
-    defer allocator.free(encoded);
-    std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
-}
+const encoded = try protobuf.to_binary(allocator, person);
+defer allocator.free(encoded);
+std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
 ```
 <!-- /include -->
-
-TODO:
-
-- check allocation / desallocation of non empty default values for strings / bytes
-- don't leak memory on errors 

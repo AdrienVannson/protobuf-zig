@@ -5,6 +5,7 @@ const protobuf = @import("protobuf");
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
 
+    // <!-- include -->
     const person = example.Person{
         .name = "Alice",
         .age = 30,
@@ -14,4 +15,5 @@ pub fn main(init: std.process.Init) !void {
     const encoded = try protobuf.to_binary(allocator, person);
     defer allocator.free(encoded);
     std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
+    // <!-- /include -->
 }

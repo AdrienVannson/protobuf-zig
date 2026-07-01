@@ -5,6 +5,7 @@
 import pathlib
 import re
 import sys
+import textwrap
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 README = ROOT / "README.md"
@@ -13,10 +14,26 @@ LANG_BY_SUFFIX = {".proto": "proto", ".zig": "zig"}
 
 INCLUDE_RE = re.compile(r"<!-- include: (?P<path>[^\n]+) -->.*?<!-- /include -->", re.DOTALL)
 
+ZIG_SECTION_RE = re.compile(
+    r"// <!-- include -->\n(?P<body>.*?)\n[ \t]*// <!-- /include -->", re.DOTALL
+)
+
+
+def extract_zig_section(content: str) -> str:
+    match = ZIG_SECTION_RE.search(content)
+    if not match:
+        return content.rstrip("\n")
+    body = textwrap.dedent(match.group("body"))
+    return body.strip("\n")
+
 
 def fenced_block(path: pathlib.Path) -> str:
     lang = LANG_BY_SUFFIX.get(path.suffix, "")
-    content = path.read_text().rstrip("\n")
+    content = path.read_text()
+    if path.suffix == ".zig":
+        content = extract_zig_section(content)
+    else:
+        content = content.rstrip("\n")
     return f"```{lang}\n{content}\n```"
 
 
