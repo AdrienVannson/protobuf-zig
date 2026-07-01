@@ -3,7 +3,7 @@ set dotenv-override
 
 protobuf_version := "33.2"
 
-all: setup setup-conformance build generate generate-example run-example test conformance code-quality generate-wkt generate-conformance generate-plugin
+all: setup setup-conformance build generate generate-example run-example test conformance code-quality generate-wkt generate-conformance generate-plugin sync-readme
 
 build:
     cd protobuf && zig build
@@ -82,6 +82,10 @@ generate-example: build
 # Build and run the example
 run-example:
     cd example && zig build run
+
+# Regenerate README.md code examples from example/ sources
+sync-readme:
+    python3 tools/sync_readme.py
 
 # Download protoc (all platforms)
 setup version=protobuf_version:
