@@ -202,12 +202,13 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     return false;
 }
 
-/// Serialize a `google.protobuf.Any` to ProtoJSON: `{"@type": "<type_url>",
-/// <fields>}`. The packed message is resolved through the registry, decoded from
-/// `value`, and re-serialized to JSON; its object body is then spliced together
-/// with the `@type` member. Only messages whose ProtoJSON is an object are
-/// supported (the "value wrapper" form for WKTs with a custom representation is
-/// not handled here).
+/// Serialize a `google.protobuf.Any` to ProtoJSON. The packed message is
+/// resolved through the registry, decoded from `value`, and re-serialized to
+/// JSON. For a regular message this becomes `{"@type": "<type_url>",
+/// <fields>}` (its object body spliced together with the `@type` member); for
+/// a WKT with a custom JSON representation (another `Any`, `Struct`, `Value`,
+/// `ListValue`, or a wrapper type) this becomes
+/// `{"@type": "<type_url>", "value": <custom JSON>}` instead.
 fn writeAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
     const w = ctx.json_writter;
 
@@ -232,18 +233,24 @@ fn writeAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
     const inner = try mt.toJson(ptr, ctx.allocator, ctx.registry);
     defer ctx.allocator.free(inner);
 
-    // The regular Any form requires the packed message to render as an object.
-    if (inner.len == 0 or inner[0] != '{') return error.UnsupportedAnyType;
-
-    // Emit `{"@type":<type_url>, <inner fields>}` as a single raw value so the
+    // Emit `{"@type":<type_url>, ...}` as a single raw value so the
     // surrounding writer keeps its punctuation state correct.
     try w.beginWriteRaw();
     const out = w.writer;
     try out.writeAll("{\"@type\":");
     try std.json.Stringify.encodeJsonString(msg.type_url, .{}, out);
-    if (std.mem.eql(u8, inner, "{}")) {
+    if (mt.has_custom_json_encoding) {
+        // The packed type has its own non-flattened JSON form (a string for
+        // wrappers, an object for Struct/Value/ListValue/Any, ...), so it's
+        // nested under a `value` member rather than spliced into this object.
+        try out.writeAll(",\"value\":");
+        try out.writeAll(inner);
+        try out.writeByte('}');
+    } else if (std.mem.eql(u8, inner, "{}")) {
         try out.writeByte('}');
     } else {
+        // The regular Any form requires the packed message to render as an object.
+        if (inner.len == 0 or inner[0] != '{') return error.UnsupportedAnyType;
         try out.writeByte(',');
         // inner[1..] drops the opening `{`, keeping `<fields>}`.
         try out.writeAll(inner[1..]);

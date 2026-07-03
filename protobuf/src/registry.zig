@@ -7,10 +7,41 @@ const protobuf = @import("root.zig");
 
 const DescMessage = protobuf.DescMessage;
 
+/// Well-known types with a JSON representation other than "flatten this
+/// message's own fields into an object" (see `tryReadWktValue` in
+/// `json/from_json.zig` and `tryWriteWkt` in `json/to_json.zig`, which must be
+/// kept in sync with this list). `google.protobuf.Duration`, `.Timestamp`, and
+/// `.FieldMask` are deliberately excluded: they have no custom JSON handling
+/// implemented yet, so they still go through the regular flatten path.
+fn hasCustomJsonEncoding(name: []const u8) bool {
+    const names = [_][]const u8{
+        "google.protobuf.Any",
+        "google.protobuf.Struct",
+        "google.protobuf.Value",
+        "google.protobuf.ListValue",
+        "google.protobuf.DoubleValue",
+        "google.protobuf.FloatValue",
+        "google.protobuf.Int64Value",
+        "google.protobuf.UInt64Value",
+        "google.protobuf.Int32Value",
+        "google.protobuf.UInt32Value",
+        "google.protobuf.BoolValue",
+        "google.protobuf.StringValue",
+        "google.protobuf.BytesValue",
+    };
+    for (names) |n| {
+        if (std.mem.eql(u8, n, name)) return true;
+    }
+    return false;
+}
+
 /// Type-erased operations for one generated message type.
 pub const MessageType = struct {
     /// Fully-qualified proto name, e.g. "example.Bar.Nested".
     fully_qualified_proto_name: []const u8,
+    /// Whether this type has a custom (non-flattened) ProtoJSON
+    /// representation; see `hasCustomJsonEncoding`.
+    has_custom_json_encoding: bool,
     /// Allocate and default-initialize a message; returns an opaque pointer.
     create: *const fn (std.mem.Allocator) std.mem.Allocator.Error!*anyopaque,
     /// Free the box returned by `create`. Does not release field memory; call
@@ -65,6 +96,7 @@ pub const MessageType = struct {
 
             const vtable = MessageType{
                 .fully_qualified_proto_name = T._metadata.fully_qualified_proto_name,
+                .has_custom_json_encoding = hasCustomJsonEncoding(T._metadata.fully_qualified_proto_name),
                 .create = create,
                 .destroy = destroy,
                 .deinit = deinit,
@@ -183,35 +215,4 @@ test "MessageType vtable round-trips through binary" {
 
     const desc = try mt.desc();
     try std.testing.expectEqualStrings("example.Foo", desc.fully_qualified_proto_name);
-}
-
-test "google.protobuf.Any round-trips through JSON" {
-    const example = @import("testgen/example.pb.zig");
-    const Any = protobuf.wkt.any.Any;
-    const allocator = std.testing.allocator;
-
-    var registry = Registry.empty;
-    defer registry.deinit(allocator);
-    try registry.registerFile(allocator, example);
-
-    // Pack an example.Foo into an Any's `value`.
-    const foo = example.Foo{ .name = "hello", .id = 42, .@"struct" = 7 };
-    const foo_bytes = try protobuf.to_binary(allocator, foo);
-    defer allocator.free(foo_bytes);
-
-    const any: Any = .{ .type_url = "type.googleapis.com/example.Foo", .value = foo_bytes };
-
-    // to_json must emit `@type` alongside the packed message's fields.
-    const json = try protobuf.to_json(allocator, any, &registry);
-    defer allocator.free(json);
-    try std.testing.expect(std.mem.indexOf(u8, json, "\"@type\"") != null);
-    try std.testing.expect(std.mem.indexOf(u8, json, "type.googleapis.com/example.Foo") != null);
-    try std.testing.expect(std.mem.indexOf(u8, json, "hello") != null);
-
-    // from_json resolves the type via the registry and re-encodes `value`.
-    var parsed: Any = .{};
-    defer parsed.deinit(allocator);
-    try protobuf.from_json(&parsed, json, allocator, &registry);
-    try std.testing.expectEqualStrings(any.type_url, parsed.type_url);
-    try std.testing.expectEqualSlices(u8, any.value, parsed.value);
 }

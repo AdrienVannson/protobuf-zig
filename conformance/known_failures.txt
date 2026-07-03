@@ -29,20 +29,10 @@ Required.Proto3.DurationProtoNanosTooLarge.JsonOutput # Should have failed to se
 Required.Proto3.DurationProtoNanosTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.DurationProtoNanosWrongSign.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.DurationProtoNanosWrongSignNegativeSecs.JsonOutput # Should have failed to serialize, but didn't.
-Required.Proto3.JsonInput.AnyNested.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyNested.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithDuration.JsonOutput # Output was not equivalent to reference message: deleted: optional_any.seconds: 1deleted: optional_any.nanos: 500000000
 Required.Proto3.JsonInput.AnyWithDuration.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.seconds: 1deleted: optional_any.nanos: 500000000
 Required.Proto3.JsonInput.AnyWithFieldMask.JsonOutput # Output was not equivalent to reference message: deleted: optional_any.paths[0]: "foo"deleted: optional_any.paths[1]: "bar_baz"
 Required.Proto3.JsonInput.AnyWithFieldMask.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.paths[0]: "foo"deleted: optional_any.paths[1]: "bar_baz"
-Required.Proto3.JsonInput.AnyWithInt32ValueWrapper.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyWithInt32ValueWrapper.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.AnyWithStruct.JsonOutput # JSON output we received from test was unparseable.
-Required.Proto3.JsonInput.AnyWithStruct.ProtobufOutput # Output was not equivalent to reference message: added: optional_any.fields[value]: { struct_value { fields { key: "foo" value { 
-Required.Proto3.JsonInput.AnyWithValueForInteger.JsonOutput # JSON output we received from test was unparseable.
-Required.Proto3.JsonInput.AnyWithValueForInteger.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.number_value: 1added: optional_any.struct_value: { fields 
-Required.Proto3.JsonInput.AnyWithValueForJsonObject.JsonOutput # JSON output we received from test was unparseable.
-Required.Proto3.JsonInput.AnyWithValueForJsonObject.ProtobufOutput # Output was not equivalent to reference message: added: optional_any.struct_value.fields[value]: { struct_value { fields { key: "
 Required.Proto3.JsonInput.DoubleFieldTooLarge # Should have failed to parse, but didn't.
 Required.Proto3.JsonInput.DoubleFieldTooSmall # Should have failed to parse, but didn't.
 Required.Proto3.JsonInput.DurationMaxValue.JsonOutput # Failed to parse input or produce output.
