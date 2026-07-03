@@ -22,6 +22,10 @@ pub const MessageType = struct {
     fromBinary: *const fn (*anyopaque, []const u8, std.mem.Allocator) anyerror!void,
     /// Encode the message to wire bytes (caller owns the returned slice).
     toBinary: *const fn (*anyopaque, std.mem.Allocator) anyerror![]u8,
+    /// Encode the message to ProtoJSON (caller owns the returned slice).
+    toJson: *const fn (*anyopaque, std.mem.Allocator, *const Registry) anyerror![]u8,
+    /// Decode ProtoJSON into the message.
+    fromJson: *const fn (*anyopaque, []const u8, std.mem.Allocator, *const Registry) anyerror!void,
     /// Linked descriptor for this message.
     desc: *const fn () anyerror!*const DescMessage,
 
@@ -49,6 +53,12 @@ pub const MessageType = struct {
             fn toBinary(ptr: *anyopaque, allocator: std.mem.Allocator) anyerror![]u8 {
                 return protobuf.to_binary(allocator, cast(ptr).*);
             }
+            fn toJson(ptr: *anyopaque, allocator: std.mem.Allocator, registry: *const Registry) anyerror![]u8 {
+                return protobuf.to_json(allocator, cast(ptr).*, registry);
+            }
+            fn fromJson(ptr: *anyopaque, json: []const u8, allocator: std.mem.Allocator, registry: *const Registry) anyerror!void {
+                try protobuf.from_json(cast(ptr), json, allocator, registry);
+            }
             fn desc() anyerror!*const DescMessage {
                 return T._desc();
             }
@@ -60,6 +70,8 @@ pub const MessageType = struct {
                 .deinit = deinit,
                 .fromBinary = fromBinary,
                 .toBinary = toBinary,
+                .toJson = toJson,
+                .fromJson = fromJson,
                 .desc = desc,
             };
         };
@@ -171,4 +183,35 @@ test "MessageType vtable round-trips through binary" {
 
     const desc = try mt.desc();
     try std.testing.expectEqualStrings("example.Foo", desc.fully_qualified_proto_name);
+}
+
+test "google.protobuf.Any round-trips through JSON" {
+    const example = @import("testgen/example.pb.zig");
+    const Any = protobuf.wkt.any.Any;
+    const allocator = std.testing.allocator;
+
+    var registry = Registry.empty;
+    defer registry.deinit(allocator);
+    try registry.registerFile(allocator, example);
+
+    // Pack an example.Foo into an Any's `value`.
+    const foo = example.Foo{ .name = "hello", .id = 42, .@"struct" = 7 };
+    const foo_bytes = try protobuf.to_binary(allocator, foo);
+    defer allocator.free(foo_bytes);
+
+    const any: Any = .{ .type_url = "type.googleapis.com/example.Foo", .value = foo_bytes };
+
+    // to_json must emit `@type` alongside the packed message's fields.
+    const json = try protobuf.to_json(allocator, any, &registry);
+    defer allocator.free(json);
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"@type\"") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "type.googleapis.com/example.Foo") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "hello") != null);
+
+    // from_json resolves the type via the registry and re-encodes `value`.
+    var parsed: Any = .{};
+    defer parsed.deinit(allocator);
+    try protobuf.from_json(&parsed, json, allocator, &registry);
+    try std.testing.expectEqualStrings(any.type_url, parsed.type_url);
+    try std.testing.expectEqualSlices(u8, any.value, parsed.value);
 }

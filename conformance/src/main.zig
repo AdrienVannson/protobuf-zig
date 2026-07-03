@@ -15,6 +15,17 @@ pub fn main(init: std.process.Init) !void {
 
     var alloc = init.arena.allocator();
 
+    // Registry used to resolve `google.protobuf.Any` payloads during JSON
+    // (de)serialization. Arena-owned, lives for the whole process.
+    var registry = protobuf.Registry.empty;
+    try registry.registerFile(alloc, gen_proto3);
+    try registry.registerFile(alloc, protobuf.wkt.any);
+    try registry.registerFile(alloc, protobuf.wkt.wrappers);
+    try registry.registerFile(alloc, protobuf.wkt.struct_);
+    try registry.registerFile(alloc, protobuf.wkt.duration);
+    try registry.registerFile(alloc, protobuf.wkt.timestamp);
+    try registry.registerFile(alloc, protobuf.wkt.field_mask);
+
     while (true) {
         // Read 4-byte little-endian request length; EOF here means clean shutdown.
         var len_buf: [4]u8 = undefined;
@@ -32,7 +43,7 @@ pub fn main(init: std.process.Init) !void {
         try protobuf.from_binary(&request, request_bytes, alloc);
 
         // Build response.
-        var response = try handleRequest(&request, alloc);
+        var response = try handleRequest(&request, alloc, &registry);
         defer response.deinit(alloc);
 
         // Encode ConformanceResponse.
@@ -48,7 +59,7 @@ pub fn main(init: std.process.Init) !void {
     }
 }
 
-fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !ConformanceResponse {
+fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator, registry: *const protobuf.Registry) !ConformanceResponse {
     // Dispatch proto3 binary/JSON roundtrip.
     if (std.mem.eql(u8, request.getMessageType(), "protobuf_test_messages.proto3.TestAllTypesProto3")) {
         const output_format = request.getRequestedOutputFormat();
@@ -66,7 +77,7 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !Confor
             if (request.payload) |p| switch (p) {
                 .protobuf_payload => |bytes| protobuf.from_binary(&msg, bytes, test_alloc) catch |err|
                     break :blk .{ .result = .{ .parse_error = try alloc.dupe(u8, @errorName(err)) } },
-                .json_payload => |json_str| protobuf.from_json(&msg, json_str, test_alloc) catch |err|
+                .json_payload => |json_str| protobuf.from_json(&msg, json_str, test_alloc, registry) catch |err|
                     break :blk .{ .result = .{ .parse_error = try alloc.dupe(u8, @errorName(err)) } },
                 else => break :blk .{ .result = .{ .skipped = try alloc.dupe(u8, "JSPB and TEXT_FORMAT payloads not supported") } },
             } else break :blk .{ .result = .{ .skipped = try alloc.dupe(u8, "no payload") } };
@@ -81,7 +92,7 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator) !Confor
                 break :serialize .{ .result = .{ .protobuf_payload = encoded } };
             },
             .JSON => serialize: {
-                const json_out = protobuf.to_json(alloc, msg) catch |err|
+                const json_out = protobuf.to_json(alloc, msg, registry) catch |err|
                     break :serialize .{ .result = .{ .serialize_error = try alloc.dupe(u8, @errorName(err)) } };
                 break :serialize .{ .result = .{ .json_payload = json_out } };
             },

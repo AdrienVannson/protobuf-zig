@@ -1,6 +1,7 @@
 const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
+const Registry = @import("../registry.zig").Registry;
 
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
@@ -8,6 +9,7 @@ const FieldMetadata = metadata.FieldMetadata;
 const JsonContext = struct {
     json_writter: *std.json.Stringify,
     allocator: std.mem.Allocator,
+    registry: *const Registry,
 };
 
 fn writeScalar(ctx: *const JsonContext, comptime scalar: ScalarType, value: anytype) !void {
@@ -193,22 +195,75 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
         try writeWktListValue(ctx, msg);
         return true;
     }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
+        try writeAny(ctx, msg);
+        return true;
+    }
     return false;
 }
 
-fn writeMessage(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed }!void {
+/// Serialize a `google.protobuf.Any` to ProtoJSON: `{"@type": "<type_url>",
+/// <fields>}`. The packed message is resolved through the registry, decoded from
+/// `value`, and re-serialized to JSON; its object body is then spliced together
+/// with the `@type` member. Only messages whose ProtoJSON is an object are
+/// supported (the "value wrapper" form for WKTs with a custom representation is
+/// not handled here).
+fn writeAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
+    const w = ctx.json_writter;
+
+    // An empty Any (no type) serializes to `{}`.
+    if (msg.type_url.len == 0) {
+        try w.beginObject();
+        try w.endObject();
+        return;
+    }
+
+    const type_name = blk: {
+        const i = std.mem.lastIndexOfScalar(u8, msg.type_url, '/') orelse break :blk msg.type_url;
+        break :blk msg.type_url[i + 1 ..];
+    };
+    const mt = ctx.registry.getMessageType(type_name) orelse return error.UnknownAnyType;
+
+    const ptr = try mt.create(ctx.allocator);
+    defer mt.destroy(ptr, ctx.allocator);
+    try mt.fromBinary(ptr, msg.value, ctx.allocator);
+    defer mt.deinit(ptr, ctx.allocator);
+
+    const inner = try mt.toJson(ptr, ctx.allocator, ctx.registry);
+    defer ctx.allocator.free(inner);
+
+    // The regular Any form requires the packed message to render as an object.
+    if (inner.len == 0 or inner[0] != '{') return error.UnsupportedAnyType;
+
+    // Emit `{"@type":<type_url>, <inner fields>}` as a single raw value so the
+    // surrounding writer keeps its punctuation state correct.
+    try w.beginWriteRaw();
+    const out = w.writer;
+    try out.writeAll("{\"@type\":");
+    try std.json.Stringify.encodeJsonString(msg.type_url, .{}, out);
+    if (std.mem.eql(u8, inner, "{}")) {
+        try out.writeByte('}');
+    } else {
+        try out.writeByte(',');
+        // inner[1..] drops the opening `{`, keeping `<fields>}`.
+        try out.writeAll(inner[1..]);
+    }
+    w.endWriteRaw();
+}
+
+fn writeMessage(ctx: *const JsonContext, msg: anytype) anyerror!void {
     if (try tryWriteWkt(ctx, msg)) return;
     try ctx.json_writter.beginObject();
     try field_access.forEachSetField(msg, ctx, writeFieldCallback);
     try ctx.json_writter.endObject();
 }
 
-pub fn to_json(allocator: std.mem.Allocator, msg: anytype) ![]u8 {
+pub fn to_json(allocator: std.mem.Allocator, msg: anytype, registry: *const Registry) ![]u8 {
     var aw: std.Io.Writer.Allocating = .init(allocator);
     errdefer aw.deinit();
 
     var json_writter: std.json.Stringify = .{ .writer = &aw.writer };
-    const ctx: JsonContext = .{ .json_writter = &json_writter, .allocator = allocator };
+    const ctx: JsonContext = .{ .json_writter = &json_writter, .allocator = allocator, .registry = registry };
 
     try writeMessage(&ctx, msg);
 
