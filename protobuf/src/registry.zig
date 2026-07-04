@@ -7,12 +7,6 @@ const protobuf = @import("root.zig");
 
 const DescMessage = protobuf.DescMessage;
 
-/// Well-known types with a JSON representation other than "flatten this
-/// message's own fields into an object" (see `tryReadWktValue` in
-/// `json/from_json.zig` and `tryWriteWkt` in `json/to_json.zig`, which must be
-/// kept in sync with this list). `google.protobuf.Duration`, `.Timestamp`, and
-/// `.FieldMask` are deliberately excluded: they have no custom JSON handling
-/// implemented yet, so they still go through the regular flatten path.
 fn hasCustomJsonEncoding(name: []const u8) bool {
     const names = [_][]const u8{
         "google.protobuf.Any",
@@ -35,30 +29,35 @@ fn hasCustomJsonEncoding(name: []const u8) bool {
     return false;
 }
 
-/// Type-erased operations for one generated message type.
+/// Type-erased operations on messages
 pub const MessageType = struct {
     /// Fully-qualified proto name, e.g. "example.Bar.Nested".
     fully_qualified_proto_name: []const u8,
-    /// Whether this type has a custom (non-flattened) ProtoJSON
-    /// representation; see `hasCustomJsonEncoding`.
+
+    /// Whether this type has a custom (non-flattened) ProtoJSON representation.
     has_custom_json_encoding: bool,
+
     /// Allocate and default-initialize a message; returns an opaque pointer.
     create: *const fn (std.mem.Allocator) std.mem.Allocator.Error!*anyopaque,
+
     /// Free the box returned by `create`. Does not release field memory; call
     /// `deinit` first.
     destroy: *const fn (*anyopaque, std.mem.Allocator) void,
+
     /// Release memory owned by the message's fields (the generated `deinit`).
     deinit: *const fn (*anyopaque, std.mem.Allocator) void,
+
     /// Decode wire bytes into the message.
     fromBinary: *const fn (*anyopaque, []const u8, std.mem.Allocator) anyerror!void,
+
     /// Encode the message to wire bytes (caller owns the returned slice).
     toBinary: *const fn (*anyopaque, std.mem.Allocator) anyerror![]u8,
+
     /// Encode the message to ProtoJSON (caller owns the returned slice).
     toJson: *const fn (*anyopaque, std.mem.Allocator, *const Registry) anyerror![]u8,
+
     /// Decode ProtoJSON into the message.
     fromJson: *const fn (*anyopaque, []const u8, std.mem.Allocator, *const Registry) anyerror!void,
-    /// Linked descriptor for this message.
-    desc: *const fn () anyerror!*const DescMessage,
 
     /// Build (at comptime) the vtable for message type `T` and return a pointer
     /// to its process-lifetime static instance.
@@ -90,9 +89,6 @@ pub const MessageType = struct {
             fn fromJson(ptr: *anyopaque, json: []const u8, allocator: std.mem.Allocator, registry: *const Registry) anyerror!void {
                 try protobuf.from_json(cast(ptr), json, allocator, registry);
             }
-            fn desc() anyerror!*const DescMessage {
-                return T._desc();
-            }
 
             const vtable = MessageType{
                 .fully_qualified_proto_name = T._metadata.fully_qualified_proto_name,
@@ -104,7 +100,6 @@ pub const MessageType = struct {
                 .toBinary = toBinary,
                 .toJson = toJson,
                 .fromJson = fromJson,
-                .desc = desc,
             };
         };
         return &shims.vtable;
@@ -213,7 +208,4 @@ test "MessageType vtable round-trips through binary" {
     const reencoded = try mt.toBinary(ptr, allocator);
     defer allocator.free(reencoded);
     try std.testing.expectEqualSlices(u8, bytes, reencoded);
-
-    const desc = try mt.desc();
-    try std.testing.expectEqualStrings("example.Foo", desc.fully_qualified_proto_name);
 }
