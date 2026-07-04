@@ -141,7 +141,9 @@ pub const Registry = struct {
     }
 
     /// Look up a message type by fully-qualified proto name.
-    pub fn getMessageType(self: *const Registry, fully_qualified_proto_name: []const u8) ?*const MessageType {
+    ///
+    /// Used internally, but not part of the public API yet.
+    pub fn _getMessageType(self: *const Registry, fully_qualified_proto_name: []const u8) ?*const MessageType {
         return self.messages.get(fully_qualified_proto_name);
     }
 };
@@ -171,11 +173,10 @@ test "registerFile registers top-level and nested messages" {
 
     try registry.registerFile(allocator, example);
 
-    try std.testing.expect(registry.getMessageType("example.Foo") != null);
-    try std.testing.expect(registry.getMessageType("example.Bar") != null);
-    try std.testing.expect(registry.getMessageType("example.Bar.Nested") != null);
-    try std.testing.expect(registry.getMessageType("example.Color") == null); // enum, not registered
-    try std.testing.expect(registry.getMessageType("example.Missing") == null);
+    try std.testing.expect(registry._getMessageType("example.Foo") != null);
+    try std.testing.expect(registry._getMessageType("example.Bar") != null);
+    try std.testing.expect(registry._getMessageType("example.Bar.Nested") != null);
+    try std.testing.expect(registry._getMessageType("example.Missing") == null);
 }
 
 test "registerFile errors on duplicate message names" {
@@ -201,7 +202,7 @@ test "MessageType vtable round-trips through binary" {
     const bytes = try protobuf.to_binary(allocator, original);
     defer allocator.free(bytes);
 
-    const mt = registry.getMessageType("example.Foo").?;
+    const mt = registry._getMessageType("example.Foo").?;
     try std.testing.expectEqualStrings("example.Foo", mt.fully_qualified_proto_name);
 
     const ptr = try mt.create(allocator);

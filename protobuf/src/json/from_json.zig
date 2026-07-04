@@ -226,7 +226,7 @@ fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, r
         const i = std.mem.lastIndexOfScalar(u8, type_url, '/') orelse break :blk type_url;
         break :blk type_url[i + 1 ..];
     };
-    const mt = registry.getMessageType(type_name) orelse return error.UnknownAnyType;
+    const mt = registry._getMessageType(type_name) orelse return error.UnknownAnyType;
 
     const ptr = try mt.create(allocator);
     defer {
