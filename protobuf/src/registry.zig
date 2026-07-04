@@ -53,11 +53,11 @@ pub const MessageOps = struct {
     /// Encode the message to wire bytes (caller owns the returned slice).
     toBinary: *const fn (*anyopaque, std.mem.Allocator) anyerror![]u8,
 
-    /// Encode the message to ProtoJSON (caller owns the returned slice).
-    toJson: *const fn (*anyopaque, std.mem.Allocator, *const Registry) anyerror![]u8,
-
     /// Decode ProtoJSON into the message.
     fromJson: *const fn (*anyopaque, []const u8, std.mem.Allocator, *const Registry) anyerror!void,
+
+    /// Encode the message to ProtoJSON (caller owns the returned slice).
+    toJson: *const fn (*anyopaque, std.mem.Allocator, *const Registry) anyerror![]u8,
 
     /// Build (at comptime) the vtable for message type `T` and return a pointer
     /// to its process-lifetime static instance.
@@ -83,14 +83,14 @@ pub const MessageOps = struct {
             fn toBinary(ptr: *anyopaque, allocator: std.mem.Allocator) anyerror![]u8 {
                 return protobuf.to_binary(allocator, cast(ptr).*);
             }
-            fn toJson(ptr: *anyopaque, allocator: std.mem.Allocator, registry: *const Registry) anyerror![]u8 {
-                return protobuf.to_json(allocator, cast(ptr).*, registry);
-            }
             fn fromJson(ptr: *anyopaque, json: []const u8, allocator: std.mem.Allocator, registry: *const Registry) anyerror!void {
                 try protobuf.from_json(cast(ptr), json, allocator, registry);
             }
+            fn toJson(ptr: *anyopaque, allocator: std.mem.Allocator, registry: *const Registry) anyerror![]u8 {
+                return protobuf.to_json(allocator, cast(ptr).*, registry);
+            }
 
-            const vtable = MessageOps{
+            const ops = MessageOps{
                 .fully_qualified_proto_name = T._metadata.fully_qualified_proto_name,
                 .has_custom_json_encoding = hasCustomJsonEncoding(T._metadata.fully_qualified_proto_name),
                 .create = create,
@@ -98,11 +98,11 @@ pub const MessageOps = struct {
                 .deinit = deinit,
                 .fromBinary = fromBinary,
                 .toBinary = toBinary,
-                .toJson = toJson,
                 .fromJson = fromJson,
+                .toJson = toJson,
             };
         };
-        return &shims.vtable;
+        return &shims.ops;
     }
 };
 
