@@ -170,24 +170,20 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
     defer ctx.allocator.free(inner_json);
 
     try ctx.json_writter.beginWriteRaw();
-    const out = ctx.json_writter.writer;
-    try out.writeAll("{\"@type\":");
-    try std.json.Stringify.encodeJsonString(msg.type_url, .{}, out);
+    const writter = ctx.json_writter.writer;
+    try writter.writeAll("{\"@type\":");
+    try std.json.Stringify.encodeJsonString(msg.type_url, .{}, writter);
     if (mt.has_custom_json_encoding) {
-        // The packed type has its own non-flattened JSON form (a string for
-        // wrappers, an object for Struct/Value/ListValue/Any, ...), so it's
-        // nested under a `value` member rather than spliced into this object.
-        try out.writeAll(",\"value\":");
-        try out.writeAll(inner_json);
-        try out.writeByte('}');
+        try writter.writeAll(",\"value\":");
+        try writter.writeAll(inner_json);
+        try writter.writeByte('}');
     } else if (std.mem.eql(u8, inner_json, "{}")) {
-        try out.writeByte('}');
+        try writter.writeByte('}');
     } else {
-        // The regular Any form requires the packed message to render as an object.
         if (inner_json.len == 0 or inner_json[0] != '{') return error.UnsupportedAnyType;
-        try out.writeByte(',');
+        try writter.writeByte(',');
         // inner_json[1..] drops the opening `{`, keeping `<fields>}`.
-        try out.writeAll(inner_json[1..]);
+        try writter.writeAll(inner_json[1..]);
     }
     ctx.json_writter.endWriteRaw();
 }
