@@ -146,12 +146,9 @@ fn writeWktListValue(ctx: *const JsonContext, msg: anytype) !void {
 }
 
 fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
-    const w = ctx.json_writter;
-
-    // An empty Any (no type) serializes to `{}`.
     if (msg.type_url.len == 0) {
-        try w.beginObject();
-        try w.endObject();
+        try ctx.json_writter.beginObject();
+        try ctx.json_writter.endObject();
         return;
     }
 
@@ -162,17 +159,18 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
     const mt = ctx.registry._getMessageType(type_name) orelse return error.UnknownAnyType;
 
     const ptr = try mt.create(ctx.allocator);
-    defer mt.destroy(ptr, ctx.allocator);
+    defer {
+        mt.deinit(ptr, ctx.allocator);
+        mt.destroy(ptr, ctx.allocator);
+    }
+
     try mt.fromBinary(ptr, msg.value, ctx.allocator);
-    defer mt.deinit(ptr, ctx.allocator);
 
-    const inner = try mt.toJson(ptr, ctx.allocator, ctx.registry);
-    defer ctx.allocator.free(inner);
+    const inner_json = try mt.toJson(ptr, ctx.allocator, ctx.registry);
+    defer ctx.allocator.free(inner_json);
 
-    // Emit `{"@type":<type_url>, ...}` as a single raw value so the
-    // surrounding writer keeps its punctuation state correct.
-    try w.beginWriteRaw();
-    const out = w.writer;
+    try ctx.json_writter.beginWriteRaw();
+    const out = ctx.json_writter.writer;
     try out.writeAll("{\"@type\":");
     try std.json.Stringify.encodeJsonString(msg.type_url, .{}, out);
     if (mt.has_custom_json_encoding) {
@@ -180,18 +178,18 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
         // wrappers, an object for Struct/Value/ListValue/Any, ...), so it's
         // nested under a `value` member rather than spliced into this object.
         try out.writeAll(",\"value\":");
-        try out.writeAll(inner);
+        try out.writeAll(inner_json);
         try out.writeByte('}');
-    } else if (std.mem.eql(u8, inner, "{}")) {
+    } else if (std.mem.eql(u8, inner_json, "{}")) {
         try out.writeByte('}');
     } else {
         // The regular Any form requires the packed message to render as an object.
-        if (inner.len == 0 or inner[0] != '{') return error.UnsupportedAnyType;
+        if (inner_json.len == 0 or inner_json[0] != '{') return error.UnsupportedAnyType;
         try out.writeByte(',');
-        // inner[1..] drops the opening `{`, keeping `<fields>}`.
-        try out.writeAll(inner[1..]);
+        // inner_json[1..] drops the opening `{`, keeping `<fields>}`.
+        try out.writeAll(inner_json[1..]);
     }
-    w.endWriteRaw();
+    ctx.json_writter.endWriteRaw();
 }
 
 fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
