@@ -30,7 +30,7 @@ fn hasCustomJsonEncoding(name: []const u8) bool {
 }
 
 /// Type-erased operations on messages
-pub const MessageType = struct {
+pub const MessageOps = struct {
     /// Fully-qualified proto name, e.g. "example.Bar.Nested".
     fully_qualified_proto_name: []const u8,
 
@@ -61,7 +61,7 @@ pub const MessageType = struct {
 
     /// Build (at comptime) the vtable for message type `T` and return a pointer
     /// to its process-lifetime static instance.
-    pub fn of(comptime T: type) *const MessageType {
+    pub fn of(comptime T: type) *const MessageOps {
         const shims = struct {
             inline fn cast(ptr: *anyopaque) *T {
                 return @ptrCast(@alignCast(ptr));
@@ -90,7 +90,7 @@ pub const MessageType = struct {
                 try protobuf.from_json(cast(ptr), json, allocator, registry);
             }
 
-            const vtable = MessageType{
+            const vtable = MessageOps{
                 .fully_qualified_proto_name = T._metadata.fully_qualified_proto_name,
                 .has_custom_json_encoding = hasCustomJsonEncoding(T._metadata.fully_qualified_proto_name),
                 .create = create,
@@ -106,12 +106,12 @@ pub const MessageType = struct {
     }
 };
 
-/// Maps fully-qualified proto names to their type-erased `MessageType`.
+/// Maps fully-qualified proto names to their type-erased `MessageOps`.
 ///
 /// A struct (not a bare hashmap) so that extension and enum tables can be added
 /// later without changing the public API.
 pub const Registry = struct {
-    messages: std.StringHashMapUnmanaged(*const MessageType) = .empty,
+    messages: std.StringHashMapUnmanaged(*const MessageOps) = .empty,
 
     pub const empty: Registry = .{};
 
@@ -128,7 +128,7 @@ pub const Registry = struct {
     /// error the registry may contain a partial set of `File`'s messages and
     /// should not be reused.
     pub fn registerFile(self: *Registry, allocator: std.mem.Allocator, comptime File: type) !void {
-        inline for (comptime messageTypesOf(File)) |mt| {
+        inline for (comptime messageOpsOf(File)) |mt| {
             const gop = try self.messages.getOrPut(allocator, mt.fully_qualified_proto_name);
             if (gop.found_existing) return error.DuplicateMessageName;
             gop.value_ptr.* = mt;
@@ -138,22 +138,22 @@ pub const Registry = struct {
     /// Look up a message type by fully-qualified proto name.
     ///
     /// Used internally, but not part of the public API yet.
-    pub fn _getMessageType(self: *const Registry, fully_qualified_proto_name: []const u8) ?*const MessageType {
+    pub fn _getMessageOps(self: *const Registry, fully_qualified_proto_name: []const u8) ?*const MessageOps {
         return self.messages.get(fully_qualified_proto_name);
     }
 };
 
-/// Returns the `MessageType` of every message declared in `Scope` (a generated
+/// Returns the `MessageOps` of every message declared in `Scope` (a generated
 /// file struct or a message struct), recursing into nested messages.
-fn messageTypesOf(comptime Scope: type) []const *const MessageType {
+fn messageOpsOf(comptime Scope: type) []const *const MessageOps {
     comptime {
-        var out: []const *const MessageType = &.{};
+        var out: []const *const MessageOps = &.{};
         for (@typeInfo(Scope).@"struct".decls) |decl| {
             const D = @field(Scope, decl.name);
             if (@TypeOf(D) != type) continue;
             if (@typeInfo(D) != .@"struct") continue;
             if (!@hasDecl(D, "_metadata")) continue;
-            out = out ++ [_]*const MessageType{MessageType.of(D)} ++ messageTypesOf(D);
+            out = out ++ [_]*const MessageOps{MessageOps.of(D)} ++ messageOpsOf(D);
         }
         return out;
     }
@@ -168,10 +168,10 @@ test "registerFile registers top-level and nested messages" {
 
     try registry.registerFile(allocator, example);
 
-    try std.testing.expect(registry._getMessageType("example.Foo") != null);
-    try std.testing.expect(registry._getMessageType("example.Bar") != null);
-    try std.testing.expect(registry._getMessageType("example.Bar.Nested") != null);
-    try std.testing.expect(registry._getMessageType("example.Missing") == null);
+    try std.testing.expect(registry._getMessageOps("example.Foo") != null);
+    try std.testing.expect(registry._getMessageOps("example.Bar") != null);
+    try std.testing.expect(registry._getMessageOps("example.Bar.Nested") != null);
+    try std.testing.expect(registry._getMessageOps("example.Missing") == null);
 }
 
 test "registerFile errors on duplicate message names" {
@@ -185,7 +185,7 @@ test "registerFile errors on duplicate message names" {
     try std.testing.expectError(error.DuplicateMessageName, registry.registerFile(allocator, example));
 }
 
-test "MessageType vtable round-trips through binary" {
+test "MessageOps round-trips through binary" {
     const example = @import("testgen/example.pb.zig");
     const allocator = std.testing.allocator;
 
@@ -197,7 +197,7 @@ test "MessageType vtable round-trips through binary" {
     const bytes = try protobuf.to_binary(allocator, original);
     defer allocator.free(bytes);
 
-    const mt = registry._getMessageType("example.Foo").?;
+    const mt = registry._getMessageOps("example.Foo").?;
     try std.testing.expectEqualStrings("example.Foo", mt.fully_qualified_proto_name);
 
     const ptr = try mt.create(allocator);

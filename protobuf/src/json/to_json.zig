@@ -156,7 +156,7 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
         const i = std.mem.lastIndexOfScalar(u8, msg.type_url, '/') orelse break :blk msg.type_url;
         break :blk msg.type_url[i + 1 ..];
     };
-    const mt = ctx.registry._getMessageType(type_name) orelse return error.UnknownAnyType;
+    const mt = ctx.registry._getMessageOps(type_name) orelse return error.UnknownAnyType;
 
     const ptr = try mt.create(ctx.allocator);
     defer {
