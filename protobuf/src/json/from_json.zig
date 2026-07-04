@@ -206,22 +206,15 @@ fn readWktListValue(msg: anytype, val: std.json.Value, allocator: std.mem.Alloca
     }
 }
 
-/// Parse a `google.protobuf.Any` from its ProtoJSON object. The `@type` member
-/// selects the packed message type via the registry. For a regular message the
-/// whole object is fed to that type's `from_json` (the `@type` key has no
-/// matching field and is ignored); for a WKT with a custom JSON representation
-/// (another `Any`, `Struct`, `Value`, `ListValue`, or a wrapper type) only the
-/// `value` member is fed to it instead. Either way the result is re-encoded to
-/// wire bytes stored in `value`.
-fn readAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !void {
+fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !void {
     const obj = switch (val) {
         .object => |o| o,
         else => return error.InvalidJson,
     };
 
-    // An empty object leaves the Any unset.
+    if (obj.count() == 0) return;
+
     const type_entry = obj.get("@type") orelse {
-        if (obj.count() == 0) return;
         return error.InvalidJson;
     };
     const type_url = switch (type_entry) {
@@ -236,16 +229,12 @@ fn readAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, regi
     const mt = registry.getMessageType(type_name) orelse return error.UnknownAnyType;
 
     const ptr = try mt.create(allocator);
-    defer mt.destroy(ptr, allocator);
-    defer mt.deinit(ptr, allocator);
+    defer {
+        mt.deinit(ptr, allocator);
+        mt.destroy(ptr, allocator);
+    }
 
     if (mt.has_custom_json_encoding) {
-        // The packed type has its own non-flattened JSON form, so its
-        // representation lives under a `value` member instead of being
-        // spliced into the outer object. Recursing on this strictly smaller
-        // subtree (rather than re-feeding the whole outer `val`) is also what
-        // keeps Any-in-Any bounded: each level consumes one `value` nesting
-        // level instead of reparsing an identical object forever.
         const value_entry = obj.get("value") orelse return error.InvalidJson;
         const value_json = try std.json.Stringify.valueAlloc(allocator, value_entry, .{});
         defer allocator.free(value_json);
@@ -312,7 +301,7 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
-        try readAny(msg, val, allocator, registry);
+        try readWktAny(msg, val, allocator, registry);
         return true;
     }
     return false;
