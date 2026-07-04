@@ -145,6 +145,55 @@ fn writeWktListValue(ctx: *const JsonContext, msg: anytype) !void {
     try ctx.json_writter.endArray();
 }
 
+fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
+    const w = ctx.json_writter;
+
+    // An empty Any (no type) serializes to `{}`.
+    if (msg.type_url.len == 0) {
+        try w.beginObject();
+        try w.endObject();
+        return;
+    }
+
+    const type_name = blk: {
+        const i = std.mem.lastIndexOfScalar(u8, msg.type_url, '/') orelse break :blk msg.type_url;
+        break :blk msg.type_url[i + 1 ..];
+    };
+    const mt = ctx.registry._getMessageType(type_name) orelse return error.UnknownAnyType;
+
+    const ptr = try mt.create(ctx.allocator);
+    defer mt.destroy(ptr, ctx.allocator);
+    try mt.fromBinary(ptr, msg.value, ctx.allocator);
+    defer mt.deinit(ptr, ctx.allocator);
+
+    const inner = try mt.toJson(ptr, ctx.allocator, ctx.registry);
+    defer ctx.allocator.free(inner);
+
+    // Emit `{"@type":<type_url>, ...}` as a single raw value so the
+    // surrounding writer keeps its punctuation state correct.
+    try w.beginWriteRaw();
+    const out = w.writer;
+    try out.writeAll("{\"@type\":");
+    try std.json.Stringify.encodeJsonString(msg.type_url, .{}, out);
+    if (mt.has_custom_json_encoding) {
+        // The packed type has its own non-flattened JSON form (a string for
+        // wrappers, an object for Struct/Value/ListValue/Any, ...), so it's
+        // nested under a `value` member rather than spliced into this object.
+        try out.writeAll(",\"value\":");
+        try out.writeAll(inner);
+        try out.writeByte('}');
+    } else if (std.mem.eql(u8, inner, "{}")) {
+        try out.writeByte('}');
+    } else {
+        // The regular Any form requires the packed message to render as an object.
+        if (inner.len == 0 or inner[0] != '{') return error.UnsupportedAnyType;
+        try out.writeByte(',');
+        // inner[1..] drops the opening `{`, keeping `<fields>}`.
+        try out.writeAll(inner[1..]);
+    }
+    w.endWriteRaw();
+}
+
 fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     const name = comptime @TypeOf(msg)._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -196,66 +245,10 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
-        try writeAny(ctx, msg);
+        try writeWktAny(ctx, msg);
         return true;
     }
     return false;
-}
-
-/// Serialize a `google.protobuf.Any` to ProtoJSON. The packed message is
-/// resolved through the registry, decoded from `value`, and re-serialized to
-/// JSON. For a regular message this becomes `{"@type": "<type_url>",
-/// <fields>}` (its object body spliced together with the `@type` member); for
-/// a WKT with a custom JSON representation (another `Any`, `Struct`, `Value`,
-/// `ListValue`, or a wrapper type) this becomes
-/// `{"@type": "<type_url>", "value": <custom JSON>}` instead.
-fn writeAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
-    const w = ctx.json_writter;
-
-    // An empty Any (no type) serializes to `{}`.
-    if (msg.type_url.len == 0) {
-        try w.beginObject();
-        try w.endObject();
-        return;
-    }
-
-    const type_name = blk: {
-        const i = std.mem.lastIndexOfScalar(u8, msg.type_url, '/') orelse break :blk msg.type_url;
-        break :blk msg.type_url[i + 1 ..];
-    };
-    const mt = ctx.registry._getMessageType(type_name) orelse return error.UnknownAnyType;
-
-    const ptr = try mt.create(ctx.allocator);
-    defer mt.destroy(ptr, ctx.allocator);
-    try mt.fromBinary(ptr, msg.value, ctx.allocator);
-    defer mt.deinit(ptr, ctx.allocator);
-
-    const inner = try mt.toJson(ptr, ctx.allocator, ctx.registry);
-    defer ctx.allocator.free(inner);
-
-    // Emit `{"@type":<type_url>, ...}` as a single raw value so the
-    // surrounding writer keeps its punctuation state correct.
-    try w.beginWriteRaw();
-    const out = w.writer;
-    try out.writeAll("{\"@type\":");
-    try std.json.Stringify.encodeJsonString(msg.type_url, .{}, out);
-    if (mt.has_custom_json_encoding) {
-        // The packed type has its own non-flattened JSON form (a string for
-        // wrappers, an object for Struct/Value/ListValue/Any, ...), so it's
-        // nested under a `value` member rather than spliced into this object.
-        try out.writeAll(",\"value\":");
-        try out.writeAll(inner);
-        try out.writeByte('}');
-    } else if (std.mem.eql(u8, inner, "{}")) {
-        try out.writeByte('}');
-    } else {
-        // The regular Any form requires the packed message to render as an object.
-        if (inner.len == 0 or inner[0] != '{') return error.UnsupportedAnyType;
-        try out.writeByte(',');
-        // inner[1..] drops the opening `{`, keeping `<fields>}`.
-        try out.writeAll(inner[1..]);
-    }
-    w.endWriteRaw();
 }
 
 fn writeMessage(ctx: *const JsonContext, msg: anytype) anyerror!void {
