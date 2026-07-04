@@ -234,17 +234,26 @@ fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, r
         mt.destroy(ptr, allocator);
     }
 
+    var inner_json: []const u8 = undefined;
+
     if (mt.has_custom_json_encoding) {
         const value_entry = obj.get("value") orelse return error.InvalidJson;
-        const value_json = try std.json.Stringify.valueAlloc(allocator, value_entry, .{});
-        defer allocator.free(value_json);
-        try mt.fromJson(ptr, value_json, allocator, registry);
+        inner_json = try std.json.Stringify.valueAlloc(allocator, value_entry, .{});
     } else {
-        // Feed the whole object back as JSON; the packed message ignores `@type`.
-        const inner_json = try std.json.Stringify.valueAlloc(allocator, val, .{});
-        defer allocator.free(inner_json);
-        try mt.fromJson(ptr, inner_json, allocator, registry);
+        var inner_obj = try obj.clone(allocator);
+        defer inner_obj.deinit(allocator);
+        _ = inner_obj.orderedRemove("@type");
+
+        inner_json = try std.json.Stringify.valueAlloc(
+            allocator,
+            std.json.Value{ .object = inner_obj },
+            .{},
+        );
     }
+
+    // TODO: see if we can avoid going back to string values
+    defer allocator.free(inner_json);
+    try mt.fromJson(ptr, inner_json, allocator, registry);
 
     msg.type_url = try allocator.dupe(u8, type_url);
     msg.value = try mt.toBinary(ptr, allocator);
@@ -465,6 +474,8 @@ fn readMessage(
                 try readField(msg, field_meta, val, allocator, registry);
             }
         }
+
+        // TODO unknown fields
     }
 }
 
