@@ -31,7 +31,6 @@ pub const from_json = @import("json/from_json.zig").from_json;
 pub const UnknownField = @import("unknown_field.zig").UnknownField;
 
 pub const Registry = @import("registry.zig").Registry;
-pub const MessageType = @import("registry.zig").MessageType;
 
 pub const wkt = @import("wkt.zig");
 
