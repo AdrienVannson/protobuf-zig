@@ -17,7 +17,7 @@ pub fn main(init: std.process.Init) !void {
 
     // Registry used to resolve `google.protobuf.Any` payloads during JSON
     // (de)serialization. Arena-owned, lives for the whole process.
-    var registry = protobuf.Registry.empty;
+    var registry: protobuf.Registry = .empty;
     try registry.registerFile(alloc, gen_proto3);
     try registry.registerFile(alloc, protobuf.wkt.any);
     try registry.registerFile(alloc, protobuf.wkt.wrappers);

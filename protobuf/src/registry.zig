@@ -166,7 +166,7 @@ test "registerFile registers top-level and nested messages" {
     const example = @import("testgen/example.pb.zig");
 
     const allocator = std.testing.allocator;
-    var registry = Registry.empty;
+    var registry: Registry = .empty;
     defer registry.deinit(allocator);
 
     try registry.registerFile(allocator, example);
@@ -182,7 +182,7 @@ test "registerFile errors on duplicate message names" {
     const example = @import("testgen/example.pb.zig");
 
     const allocator = std.testing.allocator;
-    var registry = Registry.empty;
+    var registry: Registry = .empty;
     defer registry.deinit(allocator);
 
     try registry.registerFile(allocator, example);
@@ -193,7 +193,7 @@ test "MessageType vtable round-trips through binary" {
     const example = @import("testgen/example.pb.zig");
     const allocator = std.testing.allocator;
 
-    var registry = Registry.empty;
+    var registry: Registry = .empty;
     defer registry.deinit(allocator);
     try registry.registerFile(allocator, example);
 
