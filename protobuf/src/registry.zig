@@ -20,6 +20,8 @@ fn hasCustomJsonEncoding(name: []const u8) bool {
         "google.protobuf.BoolValue",
         "google.protobuf.StringValue",
         "google.protobuf.BytesValue",
+        "google.protobuf.Timestamp",
+        "google.protobuf.Duration",
     };
     for (names) |n| {
         if (std.mem.eql(u8, n, name)) return true;

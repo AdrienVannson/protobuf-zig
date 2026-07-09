@@ -2,6 +2,7 @@ const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
 const Registry = @import("../registry.zig").Registry;
+const wkt_time = @import("wkt_time.zig");
 
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
@@ -240,6 +241,16 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
         try writeWktAny(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Timestamp")) {
+        var buf: [40]u8 = undefined;
+        try ctx.json_writter.write(try wkt_time.formatTimestamp(&buf, msg.seconds, msg.nanos));
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Duration")) {
+        var buf: [40]u8 = undefined;
+        try ctx.json_writter.write(try wkt_time.formatDuration(&buf, msg.seconds, msg.nanos));
         return true;
     }
     return false;
