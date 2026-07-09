@@ -1,6 +1,4 @@
 //! Runtime type registry.
-//!
-//! TODO: partially AI generated, review
 
 const std = @import("std");
 const protobuf = @import("root.zig");
@@ -40,12 +38,12 @@ pub const MessageOps = struct {
     /// Allocate and default-initialize a message; returns an opaque pointer.
     create: *const fn (std.mem.Allocator) std.mem.Allocator.Error!*anyopaque,
 
+    /// Release memory owned by the message's fields (the generated `deinit`).
+    deinit: *const fn (*anyopaque, std.mem.Allocator) void,
+
     /// Free the box returned by `create`. Does not release field memory; call
     /// `deinit` first.
     destroy: *const fn (*anyopaque, std.mem.Allocator) void,
-
-    /// Release memory owned by the message's fields (the generated `deinit`).
-    deinit: *const fn (*anyopaque, std.mem.Allocator) void,
 
     /// Decode wire bytes into the message.
     fromBinary: *const fn (*anyopaque, []const u8, std.mem.Allocator) anyerror!void,
