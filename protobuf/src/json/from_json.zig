@@ -266,6 +266,26 @@ fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, r
     msg.value = try mt.toBinary(ptr, allocator);
 }
 
+fn readWktTimestamp(msg: anytype, val: std.json.Value) !void {
+    const s = switch (val) {
+        .string => |v| v,
+        else => return error.InvalidJson,
+    };
+    const parsed = try wkt_time.parseTimestamp(s);
+    msg.seconds = parsed.seconds;
+    msg.nanos = parsed.nanos;
+}
+
+fn readWktDuration(msg: anytype, val: std.json.Value) !void {
+    const s = switch (val) {
+        .string => |v| v,
+        else => return error.InvalidJson,
+    };
+    const parsed = try wkt_time.parseDuration(s);
+    msg.seconds = parsed.seconds;
+    msg.nanos = parsed.nanos;
+}
+
 fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !bool {
     const name = comptime std.meta.Child(@TypeOf(msg))._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -321,23 +341,11 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Timestamp")) {
-        const s = switch (val) {
-            .string => |v| v,
-            else => return error.InvalidJson,
-        };
-        const parsed = try wkt_time.parseTimestamp(s);
-        msg.seconds = parsed.seconds;
-        msg.nanos = parsed.nanos;
+        try readWktTimestamp(msg, val);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Duration")) {
-        const s = switch (val) {
-            .string => |v| v,
-            else => return error.InvalidJson,
-        };
-        const parsed = try wkt_time.parseDuration(s);
-        msg.seconds = parsed.seconds;
-        msg.nanos = parsed.nanos;
+        try readWktDuration(msg, val);
         return true;
     }
     return false;
