@@ -104,10 +104,6 @@ pub const MessageOps = struct {
     }
 };
 
-/// Maps fully-qualified proto names to their type-erased `MessageOps`.
-///
-/// A struct (not a bare hashmap) so that extension and enum tables can be added
-/// later without changing the public API.
 pub const Registry = struct {
     messages: std.StringHashMapUnmanaged(*const MessageOps) = .empty,
 
