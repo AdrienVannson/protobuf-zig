@@ -30,6 +30,8 @@ pub const from_json = @import("json/from_json.zig").from_json;
 
 pub const UnknownField = @import("unknown_field.zig").UnknownField;
 
+pub const Registry = @import("registry.zig").Registry;
+
 pub const wkt = @import("wkt.zig");
 
 /// Code-generation helpers called by generated `.pb.zig` files.
@@ -63,6 +65,7 @@ test {
     _ = @import("_codegen/desc_file_from_proto.zig");
     _ = @import("_codegen/file_desc.zig");
     _ = @import("wkt.zig");
+    _ = @import("registry.zig");
     _ = @import("test/descriptor_roundtrip_test.zig");
     _ = @import("test/test_desc.zig");
 }
