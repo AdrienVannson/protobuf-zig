@@ -189,6 +189,16 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
     ctx.json_writter.endWriteRaw();
 }
 
+fn writeWktTimestamp(ctx: *const JsonContext, msg: anytype) !void {
+    var buf: [40]u8 = undefined;
+    try ctx.json_writter.write(try wkt_time.formatTimestamp(&buf, msg.seconds, msg.nanos));
+}
+
+fn writeWktDuration(ctx: *const JsonContext, msg: anytype) !void {
+    var buf: [40]u8 = undefined;
+    try ctx.json_writter.write(try wkt_time.formatDuration(&buf, msg.seconds, msg.nanos));
+}
+
 fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     const name = comptime @TypeOf(msg)._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -244,13 +254,11 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Timestamp")) {
-        var buf: [40]u8 = undefined;
-        try ctx.json_writter.write(try wkt_time.formatTimestamp(&buf, msg.seconds, msg.nanos));
+        try writeWktTimestamp(ctx, msg);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Duration")) {
-        var buf: [40]u8 = undefined;
-        try ctx.json_writter.write(try wkt_time.formatDuration(&buf, msg.seconds, msg.nanos));
+        try writeWktDuration(ctx, msg);
         return true;
     }
     return false;
