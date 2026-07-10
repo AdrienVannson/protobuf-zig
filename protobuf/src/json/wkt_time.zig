@@ -5,8 +5,11 @@
 
 const std = @import("std");
 
+// The values are checked in a unit test.
 pub const timestamp_min_seconds: i64 = -62135596800; // 0001-01-01T00:00:00Z
 pub const timestamp_max_seconds: i64 = 253402300799; // 9999-12-31T23:59:59Z
+
+// The values are part of the protobuf spec, see `google/protobuf/duration.proto`.
 pub const duration_min_seconds: i64 = -315576000000;
 pub const duration_max_seconds: i64 = 315576000000;
 
@@ -229,6 +232,11 @@ pub fn parseDuration(s: []const u8) !struct { seconds: i64, nanos: i32 } {
     try validateDurationRange(seconds, nanos);
 
     return .{ .seconds = seconds, .nanos = nanos };
+}
+
+test "timestamp constants" {
+    try std.testing.expectEqual(timestamp_min_seconds, (try parseTimestamp("0001-01-01T00:00:00Z")).seconds);
+    try std.testing.expectEqual(timestamp_max_seconds, (try parseTimestamp("9999-12-31T23:59:59Z")).seconds);
 }
 
 test "daysFromCivil epoch sanity" {
