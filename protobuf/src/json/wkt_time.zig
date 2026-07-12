@@ -2,6 +2,9 @@
 //! `google.protobuf.Timestamp` and `google.protobuf.Duration` ProtoJSON
 //! representations. Pure logic, independent of the JSON tree machinery in
 //! `to_json.zig`/`from_json.zig`.
+//!
+//! See http://howardhinnant.github.io/date_algorithms.html for reference
+//! implementation
 
 const std = @import("std");
 
@@ -13,15 +16,22 @@ pub const timestamp_max_seconds: i64 = 253402300799; // 9999-12-31T23:59:59Z
 pub const duration_min_seconds: i64 = -315576000000;
 pub const duration_max_seconds: i64 = 315576000000;
 
-/// Howard Hinnant's days-from-civil algorithm (public domain). Returns days
-/// since 1970-01-01 (0 = epoch). Correct for the proleptic Gregorian
-/// calendar, including years before 1970 (year 0 = "1 BC").
-fn daysFromCivil(y_in: i64, m: u32, d: u32) i64 {
+/// Returns number of days since civil 1970-01-01.  Negative values indicate
+///    days prior to 1970-01-01.
+/// Preconditions:  y-m-d represents a date in the civil (Gregorian) calendar
+///                 m is in [1, 12]
+///                 d is in [1, last_day_of_month(y, m)]
+///                 y is "approximately" in
+///                   [numeric_limits<Int>::min()/366, numeric_limits<Int>::max()/366]
+///                 Exact range of validity is:
+///                 [civil_from_days(numeric_limits<Int>::min()),
+///                  civil_from_days(numeric_limits<Int>::max()-719468)]
+fn daysFromCivil(y_in: i64, m: i64, d: i64) i64 {
     const y: i64 = y_in - @as(i64, if (m <= 2) 1 else 0);
-    const era: i64 = @divFloor(if (y >= 0) y else y - 399, 400);
+    const era: i64 = @divTrunc(if (y >= 0) y else y - 399, 400);
     const yoe: i64 = y - era * 400; // [0, 399]
-    const mp: i64 = @as(i64, @intCast(m)) + (if (m > 2) @as(i64, -3) else @as(i64, 9)); // [0, 11]
-    const doy: i64 = @divFloor(153 * mp + 2, 5) + @as(i64, @intCast(d)) - 1; // [0, 365]
+    const mp: i64 = m + @as(i64, if (m > 2) -3 else 9); // [0, 11]
+    const doy: i64 = @divFloor(153 * mp + 2, 5) + d - 1; // [0, 365]
     const doe: i64 = yoe * 365 + @divFloor(yoe, 4) - @divFloor(yoe, 100) + doy; // [0, 146096]
     return era * 146097 + doe - 719468;
 }
@@ -29,7 +39,7 @@ fn daysFromCivil(y_in: i64, m: u32, d: u32) i64 {
 /// Inverse of `daysFromCivil`.
 fn civilFromDays(z_in: i64) struct { year: i64, month: u32, day: u32 } {
     const z = z_in + 719468;
-    const era: i64 = @divFloor(if (z >= 0) z else z - 146096, 146097);
+    const era: i64 = @divTrunc(if (z >= 0) z else z - 146096, 146097);
     const doe: i64 = z - era * 146097; // [0, 146096]
     const yoe: i64 = @divFloor(doe - @divFloor(doe, 1460) + @divFloor(doe, 36524) - @divFloor(doe, 146096), 365); // [0, 399]
     const y: i64 = yoe + era * 400;
