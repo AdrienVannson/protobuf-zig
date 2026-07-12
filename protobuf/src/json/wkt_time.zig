@@ -31,23 +31,25 @@ fn daysFromCivil(y_in: i64, m: i64, d: i64) i64 {
     const era: i64 = @divTrunc(if (y >= 0) y else y - 399, 400);
     const yoe: i64 = y - era * 400; // [0, 399]
     const mp: i64 = m + @as(i64, if (m > 2) -3 else 9); // [0, 11]
-    const doy: i64 = @divFloor(153 * mp + 2, 5) + d - 1; // [0, 365]
-    const doe: i64 = yoe * 365 + @divFloor(yoe, 4) - @divFloor(yoe, 100) + doy; // [0, 146096]
+    const doy: i64 = @divTrunc(153 * mp + 2, 5) + d - 1; // [0, 365]
+    const doe: i64 = yoe * 365 + @divTrunc(yoe, 4) - @divTrunc(yoe, 100) + doy; // [0, 146096]
     return era * 146097 + doe - 719468;
 }
 
-/// Inverse of `daysFromCivil`.
-fn civilFromDays(z_in: i64) struct { year: i64, month: u32, day: u32 } {
+/// Returns year/month/day triple in civil calendar
+/// Preconditions:  z is number of days since 1970-01-01 and is in the range:
+///                   [numeric_limits<Int>::min(), numeric_limits<Int>::max()-719468].
+fn civilFromDays(z_in: i64) struct { year: i64, month: i64, day: i64 } {
     const z = z_in + 719468;
     const era: i64 = @divTrunc(if (z >= 0) z else z - 146096, 146097);
     const doe: i64 = z - era * 146097; // [0, 146096]
-    const yoe: i64 = @divFloor(doe - @divFloor(doe, 1460) + @divFloor(doe, 36524) - @divFloor(doe, 146096), 365); // [0, 399]
+    const yoe: i64 = @divTrunc(doe - @divTrunc(doe, 1460) + @divTrunc(doe, 36524) - @divTrunc(doe, 146096), 365); // [0, 399]
     const y: i64 = yoe + era * 400;
-    const doy: i64 = doe - (365 * yoe + @divFloor(yoe, 4) - @divFloor(yoe, 100)); // [0, 365]
-    const mp: i64 = @divFloor(5 * doy + 2, 153); // [0, 11]
-    const d: i64 = doy - @divFloor(153 * mp + 2, 5) + 1; // [1, 31]
+    const doy: i64 = doe - (365 * yoe + @divTrunc(yoe, 4) - @divTrunc(yoe, 100)); // [0, 365]
+    const mp: i64 = @divTrunc(5 * doy + 2, 153); // [0, 11]
+    const d: i64 = doy - @divTrunc(153 * mp + 2, 5) + 1; // [1, 31]
     const m: i64 = mp + (if (mp < 10) @as(i64, 3) else @as(i64, -9)); // [1, 12]
-    return .{ .year = y + @as(i64, if (m <= 2) 1 else 0), .month = @intCast(m), .day = @intCast(d) };
+    return .{ .year = y + @as(i64, if (m <= 2) 1 else 0), .month = m, .day = d };
 }
 
 fn isLeapYear(year: i64) bool {
