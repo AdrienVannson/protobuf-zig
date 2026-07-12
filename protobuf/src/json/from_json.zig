@@ -4,6 +4,7 @@ const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
 const Registry = @import("../registry.zig").Registry;
+const wkt_time = @import("wkt_time.zig");
 
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
@@ -265,6 +266,26 @@ fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, r
     msg.value = try mt.toBinary(ptr, allocator);
 }
 
+fn readWktTimestamp(msg: anytype, val: std.json.Value) !void {
+    const s = switch (val) {
+        .string => |v| v,
+        else => return error.InvalidJson,
+    };
+    const parsed = try wkt_time.parseTimestamp(s);
+    msg.seconds = parsed.seconds;
+    msg.nanos = parsed.nanos;
+}
+
+fn readWktDuration(msg: anytype, val: std.json.Value) !void {
+    const s = switch (val) {
+        .string => |v| v,
+        else => return error.InvalidJson,
+    };
+    const parsed = try wkt_time.parseDuration(s);
+    msg.seconds = parsed.seconds;
+    msg.nanos = parsed.nanos;
+}
+
 fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !bool {
     const name = comptime std.meta.Child(@TypeOf(msg))._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -317,6 +338,14 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
         try readWktAny(msg, val, allocator, registry);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Timestamp")) {
+        try readWktTimestamp(msg, val);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Duration")) {
+        try readWktDuration(msg, val);
         return true;
     }
     return false;

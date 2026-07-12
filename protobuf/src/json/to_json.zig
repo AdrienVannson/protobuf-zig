@@ -2,6 +2,7 @@ const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
 const Registry = @import("../registry.zig").Registry;
+const wkt_time = @import("wkt_time.zig");
 
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
@@ -188,6 +189,16 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
     ctx.json_writter.endWriteRaw();
 }
 
+fn writeWktTimestamp(ctx: *const JsonContext, msg: anytype) !void {
+    var buf: [40]u8 = undefined;
+    try ctx.json_writter.write(try wkt_time.formatTimestamp(&buf, msg.seconds, msg.nanos));
+}
+
+fn writeWktDuration(ctx: *const JsonContext, msg: anytype) !void {
+    var buf: [40]u8 = undefined;
+    try ctx.json_writter.write(try wkt_time.formatDuration(&buf, msg.seconds, msg.nanos));
+}
+
 fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     const name = comptime @TypeOf(msg)._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -240,6 +251,14 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
         try writeWktAny(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Timestamp")) {
+        try writeWktTimestamp(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Duration")) {
+        try writeWktDuration(ctx, msg);
         return true;
     }
     return false;

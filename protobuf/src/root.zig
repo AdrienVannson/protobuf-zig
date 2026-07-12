@@ -61,6 +61,7 @@ test {
     _ = @import("wire/from_binary.zig");
     _ = @import("json/to_json.zig");
     _ = @import("json/from_json.zig");
+    _ = @import("json/wkt_time.zig");
     _ = @import("_codegen/message_deinit.zig");
     _ = @import("_codegen/desc_file_from_proto.zig");
     _ = @import("_codegen/file_desc.zig");
