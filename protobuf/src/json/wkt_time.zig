@@ -16,6 +16,11 @@ pub const timestamp_max_seconds: i64 = 253402300799; // 9999-12-31T23:59:59Z
 pub const duration_min_seconds: i64 = -315576000000;
 pub const duration_max_seconds: i64 = 315576000000;
 
+test "timestamp constants" {
+    try std.testing.expectEqual(timestamp_min_seconds, (try parseTimestamp("0001-01-01T00:00:00Z")).seconds);
+    try std.testing.expectEqual(timestamp_max_seconds, (try parseTimestamp("9999-12-31T23:59:59Z")).seconds);
+}
+
 /// Returns number of days since civil 1970-01-01.  Negative values indicate
 ///    days prior to 1970-01-01.
 /// Preconditions:  y-m-d represents a date in the civil (Gregorian) calendar
@@ -52,9 +57,41 @@ fn civilFromDays(z_in: i64) struct { year: i64, month: i64, day: i64 } {
     return .{ .year = y + @as(i64, if (m <= 2) 1 else 0), .month = m, .day = d };
 }
 
+test "daysFromCivil / civilFromDays round trip" {
+    var prev_z: i64 = daysFromCivil(1, 1, 1) - 1;
+
+    var year: i64 = 1;
+    while (year <= 9999) : (year += 1) {
+        var month: i64 = 1;
+        while (month <= 12) : (month += 1) {
+            const last_day = daysInMonth(year, month);
+            var day: i64 = 1;
+            while (day <= last_day) : (day += 1) {
+                const z = daysFromCivil(year, month, day);
+                try std.testing.expect(z == prev_z + 1);
+
+                const back = civilFromDays(z);
+                try std.testing.expectEqual(year, back.year);
+                try std.testing.expectEqual(month, back.month);
+                try std.testing.expectEqual(day, back.day);
+
+                prev_z = z;
+            }
+        }
+    }
+}
+
 /// Returns: true if y is a leap year in the civil calendar, else false
 fn isLeapYear(year: i64) bool {
     return @mod(year, 4) == 0 and (@mod(year, 100) != 0 or @mod(year, 400) == 0);
+}
+
+test "isLeapYear" {
+    try std.testing.expect(isLeapYear(2000));
+    try std.testing.expect(!isLeapYear(1900));
+    try std.testing.expect(isLeapYear(2024));
+    try std.testing.expect(!isLeapYear(2023));
+    try std.testing.expect(isLeapYear(4));
 }
 
 fn daysInMonth(year: i64, month: i64) i64 {
@@ -245,46 +282,6 @@ pub fn parseDuration(s: []const u8) !struct { seconds: i64, nanos: i32 } {
     try validateDurationRange(seconds, nanos);
 
     return .{ .seconds = seconds, .nanos = nanos };
-}
-
-test "timestamp constants" {
-    try std.testing.expectEqual(timestamp_min_seconds, (try parseTimestamp("0001-01-01T00:00:00Z")).seconds);
-    try std.testing.expectEqual(timestamp_max_seconds, (try parseTimestamp("9999-12-31T23:59:59Z")).seconds);
-}
-
-test "daysFromCivil epoch sanity" {
-    try std.testing.expectEqual(@as(i64, 0), daysFromCivil(1970, 1, 1));
-    try std.testing.expectEqual(@as(i64, 1), daysFromCivil(1970, 1, 2));
-    try std.testing.expectEqual(@as(i64, -1), daysFromCivil(1969, 12, 31));
-}
-
-test "daysFromCivil / civilFromDays round trip" {
-    const dates = [_]struct { y: i64, m: u32, d: u32 }{
-        .{ .y = 1970, .m = 1, .d = 1 },
-        .{ .y = 1969, .m = 12, .d = 31 },
-        .{ .y = 1, .m = 1, .d = 1 },
-        .{ .y = 9999, .m = 12, .d = 31 },
-        .{ .y = 2000, .m = 2, .d = 29 }, // leap century year
-        .{ .y = 1900, .m = 2, .d = 28 }, // non-leap century year (no Feb 29)
-        .{ .y = 2024, .m = 2, .d = 29 },
-        .{ .y = -100, .m = 6, .d = 15 },
-        .{ .y = 1, .m = 3, .d = 1 },
-    };
-    for (dates) |date| {
-        const days = daysFromCivil(date.y, date.m, date.d);
-        const back = civilFromDays(days);
-        try std.testing.expectEqual(date.y, back.year);
-        try std.testing.expectEqual(date.m, back.month);
-        try std.testing.expectEqual(date.d, back.day);
-    }
-}
-
-test "isLeapYear" {
-    try std.testing.expect(isLeapYear(2000));
-    try std.testing.expect(!isLeapYear(1900));
-    try std.testing.expect(isLeapYear(2024));
-    try std.testing.expect(!isLeapYear(2023));
-    try std.testing.expect(isLeapYear(4));
 }
 
 test "formatTimestamp epoch" {
