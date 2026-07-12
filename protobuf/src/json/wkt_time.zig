@@ -52,16 +52,17 @@ fn civilFromDays(z_in: i64) struct { year: i64, month: i64, day: i64 } {
     return .{ .year = y + @as(i64, if (m <= 2) 1 else 0), .month = m, .day = d };
 }
 
+/// Returns: true if y is a leap year in the civil calendar, else false
 fn isLeapYear(year: i64) bool {
     return @mod(year, 4) == 0 and (@mod(year, 100) != 0 or @mod(year, 400) == 0);
 }
 
-fn daysInMonth(year: i64, month: u32) u32 {
+fn daysInMonth(year: i64, month: i64) i64 {
     return switch (month) {
         1, 3, 5, 7, 8, 10, 12 => 31,
         4, 6, 9, 11 => 30,
-        2 => if (isLeapYear(year)) @as(u32, 29) else 28,
-        else => 0,
+        2 => @as(i64, if (isLeapYear(year)) 29 else 28),
+        else => unreachable,
     };
 }
 
