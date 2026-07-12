@@ -29,16 +29,22 @@ fn boolFromJson(val: std.json.Value) !bool {
 }
 
 fn floatFromJson(val: std.json.Value, comptime T: type) !T {
-    return switch (val) {
-        .number_string => |s| std.fmt.parseFloat(T, s) catch error.InvalidJson,
+    switch (val) {
+        .number_string => |s| {
+            const parsed = std.fmt.parseFloat(T, s) catch return error.InvalidJson;
+            if (std.math.isInf(parsed)) return error.InvalidJson;
+            return parsed;
+        },
         .string => |s| {
             if (std.mem.eql(u8, s, "NaN")) return std.math.nan(T);
             if (std.mem.eql(u8, s, "Infinity")) return std.math.inf(T);
             if (std.mem.eql(u8, s, "-Infinity")) return -std.math.inf(T);
-            return std.fmt.parseFloat(T, s) catch error.InvalidJson;
+            const parsed = std.fmt.parseFloat(T, s) catch return error.InvalidJson;
+            if (std.math.isInf(parsed)) return error.InvalidJson;
+            return parsed;
         },
-        else => error.InvalidJson,
-    };
+        else => return error.InvalidJson,
+    }
 }
 
 fn stringFromJson(val: std.json.Value, allocator: std.mem.Allocator) ![]const u8 {
