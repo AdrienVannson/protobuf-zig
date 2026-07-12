@@ -112,11 +112,11 @@ pub fn formatTimestamp(buf: []u8, seconds: i64, nanos: i32) ![]const u8 {
     var frac_buf: [10]u8 = undefined;
     const frac = formatFracSeconds(&frac_buf, @intCast(nanos));
 
-    // Cast the (always non-negative, range-validated) year to unsigned:
+    // Cast the (always non-negative, range-validated) fields to unsigned:
     // Zig's `{d:0>N}` formatting prepends an explicit '+' for positive
     // *signed* integers when a width is given, which we don't want here.
     return std.fmt.bufPrint(buf, "{d:0>4}-{d:0>2}-{d:0>2}T{d:0>2}:{d:0>2}:{d:0>2}{s}Z", .{
-        @as(u32, @intCast(ymd.year)), ymd.month, ymd.day, hour, minute, sec, frac,
+        @as(u32, @intCast(ymd.year)), @as(u32, @intCast(ymd.month)), @as(u32, @intCast(ymd.day)), hour, minute, sec, frac,
     }) catch unreachable;
 }
 
