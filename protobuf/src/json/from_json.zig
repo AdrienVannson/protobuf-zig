@@ -311,12 +311,13 @@ fn readWktFieldMask(msg: anytype, val: std.json.Value, allocator: std.mem.Alloca
         var path: std.ArrayList(u8) = .empty;
         errdefer path.deinit(allocator);
         for (camel) |c| {
-            if (c == '_') return error.InvalidJson;
             if (std.ascii.isUpper(c)) {
                 try path.append(allocator, '_');
                 try path.append(allocator, std.ascii.toLower(c));
-            } else {
+            } else if (std.ascii.isLower(c) or std.ascii.isDigit(c) or c == '.') {
                 try path.append(allocator, c);
+            } else {
+                return error.InvalidJson;
             }
         }
         const owned = try path.toOwnedSlice(allocator);

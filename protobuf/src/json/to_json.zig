@@ -207,8 +207,11 @@ fn writeWktFieldMask(ctx: *const JsonContext, msg: anytype) !void {
                 if (!std.ascii.isLower(c)) return error.InvalidFieldMask;
                 try out.append(ctx.allocator, std.ascii.toUpper(c));
                 after_underscore = false;
-            } else {
+            } else if (std.ascii.isLower(c) or std.ascii.isDigit(c) or c == '.') {
                 try out.append(ctx.allocator, c);
+            } else {
+                // Other characters can't appear in a field path.
+                return error.InvalidFieldMask;
             }
         }
         if (after_underscore) return error.InvalidFieldMask;
