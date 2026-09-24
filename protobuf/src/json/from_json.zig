@@ -15,10 +15,44 @@ fn intFromJson(val: std.json.Value, comptime int_type: type) !int_type {
             if (s.len == 0) {
                 return error.InvalidJson;
             }
-            return std.fmt.parseInt(int_type, s, 10) catch error.InvalidJson;
+            if (std.fmt.parseInt(int_type, s, 10)) |n| return n else |_| {}
+
+            // ProtoJSON also accepts integers written with a fraction or an exponent
+            // (e.g. "1e5", "1.0") as long as the value is integral and in range.
+            // Without '.' or an exponent this is a plain integer, and parseInt already
+            // rejected it (usually because it's out of range). Retrying through f64 could
+            // round it back into range, e.g. -2^63 - 1 becomes -2^63.
+            var is_float = false;
+            for (s) |c| {
+                switch (c) {
+                    '0'...'9', '+', '-' => {},
+                    '.', 'e', 'E' => is_float = true,
+                    else => return error.InvalidJson,
+                }
+            }
+            if (!is_float) return error.InvalidJson;
+
+            const f = std.fmt.parseFloat(f64, s) catch return error.InvalidJson;
+
+            // The bounds are powers of two (or zero), so they are exact as f64. NaN fails
+            // the @trunc check and infinities fail the range check.
+            if (@trunc(f) != f or f < std.math.minInt(int_type) or f >= std.math.maxInt(int_type) + 1) return error.InvalidJson;
+
+            return @trunc(f);
         },
         else => return error.InvalidJson,
     }
+}
+
+// The conformance suite has no out-of-range float inputs for integer fields; without the
+// range check these would hit illegal behavior in @trunc.
+test "intFromJson rejects out-of-range floats" {
+    try std.testing.expectError(error.InvalidJson, intFromJson(.{ .number_string = "4.294967296e9" }, u32));
+    try std.testing.expectError(error.InvalidJson, intFromJson(.{ .number_string = "-1e0" }, u32));
+    try std.testing.expectError(error.InvalidJson, intFromJson(.{ .number_string = "-2.147483649e9" }, i32));
+    try std.testing.expectError(error.InvalidJson, intFromJson(.{ .number_string = "9.223372036854775808e18" }, i64));
+    try std.testing.expectError(error.InvalidJson, intFromJson(.{ .number_string = "1.8446744073709551616e19" }, u64));
+    try std.testing.expectError(error.InvalidJson, intFromJson(.{ .number_string = "1e400" }, i64));
 }
 
 fn boolFromJson(val: std.json.Value) !bool {

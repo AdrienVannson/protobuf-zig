@@ -53,16 +53,6 @@ Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.JsonOutput # Failed to pars
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.FieldMask.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.FieldMask.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldExponentialFormat.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldExponentialFormat.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldFloatTrailingZero.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldFloatTrailingZero.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldMaxFloatValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldMaxFloatValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldMinFloatValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldMinFloatValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldQuotedExponentialValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Int32FieldQuotedExponentialValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
 Required.Proto3.JsonInput.OriginalProtoFieldName.JsonOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
 Required.Proto3.JsonInput.OriginalProtoFieldName.ProtobufOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
@@ -92,8 +82,6 @@ Required.Proto3.JsonInput.TimestampWithNegativeOffset.JsonOutput # Failed to par
 Required.Proto3.JsonInput.TimestampWithNegativeOffset.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampWithPositiveOffset.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampWithPositiveOffset.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Uint32FieldMaxFloatValue.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.Uint32FieldMaxFloatValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.TimestampProtoInputTooLarge.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoInputTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNanoTooLarge.JsonOutput # Should have failed to serialize, but didn't.
