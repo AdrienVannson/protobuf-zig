@@ -222,11 +222,13 @@ fn writeWktFieldMask(ctx: *const JsonContext, msg: anytype) !void {
 }
 
 fn writeWktTimestamp(ctx: *const JsonContext, msg: anytype) !void {
+    // Longest output is "9999-12-31T23:59:59.999999999Z" (30 bytes).
     var buf: [40]u8 = undefined;
     try ctx.json_writter.write(try wkt_time.formatTimestamp(&buf, msg.seconds, msg.nanos));
 }
 
 fn writeWktDuration(ctx: *const JsonContext, msg: anytype) !void {
+    // Longest output is "-315576000000.999999999s" (24 bytes).
     var buf: [40]u8 = undefined;
     try ctx.json_writter.write(try wkt_time.formatDuration(&buf, msg.seconds, msg.nanos));
 }
