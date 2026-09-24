@@ -188,6 +188,38 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
     ctx.json_writter.endWriteRaw();
 }
 
+/// Writes a FieldMask as a comma-separated string of lowerCamelCase paths. Fails when
+/// a path would not round-trip back to the same snake_case path.
+fn writeWktFieldMask(ctx: *const JsonContext, msg: anytype) !void {
+    var out: std.ArrayList(u8) = .empty;
+    defer out.deinit(ctx.allocator);
+
+    for (msg.paths.items, 0..) |path, i| {
+        if (i > 0) try out.append(ctx.allocator, ',');
+        var after_underscore = false;
+        for (path) |c| {
+            if (c == '_') {
+                if (after_underscore) return error.InvalidFieldMask;
+                after_underscore = true;
+            } else if (std.ascii.isUpper(c)) {
+                return error.InvalidFieldMask;
+            } else if (after_underscore) {
+                if (!std.ascii.isLower(c)) return error.InvalidFieldMask;
+                try out.append(ctx.allocator, std.ascii.toUpper(c));
+                after_underscore = false;
+            } else if (std.ascii.isLower(c) or std.ascii.isDigit(c) or c == '.') {
+                try out.append(ctx.allocator, c);
+            } else {
+                // Other characters can't appear in a field path.
+                return error.InvalidFieldMask;
+            }
+        }
+        if (after_underscore) return error.InvalidFieldMask;
+    }
+
+    try ctx.json_writter.write(out.items);
+}
+
 fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     const name = comptime @TypeOf(msg)._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -240,6 +272,10 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
         try writeWktAny(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.FieldMask")) {
+        try writeWktFieldMask(ctx, msg);
         return true;
     }
     return false;

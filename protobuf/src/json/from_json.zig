@@ -299,6 +299,33 @@ fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, r
     msg.value = try mt.toBinary(ptr, allocator);
 }
 
+fn readWktFieldMask(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+    const s = switch (val) {
+        .string => |s| s,
+        else => return error.InvalidJson,
+    };
+    if (s.len == 0) return;
+
+    var it = std.mem.splitScalar(u8, s, ',');
+    while (it.next()) |camel| {
+        var path: std.ArrayList(u8) = .empty;
+        errdefer path.deinit(allocator);
+        for (camel) |c| {
+            if (std.ascii.isUpper(c)) {
+                try path.append(allocator, '_');
+                try path.append(allocator, std.ascii.toLower(c));
+            } else if (std.ascii.isLower(c) or std.ascii.isDigit(c) or c == '.') {
+                try path.append(allocator, c);
+            } else {
+                return error.InvalidJson;
+            }
+        }
+        const owned = try path.toOwnedSlice(allocator);
+        errdefer allocator.free(owned);
+        try msg.paths.append(allocator, owned);
+    }
+}
+
 fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !bool {
     const name = comptime std.meta.Child(@TypeOf(msg))._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -351,6 +378,10 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
         try readWktAny(msg, val, allocator, registry);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.FieldMask")) {
+        try readWktFieldMask(msg, val, allocator);
         return true;
     }
     return false;

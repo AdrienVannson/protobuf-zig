@@ -8,6 +8,7 @@ const DescMessage = protobuf.DescMessage;
 fn hasCustomJsonEncoding(name: []const u8) bool {
     const names = [_][]const u8{
         "google.protobuf.Any",
+        "google.protobuf.FieldMask",
         "google.protobuf.Struct",
         "google.protobuf.Value",
         "google.protobuf.ListValue",

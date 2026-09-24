@@ -1,6 +1,3 @@
-Recommended.Proto3.FieldMaskNumbersDontRoundTrip.JsonOutput # Should have failed to serialize, but didn't.
-Recommended.Proto3.FieldMaskPathsDontRoundTrip.JsonOutput # Should have failed to serialize, but didn't.
-Recommended.Proto3.FieldMaskTooManyUnderscore.JsonOutput # Should have failed to serialize, but didn't.
 Recommended.Proto3.JsonInput.BytesFieldBase64Url.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.BytesFieldBase64Url.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.DurationHas3FractionalDigits.Validator # Expected JSON payload but got type 1
@@ -31,8 +28,6 @@ Required.Proto3.DurationProtoNanosWrongSign.JsonOutput # Should have failed to s
 Required.Proto3.DurationProtoNanosWrongSignNegativeSecs.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.JsonInput.AnyWithDuration.JsonOutput # Output was not equivalent to reference message: deleted: optional_any.seconds: 1deleted: optional_any.nanos: 500000000
 Required.Proto3.JsonInput.AnyWithDuration.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.seconds: 1deleted: optional_any.nanos: 500000000
-Required.Proto3.JsonInput.AnyWithFieldMask.JsonOutput # Output was not equivalent to reference message: deleted: optional_any.paths[0]: "foo"deleted: optional_any.paths[1]: "bar_baz"
-Required.Proto3.JsonInput.AnyWithFieldMask.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.paths[0]: "foo"deleted: optional_any.paths[1]: "bar_baz"
 Required.Proto3.JsonInput.DurationMaxValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationMaxValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationMinValue.JsonOutput # Failed to parse input or produce output.
@@ -43,16 +38,12 @@ Required.Proto3.JsonInput.DurationNegativeSeconds.JsonOutput # Failed to parse i
 Required.Proto3.JsonInput.DurationNegativeSeconds.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationRepeatedValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.DurationRepeatedValue.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EmptyFieldMask.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EmptyFieldMask.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasDifferentCase.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasDifferentCase.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.FieldMask.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.FieldMask.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
 Required.Proto3.JsonInput.OriginalProtoFieldName.JsonOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
 Required.Proto3.JsonInput.OriginalProtoFieldName.ProtobufOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
