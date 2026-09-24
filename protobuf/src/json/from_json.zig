@@ -541,7 +541,9 @@ fn readMessage(
         const val = entry.value_ptr.*;
 
         inline for (T._metadata.fields) |field_meta| {
-            if (std.mem.eql(u8, entry.key_ptr.*, field_meta.json_name)) {
+            if (std.mem.eql(u8, entry.key_ptr.*, field_meta.json_name) or
+                std.mem.eql(u8, entry.key_ptr.*, field_meta.proto_name))
+            {
                 try readField(msg, field_meta, val, allocator, registry);
             }
         }

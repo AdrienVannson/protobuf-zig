@@ -6,13 +6,13 @@ Recommended.Proto3.JsonInput.DurationHas9FractionalDigits.Validator # Expected J
 Recommended.Proto3.JsonInput.DurationHasZeroFractionalDigit.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing1 # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have failed to parse, but didn't.
-Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Output was not equivalent to reference message: deleted: map_string_nested_enum[key1]: FOO
-Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Output was not equivalent to reference message: deleted: repeated_nested_enum[0]: FOOdeleted: repeated_nested_enum[1]: FOO
+Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapValue.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInOptionalField.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedField.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.NullValueInOtherOneofNewFormat.Validator # JSON payload validation failed.
 Recommended.Proto3.JsonInput.NullValueInOtherOneofOldFormat.Validator # JSON payload validation failed.
-Recommended.Proto3.JsonInput.RejectUnknownEnumStringValueInMapValue # Should have failed to parse, but didn't.
-Recommended.Proto3.JsonInput.RejectUnknownEnumStringValueInOptionalField # Should have failed to parse, but didn't.
-Recommended.Proto3.JsonInput.RejectUnknownEnumStringValueInRepeatedField # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.TimestampHas3FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampHas6FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampHas9FractionalDigits.Validator # Expected JSON payload but got type 1
@@ -45,8 +45,6 @@ Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.ProtobufOutput # Failed to
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
-Required.Proto3.JsonInput.OriginalProtoFieldName.JsonOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
-Required.Proto3.JsonInput.OriginalProtoFieldName.ProtobufOutput # Output was not equivalent to reference message: deleted: field_name2: 2deleted: _field_name3: 3deleted: field__name4_: 4deleted:
 Required.Proto3.JsonInput.TimestampEpochValue.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampEpochValue.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampLeap.JsonOutput # Failed to parse input or produce output.

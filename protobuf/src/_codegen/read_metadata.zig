@@ -414,6 +414,7 @@ fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool, compti
         out = out ++ [_]FieldMetadata{.{
             .number = fi.number,
             .field_index = field_index,
+            .proto_name = fi.name,
             .json_name = fi.json_name,
             .kind = buildPlainKind(msg_bytes, fi, is_proto3),
         }};
@@ -436,6 +437,7 @@ fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool, compti
                 .number = fi.number,
                 .field_index = field_index,
                 .oneof_variant = fi.name,
+                .proto_name = fi.name,
                 .json_name = fi.json_name,
                 .kind = buildOneofKind(fi),
             }};
