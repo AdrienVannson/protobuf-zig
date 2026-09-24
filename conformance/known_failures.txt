@@ -1,3 +1,6 @@
+# OneofFieldDuplicate and FieldNameDuplicateDifferentCasing* expect duplicate fields to be
+# rejected, but the ProtoJSON spec allows last-in-wins, which we implement. The tests are
+# fixed upstream in https://github.com/protocolbuffers/protobuf/pull/28903 (released in v37).
 Recommended.Proto3.JsonInput.BytesFieldBase64Url.JsonOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.BytesFieldBase64Url.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.DurationHas3FractionalDigits.Validator # Expected JSON payload but got type 1
@@ -9,15 +12,23 @@ Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have fa
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapValue.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInOptionalField.ProtobufOutput # Failed to parse input or produce output.
-Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedField.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Proto3.JsonInput.ListValueDeepNesting200 # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.NullValueInOtherOneofNewFormat.Validator # JSON payload validation failed.
 Recommended.Proto3.JsonInput.NullValueInOtherOneofOldFormat.Validator # JSON payload validation failed.
+Recommended.Proto3.JsonInput.StructDeepNesting200 # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.TimestampHas3FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampHas6FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampHas9FractionalDigits.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampHasZeroFractionalDigit.Validator # Expected JSON payload but got type 1
 Recommended.Proto3.JsonInput.TimestampZeroNormalized.Validator # Expected JSON payload but got type 1
+Recommended.Proto3.JsonInput.ValueDeepNesting200 # Should have failed to parse, but didn't.
+Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.MapKey # Should have failed to parse, but didn't.
+Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.MapValue # Should have failed to parse, but didn't.
+Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Oneof # Should have failed to parse, but didn't.
+Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Repeated # Should have failed to parse, but didn't.
+Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Singular # Should have failed to parse, but didn't.
 Recommended.Proto3.ValueRejectInfNumberValue.JsonOutput # Should have failed to serialize, but didn't.
 Recommended.Proto3.ValueRejectNanNumberValue.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.DurationProtoInputTooLarge.JsonOutput # Should have failed to serialize, but didn't.
@@ -26,6 +37,8 @@ Required.Proto3.DurationProtoNanosTooLarge.JsonOutput # Should have failed to se
 Required.Proto3.DurationProtoNanosTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.DurationProtoNanosWrongSign.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.DurationProtoNanosWrongSignNegativeSecs.JsonOutput # Should have failed to serialize, but didn't.
+Required.Proto3.JsonInput.AnyEmpty.JsonOutput # Failed to parse input or produce output.
+Required.Proto3.JsonInput.AnyEmpty.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.AnyWithDuration.JsonOutput # Output was not equivalent to reference message: deleted: optional_any.seconds: 1deleted: optional_any.nanos: 500000000
 Required.Proto3.JsonInput.AnyWithDuration.ProtobufOutput # Output was not equivalent to reference message: deleted: optional_any.seconds: 1deleted: optional_any.nanos: 500000000
 Required.Proto3.JsonInput.DurationMaxValue.JsonOutput # Failed to parse input or produce output.
@@ -71,6 +84,7 @@ Required.Proto3.JsonInput.TimestampWithNegativeOffset.JsonOutput # Failed to par
 Required.Proto3.JsonInput.TimestampWithNegativeOffset.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampWithPositiveOffset.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.TimestampWithPositiveOffset.ProtobufOutput # Failed to parse input or produce output.
+Required.Proto3.ProtobufInput.BadTag_OverlongVarint # Should have failed to parse, but didn't.
 Required.Proto3.TimestampProtoInputTooLarge.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoInputTooSmall.JsonOutput # Should have failed to serialize, but didn't.
 Required.Proto3.TimestampProtoNanoTooLarge.JsonOutput # Should have failed to serialize, but didn't.
