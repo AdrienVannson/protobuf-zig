@@ -1,7 +1,7 @@
 set dotenv-load
 set dotenv-override
 
-protobuf_version := "33.2"
+protobuf_version := "36.2"
 
 all: setup setup-conformance build generate generate-example run-example test conformance code-quality generate-wkt generate-conformance generate-plugin sync-readme
 
