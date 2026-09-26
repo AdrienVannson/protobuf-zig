@@ -1,8 +1,5 @@
-//! Helpers backing the `pack` / `is` / `unpack` methods generated on
-//! `google.protobuf.Any`.
-
 const std = @import("std");
-const protobuf = @import("../root.zig");
+const protobuf = @import("../../root.zig");
 
 const type_url_prefix = "type.googleapis.com/";
 
@@ -39,7 +36,7 @@ pub fn unpack(any: anytype, comptime T: type, allocator: std.mem.Allocator) !T {
 }
 
 test "Any pack / is / unpack" {
-    const example = @import("../testgen/example.pb.zig");
+    const example = @import("../../testgen/example.pb.zig");
     const Any = protobuf.wkt.any.Any;
     const allocator = std.testing.allocator;
 
