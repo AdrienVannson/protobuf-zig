@@ -200,6 +200,10 @@ pub const TestAllTypesProto3 = struct {
         ALIAS_BAR = 1,
         ALIAS_BAZ = 2,
         _,
+
+        pub const MOO: @This() = @enumFromInt(2);
+        pub const moo: @This() = @enumFromInt(2);
+        pub const bAz: @This() = @enumFromInt(2);
     };
 
     pub fn getOptionalInt32(self: @This()) i32 {

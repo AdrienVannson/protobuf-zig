@@ -22,10 +22,4 @@ Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Repeated # Should have
 Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Singular # Should have failed to parse, but didn't.
 Recommended.Proto3.ValueRejectInfNumberValue.JsonOutput # Should have failed to serialize, but didn't.
 Recommended.Proto3.ValueRejectNanNumberValue.JsonOutput # Should have failed to serialize, but didn't.
-Required.Proto3.JsonInput.EnumFieldWithAliasDifferentCase.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldWithAliasDifferentCase.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.ProtobufOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.JsonOutput # Failed to parse input or produce output.
-Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.

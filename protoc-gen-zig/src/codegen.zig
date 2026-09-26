@@ -160,18 +160,27 @@ fn generateEnum(
     try f.writeLine(.{ "pub const ", safe_name, " = enum(i32) {" });
     f.indent();
 
+    // allow_alias enums declare multiple names for the same number. Zig rejects duplicate
+    // enum tag values, so only the first occurrence of each number becomes a field; the
+    // aliases are emitted as declarations.
     for (e.values, 0..) |*v, i| {
-        // Skip alias values (allow_alias enums declare multiple names for the same number).
-        // Zig rejects duplicate enum tag values; emit only the first occurrence of each number.
-        if (e.value.get(v.number)) |first_idx| {
-            if (first_idx != i) continue;
-        }
+        if (e.value.get(v.number).? != i) continue;
         const safe_value_name = try escapeZigKeyword(f.alloc, v.local_name);
         defer f.alloc.free(safe_value_name);
         try f.writeLine(.{ safe_value_name, " = ", v.number, "," });
     }
 
     try f.writeLine("_,");
+
+    if (e.value.count() != e.values.len) {
+        try f.emptyLine();
+        for (e.values, 0..) |*v, i| {
+            if (e.value.get(v.number).? == i) continue;
+            const safe_value_name = try escapeZigKeyword(f.alloc, v.local_name);
+            defer f.alloc.free(safe_value_name);
+            try f.writeLine(.{ "pub const ", safe_value_name, ": @This() = @enumFromInt(", v.number, ");" });
+        }
+    }
 
     f.unindent();
     try f.writeLine("};");

@@ -107,6 +107,11 @@ fn enumFromJson(comptime EnumType: type, val: std.json.Value) !EnumType {
                 // TODO the proto name may be different from the local name
                 if (std.mem.eql(u8, s, f.name)) return @enumFromInt(f.value);
             }
+            // Aliases (allow_alias) are generated as declarations of the enum type.
+            inline for (@typeInfo(EnumType).@"enum".decls) |d| {
+                const alias = @field(EnumType, d.name);
+                if (@TypeOf(alias) == EnumType and std.mem.eql(u8, s, d.name)) return alias;
+            }
             return error.InvalidJson;
         },
         .number_string => |s| {
