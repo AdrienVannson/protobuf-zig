@@ -99,7 +99,10 @@ pub const BinaryReader = struct {
 
     /// Read a field tag (field number + wire type).
     pub fn tag(self: *BinaryReader) !Tag {
+        const start = self.pos;
         const v = try self.varint();
+        // Tags are 32-bit varints, which take at most 5 bytes on the wire.
+        if (self.pos - start > 5) return error.InvalidVarint;
 
         const number: u32 = blk: {
             const n = v >> 3;
