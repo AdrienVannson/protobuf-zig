@@ -51,7 +51,7 @@ fn civilFromDays(z_in: i64) struct { year: i64, month: i64, day: i64 } {
 // Conformance only exercises a handful of dates near the epoch and the range
 // bounds, so check the calendar conversion on every representable day.
 test "daysFromCivil / civilFromDays round trip" {
-    var prev_z: i64 = daysFromCivil(1, 1, 1) - 1;
+    var expected_days: i64 = daysFromCivil(1, 1, 1);
 
     var year: i64 = 1;
     while (year <= 9999) : (year += 1) {
@@ -60,18 +60,18 @@ test "daysFromCivil / civilFromDays round trip" {
             const last_day = daysInMonth(year, month);
             var day: i64 = 1;
             while (day <= last_day) : (day += 1) {
-                const z = daysFromCivil(year, month, day);
-                try std.testing.expectEqual(prev_z + 1, z);
+                const days = daysFromCivil(year, month, day);
+                try std.testing.expectEqual(expected_days, days);
+                expected_days += 1;
 
-                const back = civilFromDays(z);
+                const back = civilFromDays(days);
                 try std.testing.expectEqual(year, back.year);
                 try std.testing.expectEqual(month, back.month);
                 try std.testing.expectEqual(day, back.day);
-
-                prev_z = z;
             }
         }
     }
+
     try std.testing.expectEqual(0, daysFromCivil(1970, 1, 1));
 }
 
