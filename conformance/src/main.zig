@@ -25,6 +25,7 @@ pub fn main(init: std.process.Init) !void {
     try registry.registerFile(alloc, protobuf.wkt.duration);
     try registry.registerFile(alloc, protobuf.wkt.timestamp);
     try registry.registerFile(alloc, protobuf.wkt.field_mask);
+    try registry.registerFile(alloc, protobuf.wkt.empty);
 
     while (true) {
         // Read 4-byte little-endian request length; EOF here means clean shutdown.
