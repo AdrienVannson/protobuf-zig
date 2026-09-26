@@ -75,7 +75,7 @@ fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator, registr
 }
 
 /// Parses the request payload into the message described by `ops` and serializes it back in the requested format.
-fn roundtrip(ops: anytype, request: *ConformanceRequest, alloc: std.mem.Allocator, registry: *const protobuf.Registry) !ConformanceResponse {
+fn roundtrip(ops: *const protobuf.MessageOps, request: *ConformanceRequest, alloc: std.mem.Allocator, registry: *const protobuf.Registry) !ConformanceResponse {
     const output_format = request.getRequestedOutputFormat();
     if (output_format != .PROTOBUF and output_format != .JSON) {
         return .{ .result = .{ .skipped = try alloc.dupe(u8, "TEXT_FORMAT and JSPB output not supported") } };

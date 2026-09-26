@@ -1,7 +1,8 @@
 const binary_writer = @import("wire/binary_writer.zig");
 const binary_reader = @import("wire/binary_reader.zig");
-const tag = @import("wire/tag.zig");
 const descriptor = @import("descriptor.zig");
+const registry = @import("registry.zig");
+const tag = @import("wire/tag.zig");
 
 // TODO move under `descriptor`?
 pub const WireType = tag.WireType;
@@ -30,7 +31,8 @@ pub const from_json = @import("json/from_json.zig").from_json;
 
 pub const UnknownField = @import("unknown_field.zig").UnknownField;
 
-pub const Registry = @import("registry.zig").Registry;
+pub const Registry = registry.Registry;
+pub const MessageOps = registry.MessageOps;
 
 pub const wkt = @import("wkt.zig");
 
