@@ -43,10 +43,10 @@ const ReadMessageError = error{
 
 fn readListField(
     reader: *BinaryReader,
+    allocator: std.mem.Allocator,
     field_ptr: anytype,
     comptime list_meta: anytype,
     wire_type: WireType,
-    allocator: std.mem.Allocator,
 ) ReadMessageError!void {
     switch (comptime list_meta.element) {
         .scalar => |sc| {
@@ -68,7 +68,7 @@ fn readListField(
             const p = try allocator.create(Child);
             p.* = .{};
             errdefer allocator.destroy(p);
-            try readMessageField(reader, p, allocator);
+            try readMessageField(reader, allocator, p);
             try field_ptr.*.append(allocator, p);
         },
         .enum_type => {
@@ -89,9 +89,9 @@ fn readListField(
 
 fn readMapEntry(
     reader: *BinaryReader,
+    allocator: std.mem.Allocator,
     map_ptr: anytype,
     comptime map_meta: anytype,
-    allocator: std.mem.Allocator,
 ) ReadMessageError!void {
     const MapType = std.meta.Child(@TypeOf(map_ptr));
 
@@ -127,7 +127,7 @@ fn readMapEntry(
                     const p = try allocator.create(Child);
                     p.* = .{};
                     errdefer allocator.destroy(p); // TODO also deinit, same problem elsewhere
-                    try readMessageField(reader, p, allocator);
+                    try readMessageField(reader, allocator, p);
                     opt_value = p;
                 },
             },
@@ -160,14 +160,14 @@ fn readMapEntry(
     try map_ptr.*.put(allocator, key, value);
 }
 
-fn readMessageField(reader: *BinaryReader, child_ptr: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
+fn readMessageField(reader: *BinaryReader, allocator: std.mem.Allocator, child_ptr: anytype) ReadMessageError!void {
     try reader.fork();
-    try readMessage(reader, child_ptr, allocator);
+    try readMessage(reader, allocator, child_ptr);
     try reader.join();
 }
 
 /// Decodes all fields of msg from the current scope of reader.
-fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator) ReadMessageError!void {
+fn readMessage(reader: *BinaryReader, allocator: std.mem.Allocator, msg: anytype) ReadMessageError!void {
     const T = std.meta.Child(@TypeOf(msg));
     const struct_fields = std.meta.fields(T);
 
@@ -200,10 +200,10 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
                             field_access.setField(msg, field_meta, p, allocator);
                             break :blk p;
                         };
-                        try readMessageField(reader, child_ptr, allocator);
+                        try readMessageField(reader, allocator, child_ptr);
                     },
-                    .list => |list_meta| try readListField(reader, &@field(msg.*, field_name), list_meta, field_tag.wire_type, allocator),
-                    .map => |map_meta| try readMapEntry(reader, &@field(msg.*, field_name), map_meta, allocator),
+                    .list => |list_meta| try readListField(reader, allocator, &@field(msg.*, field_name), list_meta, field_tag.wire_type),
+                    .map => |map_meta| try readMapEntry(reader, allocator, &@field(msg.*, field_name), map_meta),
                 }
             }
         }
@@ -223,9 +223,9 @@ fn readMessage(reader: *BinaryReader, msg: anytype, allocator: std.mem.Allocator
 /// Deserializes a message from its binary Protocol Buffer representation.
 ///
 /// msg must be a pointer to the message struct (e.g. &my_msg).
-pub fn from_binary(msg: anytype, data: []const u8, allocator: std.mem.Allocator) !void {
+pub fn fromBinary(msg: anytype, allocator: std.mem.Allocator, data: []const u8) !void {
     var reader = BinaryReader.init(allocator, data);
     defer reader.deinit();
-    try readMessage(&reader, msg, allocator);
+    try readMessage(&reader, allocator, msg);
     try reader.finish();
 }

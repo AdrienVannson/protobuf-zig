@@ -169,9 +169,9 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
         mt.destroy(ptr, ctx.allocator);
     }
 
-    try mt.fromBinary(ptr, msg.value, ctx.allocator);
+    try mt.fromBinary(ptr, ctx.allocator, msg.value);
 
-    const inner_json = try mt.toJson(ptr, ctx.allocator, ctx.registry);
+    const inner_json = try mt.toJson(ctx.allocator, ptr, ctx.registry);
     defer ctx.allocator.free(inner_json);
 
     try ctx.json_writter.beginWriteRaw();
@@ -313,7 +313,7 @@ fn writeMessage(ctx: *const JsonContext, msg: anytype) anyerror!void {
     try ctx.json_writter.endObject();
 }
 
-pub fn to_json(allocator: std.mem.Allocator, msg: anytype, registry: *const Registry) ![]u8 {
+pub fn toJson(allocator: std.mem.Allocator, msg: anytype, registry: *const Registry) ![]u8 {
     var aw: std.Io.Writer.Allocating = .init(allocator);
     errdefer aw.deinit();
 

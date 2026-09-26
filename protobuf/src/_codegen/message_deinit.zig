@@ -7,10 +7,10 @@ const field_access = @import("field_access.zig");
 /// `msg` must be a pointer to a message struct.
 ///
 /// TODO make it work for constant messages as well, and update plugin accordingly.
-pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
+pub fn deinitMessage(msg: anytype, allocator: std.mem.Allocator) void {
     const T = std.meta.Child(@TypeOf(msg));
     inline for (T._metadata.fields) |field_meta| {
-        field_access.clearField(msg, field_meta, allocator);
+        field_access.clearField(msg, allocator, field_meta);
     }
 
     // Clear unknown fields
@@ -22,42 +22,42 @@ pub fn deinit_message(msg: anytype, allocator: std.mem.Allocator) void {
     msg._unknown_fields.deinit(allocator);
 }
 
-test "deinit_message string" {
+test "deinitMessage string" {
     const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
-    var alloc = std.testing.allocator;
+    var allocator = std.testing.allocator;
 
     var msg = TestAllTypesProto3{
-        .optional_string = try alloc.dupe(u8, "hello"),
+        .optional_string = try allocator.dupe(u8, "hello"),
     };
-    deinit_message(&msg, alloc);
+    deinitMessage(&msg, allocator);
 }
 
-test "deinit_message bytes" {
+test "deinitMessage bytes" {
     const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
-    var alloc = std.testing.allocator;
+    var allocator = std.testing.allocator;
 
     var msg = TestAllTypesProto3{
-        .optional_bytes = try alloc.dupe(u8, "hello"),
+        .optional_bytes = try allocator.dupe(u8, "hello"),
     };
-    deinit_message(&msg, alloc);
+    deinitMessage(&msg, allocator);
 }
 
-test "deinit_message oneof string" {
+test "deinitMessage oneof string" {
     const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
-    var alloc = std.testing.allocator;
+    var allocator = std.testing.allocator;
 
     var msg = TestAllTypesProto3{
-        .oneof_field = .{ .oneof_string = try alloc.dupe(u8, "hello") },
+        .oneof_field = .{ .oneof_string = try allocator.dupe(u8, "hello") },
     };
-    deinit_message(&msg, alloc);
+    deinitMessage(&msg, allocator);
 }
 
-test "deinit_message oneof bytes" {
+test "deinitMessage oneof bytes" {
     const TestAllTypesProto3 = @import("../testgen/test_messages/test_messages_proto3.pb.zig").TestAllTypesProto3;
-    var alloc = std.testing.allocator;
+    var allocator = std.testing.allocator;
 
     var msg = TestAllTypesProto3{
-        .oneof_field = .{ .oneof_bytes = try alloc.dupe(u8, "hello") },
+        .oneof_field = .{ .oneof_bytes = try allocator.dupe(u8, "hello") },
     };
-    deinit_message(&msg, alloc);
+    deinitMessage(&msg, allocator);
 }

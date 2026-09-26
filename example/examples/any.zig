@@ -21,7 +21,7 @@ pub fn main(init: std.process.Init) !void {
 
     // Check the type held by the Any, and unpack it
     if (payload.is(example.Person)) {
-        var unpacked = try payload.unpack(example.Person, allocator);
+        var unpacked = try payload.unpack(allocator, example.Person);
         defer unpacked.deinit(allocator);
         std.debug.print("unpacked: {s}, {d}, {s}\n", .{ unpacked.name, unpacked.age, unpacked.email });
     }
