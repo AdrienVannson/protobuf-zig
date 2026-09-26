@@ -203,6 +203,10 @@ pub const TestAllTypesProto3 = struct {
         ALIAS_BAR = 1,
         ALIAS_BAZ = 2,
         _,
+
+        pub const MOO: @This() = .ALIAS_BAZ;
+        pub const moo: @This() = .ALIAS_BAZ;
+        pub const bAz: @This() = .ALIAS_BAZ;
     };
 
     pub fn getOptionalInt32(self: @This()) i32 {
