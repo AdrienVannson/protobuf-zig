@@ -27,7 +27,7 @@ pub fn is(any: anytype, comptime T: type) bool {
 
 /// Decodes the message held by `any` as a `T`. Returns
 /// `error.AnyTypeMismatch` if `any` does not hold a `T`.
-pub fn unpack(any: anytype, allocator: std.mem.Allocator, comptime T: type) !T {
+pub fn unpack(comptime T: type, allocator: std.mem.Allocator, any: anytype) !T {
     if (!is(any, T)) return error.AnyTypeMismatch;
     var msg: T = .{};
     errdefer msg.deinit(allocator);
@@ -48,10 +48,10 @@ test "Any pack / is / unpack" {
     try std.testing.expect(any.is(example.Foo));
     try std.testing.expect(!any.is(example.Bar));
 
-    var foo = try any.unpack(allocator, example.Foo);
+    var foo = try any.unpack(example.Foo, allocator);
     defer foo.deinit(allocator);
     try std.testing.expectEqualStrings("hello", foo.name);
     try std.testing.expectEqual(42, foo.id);
 
-    try std.testing.expectError(error.AnyTypeMismatch, any.unpack(allocator, example.Bar));
+    try std.testing.expectError(error.AnyTypeMismatch, any.unpack(example.Bar, allocator));
 }

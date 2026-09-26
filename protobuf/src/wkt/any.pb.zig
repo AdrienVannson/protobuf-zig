@@ -30,8 +30,8 @@ pub const Any = struct {
         return _codegen.any.is(self, T);
     }
 
-    pub fn unpack(self: @This(), allocator: std.mem.Allocator, comptime T: type) !T {
-        return _codegen.any.unpack(self, allocator, T);
+    pub fn unpack(self: @This(), comptime T: type, allocator: std.mem.Allocator) !T {
+        return _codegen.any.unpack(T, allocator, self);
     }
 
     pub const _metadata = _codegen.readMessageMetadata(_descriptor_bytes, .{0});
