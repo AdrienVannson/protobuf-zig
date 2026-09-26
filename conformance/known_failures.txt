@@ -1,6 +1,136 @@
 # OneofFieldDuplicate and FieldNameDuplicateDifferentCasing* expect duplicate fields to be
 # rejected, but the ProtoJSON spec allows last-in-wins, which we implement. The tests are
 # fixed upstream in https://github.com/protocolbuffers/protobuf/pull/28903 (released in v37).
+# Editions tests: most failures are pending FeatureSet resolution (field presence, enum type,
+# repeated field encoding, message encoding), editions files are currently treated as proto2.
+Recommended.Editions_Proto2.JsonInput.FieldNameDuplicateDifferentCasing1 # Should have failed to parse, but didn't.
+Recommended.Editions_Proto2.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have failed to parse, but didn't.
+Recommended.Editions_Proto2.JsonInput.FieldNameExtension.Validator # JSON payload validation failed.
+Recommended.Editions_Proto2.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto2.JsonInput.IgnoreUnknownEnumStringValueInMapValue.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto2.JsonInput.IgnoreUnknownEnumStringValueInOptionalField.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto2.JsonInput.IgnoreUnknownEnumStringValueInRepeatedField.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto2.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\005\007\000\001\001\001\001\001\001, but got: \270\005\000\270\005\
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\005\007\000\001\001\001\001\001\001, but got: \270\005\000\270\005\
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.DOUBLE.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\005\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.DOUBLE.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\005\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\005\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\005\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.FIXED32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\005\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: \
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.FIXED32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\005\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: \
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.FIXED64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\005\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.FIXED64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\005\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.FLOAT.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\005\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.FLOAT.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\005\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.INT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\004\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\004\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.INT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \342\004\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.INT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \342\004\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SFIXED32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\005\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SFIXED32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\005\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SFIXED64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\005\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SFIXED64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\005\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\004\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\004\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SINT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\005\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.SINT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\005\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \352\004\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \352\004\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \362\004\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
+Recommended.Editions_Proto2.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \362\004\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
+Recommended.Editions_Proto3.JsonInput.FieldNameDuplicateDifferentCasing1 # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapValue.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto3.JsonInput.IgnoreUnknownEnumStringValueInOptionalField.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedField.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto3.JsonInput.IgnoreUnknownEnumStringValueInRepeatedPart.ProtobufOutput # Failed to parse input or produce output.
+Recommended.Editions_Proto3.JsonInput.ListValueDeepNesting200 # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.JsonInput.NullValueInOtherOneofNewFormat.Validator # JSON payload validation failed.
+Recommended.Editions_Proto3.JsonInput.NullValueInOtherOneofOldFormat.Validator # JSON payload validation failed.
+Recommended.Editions_Proto3.JsonInput.StructDeepNesting200 # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.JsonInput.ValueDeepNesting200 # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.ProtobufInput.RejectInvalidUtf8.String.MapKey # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.ProtobufInput.RejectInvalidUtf8.String.MapValue # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.ProtobufInput.RejectInvalidUtf8.String.Oneof # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.ProtobufInput.RejectInvalidUtf8.String.Repeated # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.ProtobufInput.RejectInvalidUtf8.String.Singular # Should have failed to parse, but didn't.
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: \330\002\000\330\002\
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: \330\002\000\330\002\
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: \330\002\000\330\002\
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.BOOL.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \332\002\007\000\001\001\001\001\001\001, but got: \330\002\000\330\002\
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.DOUBLE.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \322\002\040\000\000\000\000\000\000\000\000\232\231\231\231\231\231\271
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.ENUM.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.ENUM.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\003\030\000\001\002\377\377\377\377\377\377\377\377\377\001\377\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: \
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: \
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: \
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \252\002\014\000\000\000\000\071\060\000\000\377\377\377\377, but got: \
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FIXED64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \262\002\030\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FLOAT.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FLOAT.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FLOAT.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.FLOAT.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \312\002\024\000\000\000\000\315\314\314\075\055\044\252\003\375\377\177
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \372\001\054\000\271\140\271\140\271\140\377\377\377\377\007\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.INT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \202\002\026\000\271\140\377\377\377\377\377\377\377\377\177\200\200\200
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \272\002\020\000\000\000\000\071\060\000\000\377\377\377\177\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SFIXED64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \302\002\040\000\000\000\000\000\000\000\000\071\060\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \232\002\017\000\362\300\001\376\377\377\377\017\377\377\377\377\017\002
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.SINT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \242\002\030\000\362\300\001\376\377\377\377\377\377\377\377\377\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT32.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT32.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \212\002\031\000\271\140\271\140\271\140\377\377\377\377\017\000\001\377
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT64.PackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.DefaultOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
+Recommended.Editions_Proto3.ProtobufInput.ValidDataRepeated.UINT64.UnpackedInput.PackedOutput.ProtobufOutput # Output was not equivalent to reference message: Expect: \222\002\015\000\271\140\377\377\377\377\377\377\377\377\377\001, but go
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.BOOL[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \150\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.BYTES[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \172\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.DOUBLE[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \141\000\000\000\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.ENUM[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \250\001\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.FIXED32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \075\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.FIXED64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \101\000\000\000\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.FLOAT[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \135\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.INT32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \010\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.INT32[6].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \010\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.INT64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \020\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.SFIXED32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \115\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.SFIXED64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \121\000\000\000\000\000\000\000\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.SINT32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \050\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.SINT64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \060\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.STRING[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \162\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.UINT32[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \030\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.UINT32[5].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \030\000
+Recommended.Editions_Proto3.ProtobufInput.ValidDataScalarBinary.UINT64[0].ProtobufOutput # Output was not equivalent to reference message: Expect: , but got: \040\000
+Recommended.Editions.ProtobufInput.RejectInvalidUtf8.String.Extension # Should have failed to parse, but didn't.
 Recommended.Proto2.JsonInput.FieldNameDuplicateDifferentCasing1 # Should have failed to parse, but didn't.
 Recommended.Proto2.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have failed to parse, but didn't.
 Recommended.Proto2.JsonInput.FieldNameExtension.Validator # JSON payload validation failed.
@@ -26,5 +156,12 @@ Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.MapValue # Should have
 Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Oneof # Should have failed to parse, but didn't.
 Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Repeated # Should have failed to parse, but didn't.
 Recommended.Proto3.ProtobufInput.RejectInvalidUtf8.String.Singular # Should have failed to parse, but didn't.
+Required.Editions_Proto2.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
+Required.Editions_Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
+Required.Editions_Proto3.JsonInput.SkipsDefaultPrimitive.Validator # JSON payload validation failed.
+Required.Editions.ProtobufInput.ValidDelimitedField.GroupLike.JsonOutput # Failed to parse input or produce output.
+Required.Editions.ProtobufInput.ValidDelimitedField.GroupLike.ProtobufOutput # Failed to parse input or produce output.
+Required.Editions.ProtobufInput.ValidDelimitedField.NotGroupLike.JsonOutput # Failed to parse input or produce output.
+Required.Editions.ProtobufInput.ValidDelimitedField.NotGroupLike.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto2.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
