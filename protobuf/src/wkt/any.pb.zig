@@ -22,6 +22,18 @@ pub const Any = struct {
         _codegen.deinit_message(self, allocator);
     }
 
+    pub fn pack(allocator: std.mem.Allocator, msg: anytype) !@This() {
+        return _codegen.any.pack(@This(), allocator, msg);
+    }
+
+    pub fn is(self: @This(), comptime T: type) bool {
+        return _codegen.any.is(self, T);
+    }
+
+    pub fn unpack(self: @This(), comptime T: type, allocator: std.mem.Allocator) !T {
+        return _codegen.any.unpack(self, T, allocator);
+    }
+
     pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
 
     pub fn _desc() !*const _protobuf.DescMessage {
