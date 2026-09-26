@@ -162,15 +162,9 @@ fn generateEnum(
 
     // allow_alias enums declare multiple names for the same number. Zig rejects duplicate
     // enum tag values, so only the first occurrence of each number becomes a field; the
-    // aliases are emitted as declarations referring to it.
-    var has_alias = false;
+    // aliases are emitted as declarations.
     for (e.values, 0..) |*v, i| {
-        if (e.value.get(v.number)) |first_idx| {
-            if (first_idx != i) {
-                has_alias = true;
-                continue;
-            }
-        }
+        if (e.value.get(v.number).? != i) continue;
         const safe_value_name = try escapeZigKeyword(f.alloc, v.local_name);
         defer f.alloc.free(safe_value_name);
         try f.writeLine(.{ safe_value_name, " = ", v.number, "," });
@@ -178,16 +172,13 @@ fn generateEnum(
 
     try f.writeLine("_,");
 
-    if (has_alias) {
+    if (e.value.count() != e.values.len) {
         try f.emptyLine();
         for (e.values, 0..) |*v, i| {
-            const first_idx = e.value.get(v.number) orelse continue;
-            if (first_idx == i) continue;
+            if (e.value.get(v.number).? == i) continue;
             const safe_value_name = try escapeZigKeyword(f.alloc, v.local_name);
             defer f.alloc.free(safe_value_name);
-            const safe_target_name = try escapeZigKeyword(f.alloc, e.values[first_idx].local_name);
-            defer f.alloc.free(safe_target_name);
-            try f.writeLine(.{ "pub const ", safe_value_name, ": @This() = .", safe_target_name, ";" });
+            try f.writeLine(.{ "pub const ", safe_value_name, ": @This() = @enumFromInt(", v.number, ");" });
         }
     }
 
