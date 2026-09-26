@@ -80,4 +80,5 @@ pub fn main(init: std.process.Init) !void {
 test {
     _ = codegen;
     _ = @import("generated_file.zig");
+    _ = @import("wkt_methods/any.zig");
 }

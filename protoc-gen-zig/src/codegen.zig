@@ -137,6 +137,11 @@ fn generateMessage(
     try f.emptyLine();
     try generateMessageDeinit(f);
 
+    if (std.mem.eql(u8, msg.fully_qualified_proto_name, "google.protobuf.Any")) {
+        try f.emptyLine();
+        try generateInjectedMethods(f, @embedFile("wkt_methods/any.zig"));
+    }
+
     try f.emptyLine();
     try generateMessageMetadata(f, path);
 
@@ -193,6 +198,36 @@ fn generateMessageDeinit(f: *GeneratedFile) !void {
     try f.writeLine("_codegen.deinit_message(self, allocator);");
     f.unindent();
     try f.writeLine("}");
+}
+
+/// Emits the methods defined between the `// <!-- include -->` and
+/// `// <!-- /include -->` markers of `source`, a Zig file declaring them in a
+/// placeholder struct (see `wkt_methods/`). The markers' indentation is
+/// stripped from each line.
+fn generateInjectedMethods(f: *GeneratedFile, comptime source: []const u8) !void {
+    const block = comptime blk: {
+        const begin = std.mem.indexOf(u8, source, "// <!-- include -->") orelse
+            @compileError("missing `// <!-- include -->` marker");
+        const end = std.mem.indexOfPos(u8, source, begin, "// <!-- /include -->") orelse
+            @compileError("missing `// <!-- /include -->` marker");
+        const line_start = std.mem.lastIndexOfScalar(u8, source[0..begin], '\n').? + 1;
+        const body_start = std.mem.indexOfScalarPos(u8, source, begin, '\n').? + 1;
+        break :blk .{
+            .indent = begin - line_start,
+            .body = source[body_start..end],
+        };
+    };
+
+    var lines = std.mem.splitScalar(u8, std.mem.trimEnd(u8, block.body, " \r\n"), '\n');
+    while (lines.next()) |raw_line| {
+        // Tolerate CRLF checkouts.
+        const line = std.mem.trimEnd(u8, raw_line, "\r");
+        if (line.len == 0) {
+            try f.emptyLine();
+        } else {
+            try f.writeLine(line[block.indent..]);
+        }
+    }
 }
 
 fn generateMessageMetadata(
