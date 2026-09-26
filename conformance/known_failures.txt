@@ -29,4 +29,3 @@ Required.Proto3.JsonInput.EnumFieldWithAliasLowerCase.ProtobufOutput # Failed to
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.JsonOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.EnumFieldWithAliasUseAlias.ProtobufOutput # Failed to parse input or produce output.
 Required.Proto3.JsonInput.OneofFieldDuplicate # Should have failed to parse, but didn't.
-Required.Proto3.ProtobufInput.BadTag_OverlongVarint # Should have failed to parse, but didn't.
