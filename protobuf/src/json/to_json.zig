@@ -2,6 +2,7 @@ const std = @import("std");
 const field_access = @import("../_codegen/field_access.zig");
 const metadata = @import("../_codegen/metadata.zig");
 const Registry = @import("../registry.zig").Registry;
+const wkt_time = @import("wkt_time.zig");
 
 const ScalarType = metadata.ScalarType;
 const FieldMetadata = metadata.FieldMetadata;
@@ -220,6 +221,18 @@ fn writeWktFieldMask(ctx: *const JsonContext, msg: anytype) !void {
     try ctx.json_writter.write(out.items);
 }
 
+fn writeWktTimestamp(ctx: *const JsonContext, msg: anytype) !void {
+    // Longest output is "9999-12-31T23:59:59.999999999Z" (30 bytes).
+    var buf: [40]u8 = undefined;
+    try ctx.json_writter.write(try wkt_time.formatTimestamp(&buf, msg.seconds, msg.nanos));
+}
+
+fn writeWktDuration(ctx: *const JsonContext, msg: anytype) !void {
+    // Longest output is "-315576000000.999999999s" (24 bytes).
+    var buf: [40]u8 = undefined;
+    try ctx.json_writter.write(try wkt_time.formatDuration(&buf, msg.seconds, msg.nanos));
+}
+
 fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     const name = comptime @TypeOf(msg)._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
@@ -276,6 +289,14 @@ fn tryWriteWkt(ctx: *const JsonContext, msg: anytype) !bool {
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.FieldMask")) {
         try writeWktFieldMask(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Timestamp")) {
+        try writeWktTimestamp(ctx, msg);
+        return true;
+    }
+    if (comptime std.mem.eql(u8, name, "google.protobuf.Duration")) {
+        try writeWktDuration(ctx, msg);
         return true;
     }
     return false;
