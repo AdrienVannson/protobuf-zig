@@ -83,7 +83,7 @@ run-example:
 
 # Regenerate README.md code examples from example/ sources
 sync-readme:
-    python3 tools/sync_readme.py
+    python3 tools/sync_readme.py --protobuf-version {{protobuf_version}}
 
 # Download protoc (all platforms)
 setup version=protobuf_version:
