@@ -29,13 +29,7 @@ pub fn build(b: *std.Build) void {
     // Tests
     const protobuf_tests = b.addTest(.{ .root_module = protobuf_mod });
 
-    const plugin_test_mod = b.createModule(.{
-        .root_source_file = b.path("protoc-gen-zig/src/generated_file.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-    plugin_test_mod.addImport("protobuf", protobuf_mod);
-    const plugin_tests = b.addTest(.{ .root_module = plugin_test_mod });
+    const plugin_tests = b.addTest(.{ .root_module = plugin_mod });
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&b.addRunArtifact(protobuf_tests).step);
