@@ -48,8 +48,8 @@ pub fn main(init: std.process.Init) !void {
     // Build response
     var response: plugin.CodeGeneratorResponse = .{
         .supported_features = @intFromEnum(plugin.CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL) | @intFromEnum(plugin.CodeGeneratorResponse.Feature.FEATURE_SUPPORTS_EDITIONS),
-        .minimum_edition = 998, // EDITION_PROTO_2, TODO use constant
-        .maximum_edition = 1000, // EDITION_2023, TODO use constant
+        .minimum_edition = @intFromEnum(protobuf.wkt.descriptor.Edition.EDITION_PROTO2),
+        .maximum_edition = @intFromEnum(protobuf.wkt.descriptor.Edition.EDITION_2023),
     };
     defer response.deinit(alloc);
 
