@@ -82,14 +82,14 @@ fn floatFromJson(val: std.json.Value, comptime T: type) !T {
     }
 }
 
-fn stringFromJson(val: std.json.Value, allocator: std.mem.Allocator) ![]const u8 {
+fn stringFromJson(allocator: std.mem.Allocator, val: std.json.Value) ![]const u8 {
     return switch (val) {
         .string => |s| try allocator.dupe(u8, s),
         else => return error.InvalidJson,
     };
 }
 
-fn bytesFromJson(val: std.json.Value, allocator: std.mem.Allocator) ![]const u8 {
+fn bytesFromJson(allocator: std.mem.Allocator, val: std.json.Value) ![]const u8 {
     const s = switch (val) {
         .string => |s| s,
         else => return error.InvalidJson,
@@ -138,7 +138,7 @@ fn enumFromJson(comptime EnumType: type, val: std.json.Value) !EnumType {
     }
 }
 
-fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value, allocator: std.mem.Allocator) !metadata.scalarZigType(scalar) {
+fn scalarFromJson(comptime scalar: ScalarType, allocator: std.mem.Allocator, val: std.json.Value) !metadata.scalarZigType(scalar) {
     switch (scalar) {
         .int32, .sint32, .sfixed32, .uint32, .fixed32, .int64, .sint64, .sfixed64, .uint64, .fixed64 => {
             return intFromJson(val, metadata.scalarZigType(scalar));
@@ -153,36 +153,36 @@ fn scalarFromJson(comptime scalar: ScalarType, val: std.json.Value, allocator: s
             return floatFromJson(val, f64);
         },
         .string => {
-            return stringFromJson(val, allocator);
+            return stringFromJson(allocator, val);
         },
         .bytes => {
-            return bytesFromJson(val, allocator);
+            return bytesFromJson(allocator, val);
         },
     }
 }
 
 fn readScalarField(
     msg: anytype,
+    allocator: std.mem.Allocator,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
-    allocator: std.mem.Allocator,
 ) !void {
     if (val == .null) {
-        field_access.clearField(msg, field_meta, allocator);
+        field_access.clearField(msg, allocator, field_meta);
     } else {
-        const v = try scalarFromJson(field_meta.kind.scalar.scalar, val, allocator);
+        const v = try scalarFromJson(field_meta.kind.scalar.scalar, allocator, val);
         field_access.setField(msg, field_meta, v, allocator);
     }
 }
 
 fn readEnumField(
     msg: anytype,
+    allocator: std.mem.Allocator,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
-    allocator: std.mem.Allocator,
 ) !void {
     if (isResetSentinelNullValue(msg, field_meta, val)) {
-        field_access.clearField(msg, field_meta, allocator);
+        field_access.clearField(msg, allocator, field_meta);
         return;
     }
     const EnumType = field_access.FieldPayloadType(std.meta.Child(@TypeOf(msg)), field_meta);
@@ -211,7 +211,7 @@ fn isResetSentinelNullValue(
     };
 }
 
-fn readWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !void {
+fn readWktValue(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value, registry: *const Registry) !void {
     const KindUnion = @typeInfo(@TypeOf(msg.kind)).optional.child;
     const StructType = std.meta.Child(@FieldType(KindUnion, "struct_value"));
     const ListValueType = std.meta.Child(@FieldType(KindUnion, "list_value"));
@@ -225,20 +225,20 @@ fn readWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator,
         .array => {
             const lv = try allocator.create(ListValueType);
             lv.* = .{};
-            try readWktListValue(lv, val, allocator, registry);
+            try readWktListValue(lv, allocator, val, registry);
             msg.kind = .{ .list_value = lv };
         },
         .object => {
             const sv = try allocator.create(StructType);
             sv.* = .{};
-            try readWktStruct(sv, val, allocator, registry);
+            try readWktStruct(sv, allocator, val, registry);
             msg.kind = .{ .struct_value = sv };
         },
         else => return error.InvalidJson,
     }
 }
 
-fn readWktStruct(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !void {
+fn readWktStruct(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value, registry: *const Registry) !void {
     const obj = switch (val) {
         .object => |o| o,
         else => return error.InvalidJson,
@@ -249,12 +249,12 @@ fn readWktStruct(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator
         const key = try allocator.dupe(u8, entry.key_ptr.*);
         const v = try allocator.create(ValueType);
         v.* = .{};
-        try readMessage(v, entry.value_ptr.*, allocator, registry);
+        try readMessage(v, allocator, entry.value_ptr.*, registry);
         try msg.fields.put(allocator, key, v);
     }
 }
 
-fn readWktListValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !void {
+fn readWktListValue(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value, registry: *const Registry) !void {
     const arr = switch (val) {
         .array => |a| a,
         else => return error.InvalidJson,
@@ -263,12 +263,12 @@ fn readWktListValue(msg: anytype, val: std.json.Value, allocator: std.mem.Alloca
     for (arr.items) |item| {
         const v = try allocator.create(ValueType);
         v.* = .{};
-        try readMessage(v, item, allocator, registry);
+        try readMessage(v, allocator, item, registry);
         try msg.values.append(allocator, v);
     }
 }
 
-fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !void {
+fn readWktAny(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value, registry: *const Registry) !void {
     const obj = switch (val) {
         .object => |o| o,
         else => return error.InvalidJson,
@@ -315,13 +315,13 @@ fn readWktAny(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, r
 
     // TODO: see if we can avoid going back to string values
     defer allocator.free(inner_json);
-    try mt.fromJson(ptr, inner_json, allocator, registry);
+    try mt.fromJson(ptr, allocator, inner_json, registry);
 
     msg.type_url = try allocator.dupe(u8, type_url);
-    msg.value = try mt.toBinary(ptr, allocator);
+    msg.value = try mt.toBinary(allocator, ptr);
 }
 
-fn readWktFieldMask(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator) !void {
+fn readWktFieldMask(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value) !void {
     const s = switch (val) {
         .string => |s| s,
         else => return error.InvalidJson,
@@ -368,7 +368,7 @@ fn readWktDuration(msg: anytype, val: std.json.Value) !void {
     msg.nanos = parsed.nanos;
 }
 
-fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !bool {
+fn tryReadWktValue(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value, registry: *const Registry) !bool {
     const name = comptime std.meta.Child(@TypeOf(msg))._metadata.fully_qualified_proto_name;
     if (comptime std.mem.eql(u8, name, "google.protobuf.DoubleValue")) {
         msg.value = try floatFromJson(val, f64);
@@ -399,31 +399,31 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.StringValue")) {
-        msg.value = try stringFromJson(val, allocator);
+        msg.value = try stringFromJson(allocator, val);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.BytesValue")) {
-        msg.value = try bytesFromJson(val, allocator);
+        msg.value = try bytesFromJson(allocator, val);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Value")) {
-        try readWktValue(msg, val, allocator, registry);
+        try readWktValue(msg, allocator, val, registry);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Struct")) {
-        try readWktStruct(msg, val, allocator, registry);
+        try readWktStruct(msg, allocator, val, registry);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.ListValue")) {
-        try readWktListValue(msg, val, allocator, registry);
+        try readWktListValue(msg, allocator, val, registry);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Any")) {
-        try readWktAny(msg, val, allocator, registry);
+        try readWktAny(msg, allocator, val, registry);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.FieldMask")) {
-        try readWktFieldMask(msg, val, allocator);
+        try readWktFieldMask(msg, allocator, val);
         return true;
     }
     if (comptime std.mem.eql(u8, name, "google.protobuf.Timestamp")) {
@@ -437,19 +437,19 @@ fn tryReadWktValue(msg: anytype, val: std.json.Value, allocator: std.mem.Allocat
     return false;
 }
 
-fn tryReadWkt(msg: anytype, val: std.json.Value, allocator: std.mem.Allocator, registry: *const Registry) !bool {
-    return try tryReadWktValue(msg, val, allocator, registry);
+fn tryReadWkt(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value, registry: *const Registry) !bool {
+    return try tryReadWktValue(msg, allocator, val, registry);
 }
 
 fn readMessageField(
     msg: anytype,
+    allocator: std.mem.Allocator,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
-    allocator: std.mem.Allocator,
     registry: *const Registry,
 ) !void {
     if (isResetSentinelNullValue(msg, field_meta, val)) {
-        field_access.clearField(msg, field_meta, allocator);
+        field_access.clearField(msg, allocator, field_meta);
         return;
     }
     const existing = field_access.getField(msg.*, field_meta);
@@ -461,18 +461,18 @@ fn readMessageField(
         break :blk p;
     };
 
-    try readMessage(child_ptr, val, allocator, registry);
+    try readMessage(child_ptr, allocator, val, registry);
 }
 
 fn readListField(
     msg: anytype,
+    allocator: std.mem.Allocator,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
-    allocator: std.mem.Allocator,
     registry: *const Registry,
 ) !void {
     if (val == .null) {
-        field_access.clearField(msg, field_meta, allocator);
+        field_access.clearField(msg, allocator, field_meta);
         return;
     }
     const arr = switch (val) {
@@ -485,7 +485,7 @@ fn readListField(
     for (arr.items) |item| {
         switch (comptime field_meta.kind.list.element) {
             .scalar => |sc| {
-                const v = try scalarFromJson(sc, item, allocator);
+                const v = try scalarFromJson(sc, allocator, item);
                 try list_ptr.append(allocator, v);
             },
             .message => {
@@ -493,7 +493,7 @@ fn readListField(
                 const p = try allocator.create(ChildMsg);
                 p.* = .{};
                 try list_ptr.append(allocator, p);
-                try readMessage(p, item, allocator, registry);
+                try readMessage(p, allocator, item, registry);
             },
             .enum_type => {
                 const EnumType = std.meta.Child(@TypeOf(list_ptr.items));
@@ -506,13 +506,13 @@ fn readListField(
 
 fn readMapField(
     msg: anytype,
+    allocator: std.mem.Allocator,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
-    allocator: std.mem.Allocator,
     registry: *const Registry,
 ) !void {
     if (val == .null) {
-        field_access.clearField(msg, field_meta, allocator);
+        field_access.clearField(msg, allocator, field_meta);
         return;
     }
     const obj = switch (val) {
@@ -537,7 +537,7 @@ fn readMapField(
 
         switch (comptime field_meta.kind.map.value) {
             .scalar => |sc| {
-                const v = try scalarFromJson(sc, entry.value_ptr.*, allocator);
+                const v = try scalarFromJson(sc, allocator, entry.value_ptr.*);
                 try map_ptr.put(allocator, key, v);
             },
             .enum_type => {
@@ -548,7 +548,7 @@ fn readMapField(
                 const Child = std.meta.Child(ValueType);
                 const p = try allocator.create(Child);
                 p.* = .{};
-                try readMessage(p, entry.value_ptr.*, allocator, registry);
+                try readMessage(p, allocator, entry.value_ptr.*, registry);
                 try map_ptr.put(allocator, key, p);
             },
         }
@@ -557,29 +557,29 @@ fn readMapField(
 
 fn readField(
     msg: anytype,
+    allocator: std.mem.Allocator,
     comptime field_meta: FieldMetadata,
     val: std.json.Value,
-    allocator: std.mem.Allocator,
     registry: *const Registry,
 ) !void {
     switch (comptime field_meta.kind) {
-        .scalar => try readScalarField(msg, field_meta, val, allocator),
-        .enum_field => try readEnumField(msg, field_meta, val, allocator),
-        .message_field => try readMessageField(msg, field_meta, val, allocator, registry),
-        .list => try readListField(msg, field_meta, val, allocator, registry),
-        .map => try readMapField(msg, field_meta, val, allocator, registry),
+        .scalar => try readScalarField(msg, allocator, field_meta, val),
+        .enum_field => try readEnumField(msg, allocator, field_meta, val),
+        .message_field => try readMessageField(msg, allocator, field_meta, val, registry),
+        .list => try readListField(msg, allocator, field_meta, val, registry),
+        .map => try readMapField(msg, allocator, field_meta, val, registry),
     }
 }
 
 fn readMessage(
     msg: anytype,
-    json_value: std.json.Value,
     allocator: std.mem.Allocator,
+    json_value: std.json.Value,
     registry: *const Registry,
 ) anyerror!void {
     const T = std.meta.Child(@TypeOf(msg));
 
-    if (try tryReadWkt(msg, json_value, allocator, registry)) return;
+    if (try tryReadWkt(msg, allocator, json_value, registry)) return;
 
     const obj = switch (json_value) {
         .object => |o| o,
@@ -594,7 +594,7 @@ fn readMessage(
             if (std.mem.eql(u8, entry.key_ptr.*, field_meta.json_name) or
                 std.mem.eql(u8, entry.key_ptr.*, field_meta.proto_name))
             {
-                try readField(msg, field_meta, val, allocator, registry);
+                try readField(msg, allocator, field_meta, val, registry);
             }
         }
 
@@ -602,11 +602,11 @@ fn readMessage(
     }
 }
 
-pub fn from_json(msg: anytype, json: []const u8, allocator: std.mem.Allocator, registry: *const Registry) !void {
+pub fn fromJson(msg: anytype, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) !void {
     const parsed = try std.json.parseFromSlice(std.json.Value, allocator, json, .{
         .parse_numbers = false,
     });
     defer parsed.deinit();
 
-    try readMessage(msg, parsed.value, allocator, registry);
+    try readMessage(msg, allocator, parsed.value, registry);
 }

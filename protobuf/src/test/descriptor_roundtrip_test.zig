@@ -1,13 +1,13 @@
 const std = @import("std");
-const from_binary = @import("../wire/from_binary.zig").from_binary;
+const fromBinary = @import("../wire/from_binary.zig").fromBinary;
 const example = @import("../testgen/example.pb.zig");
 const FileDescriptorProto = @import("../wkt/descriptor.pb.zig").FileDescriptorProto;
 
-test "example.pb.zig DESCRIPTOR_BYTES decodes file name" {
-    const alloc = std.testing.allocator;
+test "example.pb.zig _descriptor_bytes decodes file name" {
+    const allocator = std.testing.allocator;
     var msg: FileDescriptorProto = .{};
-    defer msg.deinit(alloc);
+    defer msg.deinit(allocator);
 
-    try from_binary(&msg, example.DESCRIPTOR_BYTES, alloc);
+    try fromBinary(&msg, allocator, example._descriptor_bytes);
     try std.testing.expectEqualStrings("example.proto", msg.name.?);
 }

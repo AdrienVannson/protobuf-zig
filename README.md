@@ -39,7 +39,7 @@ const person = example.Person{
     .email = "alice@example.com",
 };
 
-const encoded = try protobuf.to_binary(allocator, person);
+const encoded = try protobuf.toBinary(allocator, person);
 defer allocator.free(encoded);
 std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
 ```
@@ -70,7 +70,7 @@ std.debug.print("type_url: {s}\n", .{payload.type_url}); // type.googleapis.com/
 
 // Check the type held by the Any, and unpack it
 if (payload.is(example.Person)) {
-    var unpacked = try payload.unpack(example.Person, allocator);
+    var unpacked = try payload.unpack(allocator, example.Person);
     defer unpacked.deinit(allocator);
     std.debug.print("unpacked: {s}, {d}, {s}\n", .{ unpacked.name, unpacked.age, unpacked.email });
 }

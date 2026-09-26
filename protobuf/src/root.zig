@@ -24,10 +24,10 @@ pub const DescField = descriptor.DescField;
 pub const DescExtensionKind = descriptor.DescExtensionKind;
 pub const DescExtension = descriptor.DescExtension;
 
-pub const to_binary = @import("wire/to_binary.zig").to_binary;
-pub const from_binary = @import("wire/from_binary.zig").from_binary;
-pub const to_json = @import("json/to_json.zig").to_json;
-pub const from_json = @import("json/from_json.zig").from_json;
+pub const toBinary = @import("wire/to_binary.zig").toBinary;
+pub const fromBinary = @import("wire/from_binary.zig").fromBinary;
+pub const toJson = @import("json/to_json.zig").toJson;
+pub const fromJson = @import("json/from_json.zig").fromJson;
 
 pub const UnknownField = @import("unknown_field.zig").UnknownField;
 
@@ -39,11 +39,11 @@ pub const wkt = @import("wkt.zig");
 /// Code-generation helpers called by generated `.pb.zig` files.
 /// Not intended for direct use by end users.
 pub const _codegen = struct {
-    pub const deinit_message = @import("_codegen/message_deinit.zig").deinit_message;
+    pub const deinitMessage = @import("_codegen/message_deinit.zig").deinitMessage;
     pub const any = @import("_codegen/wkt/any.zig");
     pub const metadata = @import("_codegen/metadata.zig");
     pub const field_access = @import("_codegen/field_access.zig");
-    pub const read_message_metadata = @import("_codegen/read_metadata.zig").read_message_metadata;
+    pub const readMessageMetadata = @import("_codegen/read_metadata.zig").readMessageMetadata;
     pub const descFileFromProto = @import("_codegen/desc_file_from_proto.zig").descFileFromProto;
     pub const OwnedDescFile = @import("_codegen/desc_file_from_proto.zig").OwnedDescFile;
     pub const FileDescFn = @import("_codegen/file_desc.zig").FileDescFn;
