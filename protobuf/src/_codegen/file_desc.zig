@@ -1,5 +1,5 @@
 //! Runtime helpers backing the `_fileDesc` / `_desc` accessors emitted in
-//! generated `.pb.zig` files. They lazily parse the `DESCRIPTOR_BYTES` embedded
+//! generated `.pb.zig` files. They lazily parse the `_descriptor_bytes` embedded
 //! in each file into a fully-linked `DescFile` graph and cache it for the
 //! lifetime of the process. The caching mechanism is thread-safe.
 //!
@@ -29,7 +29,7 @@ fn Cache(comptime File: type) type {
 }
 
 /// Lazily build (and cache, process-lifetime) the `DescFile` for the generated
-/// file `File` from its `DESCRIPTOR_BYTES`. `dep_accessors` lists the `_fileDesc`
+/// file `File` from its `_descriptor_bytes`. `dep_accessors` lists the `_fileDesc`
 /// accessor of every direct import so cross-file type references resolve.
 ///
 /// `File` is used only as a unique key for the per-file static cache (pass
@@ -51,7 +51,7 @@ pub fn fileDesc(
     }
     const allocator = arena.allocator();
 
-    const desc_file = try build_desc_file(descriptor_bytes, dep_accessors, allocator);
+    const desc_file = try buildDescFile(allocator, descriptor_bytes, dep_accessors);
 
     // TODO: check values for success_order and failure_order
     if (C.value.cmpxchgStrong(null, desc_file, .release, .acquire)) |winner| {
@@ -63,10 +63,10 @@ pub fn fileDesc(
     return desc_file;
 }
 
-fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDescFn, allocator: std.mem.Allocator) !*const DescFile {
+fn buildDescFile(allocator: std.mem.Allocator, descriptor_bytes: []const u8, dep_accessors: []const FileDescFn) !*const DescFile {
     const proto = try allocator.create(descriptor.FileDescriptorProto);
     proto.* = .{};
-    try protobuf.from_binary(proto, descriptor_bytes, allocator);
+    try protobuf.fromBinary(proto, allocator, descriptor_bytes);
 
     // name -> *const DescFile
     var deps = std.StringHashMap(*const DescFile).init(allocator);
@@ -77,7 +77,7 @@ fn build_desc_file(descriptor_bytes: []const u8, dep_accessors: []const FileDesc
 
     // TODO: descFileFromProto is already creating an arena, so we have two arenas each time.
     // Re-consider this after reviewing descFileFromProto.
-    const owned = (try desc_file_from_proto.descFileFromProto(proto, &deps, allocator));
+    const owned = (try desc_file_from_proto.descFileFromProto(allocator, proto, &deps));
     return owned.file;
 }
 

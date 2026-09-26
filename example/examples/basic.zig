@@ -12,7 +12,7 @@ pub fn main(init: std.process.Init) !void {
         .email = "alice@example.com",
     };
 
-    const encoded = try protobuf.to_binary(allocator, person);
+    const encoded = try protobuf.toBinary(allocator, person);
     defer allocator.free(encoded);
     std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
     // <!-- /include -->

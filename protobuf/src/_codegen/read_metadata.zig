@@ -14,38 +14,51 @@ const ScalarType = metadata.ScalarType;
 const DefaultValue = metadata.DefaultValue;
 const SupportedFieldPresence = metadata.SupportedFieldPresence;
 
-// Hard-coded field numbers from descriptor.proto
-const FILE_MESSAGE_TYPE = 4; // FileDescriptorProto.message_type
-const FILE_PACKAGE = 2; // FileDescriptorProto.package
-const FILE_SYNTAX = 12; // FileDescriptorProto.syntax
-const FILE_EDITION = 14; // FileDescriptorProto.edition
-const MSG_NAME = 1; // DescriptorProto.name
-const MSG_FIELD = 2; // DescriptorProto.field
-const MSG_NESTED_TYPE = 3; // DescriptorProto.nested_type
-const MSG_OPTIONS = 7; // DescriptorProto.options
-const MSG_ONEOF_DECL = 8; // DescriptorProto.oneof_decl
-const MSGOPT_MAP_ENTRY = 7; // MessageOptions.map_entry
-const FIELD_NAME = 1; // FieldDescriptorProto.name
-const FIELD_NUMBER = 3; // FieldDescriptorProto.number
-const FIELD_LABEL = 4; // FieldDescriptorProto.label
-const FIELD_TYPE = 5; // FieldDescriptorProto.type
-const FIELD_TYPE_NAME = 6; // FieldDescriptorProto.type_name
-const FIELD_DEFAULT_VALUE = 7; // FieldDescriptorProto.default_value
-const FIELD_OPTIONS = 8; // FieldDescriptorProto.options
-const FIELD_ONEOF_INDEX = 9; // FieldDescriptorProto.oneof_index
-const FIELD_JSON_NAME = 10; // FieldDescriptorProto.json_name
-const FIELD_PROTO3_OPTIONAL = 17; // FieldDescriptorProto.proto3_optional
-const FOPT_PACKED = 2; // FieldOptions.packed
+// Hard-coded field numbers and enum values from descriptor.proto
+const FileDescriptorProto = struct {
+    const package = 2;
+    const message_type = 4;
+    const syntax = 12;
+    const edition = 14;
+};
+const DescriptorProto = struct {
+    const name = 1;
+    const field = 2;
+    const nested_type = 3;
+    const options = 7;
+    const oneof_decl = 8;
+};
+const MessageOptions = struct {
+    const map_entry = 7;
+};
+const FieldDescriptorProto = struct {
+    const name = 1;
+    const number = 3;
+    const label = 4;
+    const @"type" = 5;
+    const type_name = 6;
+    const default_value = 7;
+    const options = 8;
+    const oneof_index = 9;
+    const json_name = 10;
+    const proto3_optional = 17;
 
-// FieldDescriptorProto.Type values.
-const TYPE_GROUP = 10;
-const TYPE_MESSAGE = 11;
-const TYPE_ENUM = 14;
-// FieldDescriptorProto.Label values.
-const LABEL_REQUIRED = 2;
-const LABEL_REPEATED = 3;
-// Edition.EDITION_PROTO3 value.
-const EDITION_PROTO3 = 999;
+    const Type = struct {
+        const group = 10;
+        const message = 11;
+        const @"enum" = 14;
+    };
+    const Label = struct {
+        const required = 2;
+        const repeated = 3;
+    };
+};
+const FieldOptions = struct {
+    const @"packed" = 2;
+};
+const Edition = struct {
+    const proto3 = 999;
+};
 
 /// Parse `bytes` (a serialized `FileDescriptorProto`) at comptime and return the
 /// metadata for the message addressed by `path`.
@@ -55,7 +68,7 @@ const EDITION_PROTO3 = 999;
 /// count only real messages — synthetic map-entry messages are skipped, matching
 /// the code generator's message walk. So `.{2}` is the 3rd top-level message and
 /// `.{0, 1}` is `message[0]`'s 2nd (non-map-entry) nested message.
-pub fn read_message_metadata(comptime bytes: []const u8, comptime path: anytype) MessageMetadata {
+pub fn readMessageMetadata(comptime bytes: []const u8, comptime path: anytype) MessageMetadata {
     @setEvalBranchQuota(100_000_000);
     const is_proto3 = fileIsProto3(bytes);
     const msg_bytes = navigateToMessage(bytes, path);
@@ -99,7 +112,7 @@ fn skipPayload(comptime bytes: []const u8, comptime pos: usize, comptime wire: u
             const v = readVarint(bytes, pos);
             break :blk v.pos + @as(usize, @intCast(v.value));
         },
-        else => @compileError("read_message_metadata: unexpected wire type in descriptor bytes"),
+        else => @compileError("readMessageMetadata: unexpected wire type in descriptor bytes"),
     };
 }
 
@@ -161,14 +174,14 @@ fn collectBytes(comptime bytes: []const u8, comptime field_no: u32) []const []co
 
 fn fileIsProto3(comptime file_bytes: []const u8) bool {
     // Mirrors descFileFromProto: edition wins over syntax when present.
-    if (getVarint(file_bytes, FILE_EDITION)) |ed| return ed == EDITION_PROTO3;
-    if (getBytes(file_bytes, FILE_SYNTAX)) |syntax| return std.mem.eql(u8, syntax, "proto3");
+    if (getVarint(file_bytes, FileDescriptorProto.edition)) |ed| return ed == Edition.proto3;
+    if (getBytes(file_bytes, FileDescriptorProto.syntax)) |syntax| return std.mem.eql(u8, syntax, "proto3");
     return false;
 }
 
 fn isMapEntry(comptime msg_bytes: []const u8) bool {
-    const opts = getBytes(msg_bytes, MSG_OPTIONS) orelse return false;
-    return (getVarint(opts, MSGOPT_MAP_ENTRY) orelse 0) != 0;
+    const opts = getBytes(msg_bytes, DescriptorProto.options) orelse return false;
+    return (getVarint(opts, MessageOptions.map_entry) orelse 0) != 0;
 }
 
 /// Return the bytes of the `n`-th non-map-entry message under `field_no`.
@@ -190,18 +203,18 @@ fn nthRealMessage(comptime bytes: []const u8, comptime field_no: u32, comptime n
             }
         } else pos = skipPayload(bytes, pos, tg.wire);
     }
-    @compileError("read_message_metadata: message path index out of range");
+    @compileError("readMessageMetadata: message path index out of range");
 }
 
 fn buildFqn(comptime file_bytes: []const u8, comptime path: anytype) []const u8 {
-    comptime var fqn: []const u8 = getBytes(file_bytes, FILE_PACKAGE) orelse "";
+    comptime var fqn: []const u8 = getBytes(file_bytes, FileDescriptorProto.package) orelse "";
     comptime var cur: []const u8 = file_bytes;
     comptime var depth: usize = 0;
     inline for (path) |idx| {
-        const field_no: u32 = if (depth == 0) FILE_MESSAGE_TYPE else MSG_NESTED_TYPE;
+        const field_no: u32 = if (depth == 0) FileDescriptorProto.message_type else DescriptorProto.nested_type;
         cur = nthRealMessage(cur, field_no, idx);
-        const msg_name: []const u8 = getBytes(cur, MSG_NAME) orelse
-            @compileError("read_message_metadata: message descriptor missing name field");
+        const msg_name: []const u8 = getBytes(cur, DescriptorProto.name) orelse
+            @compileError("readMessageMetadata: message descriptor missing name field");
         fqn = if (fqn.len > 0)
             std.fmt.comptimePrint("{s}.{s}", .{ fqn, msg_name })
         else
@@ -215,7 +228,7 @@ fn navigateToMessage(comptime file_bytes: []const u8, comptime path: anytype) []
     var cur: []const u8 = file_bytes;
     comptime var depth: usize = 0;
     inline for (path) |idx| {
-        const field_no: u32 = if (depth == 0) FILE_MESSAGE_TYPE else MSG_NESTED_TYPE;
+        const field_no: u32 = if (depth == 0) FileDescriptorProto.message_type else DescriptorProto.nested_type;
         cur = nthRealMessage(cur, field_no, idx);
         depth += 1;
     }
@@ -240,19 +253,19 @@ const FieldInfo = struct {
 };
 
 fn parseFieldInfo(comptime fb: []const u8) FieldInfo {
-    const name = getBytes(fb, FIELD_NAME) orelse @compileError("descriptor field missing name");
-    const opts = getBytes(fb, FIELD_OPTIONS);
+    const name = getBytes(fb, FieldDescriptorProto.name) orelse @compileError("descriptor field missing name");
+    const opts = getBytes(fb, FieldDescriptorProto.options);
     return .{
         .name = name,
-        .number = @intCast(getVarint(fb, FIELD_NUMBER) orelse @compileError("descriptor field missing number")),
-        .json_name = getBytes(fb, FIELD_JSON_NAME) orelse @compileError("descriptor field missing json_name"),
-        .label = getVarint(fb, FIELD_LABEL) orelse @compileError("descriptor field missing label"),
-        .type = getVarint(fb, FIELD_TYPE) orelse @compileError("descriptor field missing type"),
-        .type_name = getBytes(fb, FIELD_TYPE_NAME),
-        .default_value = getBytes(fb, FIELD_DEFAULT_VALUE),
-        .oneof_index = if (getVarint(fb, FIELD_ONEOF_INDEX)) |o| @intCast(o) else null,
-        .proto3_optional = (getVarint(fb, FIELD_PROTO3_OPTIONAL) orelse 0) != 0,
-        .packed_opt = if (opts) |o| (if (getVarint(o, FOPT_PACKED)) |p| (p != 0) else null) else null,
+        .number = @intCast(getVarint(fb, FieldDescriptorProto.number) orelse @compileError("descriptor field missing number")),
+        .json_name = getBytes(fb, FieldDescriptorProto.json_name) orelse @compileError("descriptor field missing json_name"),
+        .label = getVarint(fb, FieldDescriptorProto.label) orelse @compileError("descriptor field missing label"),
+        .type = getVarint(fb, FieldDescriptorProto.type) orelse @compileError("descriptor field missing type"),
+        .type_name = getBytes(fb, FieldDescriptorProto.type_name),
+        .default_value = getBytes(fb, FieldDescriptorProto.default_value),
+        .oneof_index = if (getVarint(fb, FieldDescriptorProto.oneof_index)) |o| @intCast(o) else null,
+        .proto3_optional = (getVarint(fb, FieldDescriptorProto.proto3_optional) orelse 0) != 0,
+        .packed_opt = if (opts) |o| (if (getVarint(o, FieldOptions.@"packed")) |p| (p != 0) else null) else null,
     };
 }
 
@@ -269,10 +282,10 @@ fn scalarFromType(comptime t: u64) ?ScalarType {
 }
 
 fn computePresence(comptime fi: FieldInfo, comptime is_proto3: bool) SupportedFieldPresence {
-    if (fi.label == LABEL_REQUIRED) return .legacy_required;
-    if (fi.label == LABEL_REPEATED) return .implicit;
+    if (fi.label == FieldDescriptorProto.Label.required) return .legacy_required;
+    if (fi.label == FieldDescriptorProto.Label.repeated) return .implicit;
     if (fi.oneof_index != null) return .explicit;
-    if (fi.type == TYPE_MESSAGE or fi.type == TYPE_GROUP) return .explicit;
+    if (fi.type == FieldDescriptorProto.Type.message or fi.type == FieldDescriptorProto.Type.group) return .explicit;
     if (!is_proto3) return .explicit;
     return .implicit;
 }
@@ -309,9 +322,9 @@ fn enumDefault(comptime fi: FieldInfo) i32 {
 
 fn elementType(comptime fi: FieldInfo) FieldMetadataElementType {
     if (scalarFromType(fi.type)) |sc| return .{ .scalar = sc };
-    if (fi.type == TYPE_MESSAGE or fi.type == TYPE_GROUP) return .{ .message = {} };
-    if (fi.type == TYPE_ENUM) return .{ .enum_type = {} };
-    @compileError("read_message_metadata: invalid field element type");
+    if (fi.type == FieldDescriptorProto.Type.message or fi.type == FieldDescriptorProto.Type.group) return .{ .message = {} };
+    if (fi.type == FieldDescriptorProto.Type.@"enum") return .{ .enum_type = {} };
+    @compileError("readMessageMetadata: invalid field element type");
 }
 
 fn simpleName(comptime tn: []const u8) []const u8 {
@@ -325,8 +338,8 @@ fn simpleName(comptime tn: []const u8) []const u8 {
 /// Find a map-entry message nested in `msg_bytes` matching `type_name`.
 fn findMapEntry(comptime msg_bytes: []const u8, comptime type_name: []const u8) ?[]const u8 {
     const target = simpleName(type_name);
-    for (collectBytes(msg_bytes, MSG_NESTED_TYPE)) |nb| {
-        const nm = getBytes(nb, FIELD_NAME) orelse continue;
+    for (collectBytes(msg_bytes, DescriptorProto.nested_type)) |nb| {
+        const nm = getBytes(nb, FieldDescriptorProto.name) orelse continue;
         if (std.mem.eql(u8, nm, target) and isMapEntry(nb)) return nb;
     }
     return null;
@@ -337,7 +350,7 @@ const MapKV = struct { key: ScalarType, value: FieldMetadataElementType };
 fn mapKeyValue(comptime entry: []const u8) MapKV {
     var key: ?ScalarType = null;
     var value: ?FieldMetadataElementType = null;
-    for (collectBytes(entry, MSG_FIELD)) |fb| {
+    for (collectBytes(entry, DescriptorProto.field)) |fb| {
         const fi = parseFieldInfo(fb);
         if (fi.number == 1) key = scalarFromType(fi.type) orelse @compileError("map key is not scalar");
         if (fi.number == 2) value = elementType(fi);
@@ -351,9 +364,9 @@ fn mapKeyValue(comptime entry: []const u8) MapKV {
 /// Kind for a plain (non-oneof) field. Mirrors codegen's `_metadata` emission:
 /// `message_field`/`list`/`map` carry only the fields codegen writes.
 fn buildPlainKind(comptime msg_bytes: []const u8, comptime fi: FieldInfo, comptime is_proto3: bool) FieldMetadataKind {
-    const repeated = fi.label == LABEL_REPEATED;
+    const repeated = fi.label == FieldDescriptorProto.Label.repeated;
 
-    if (repeated and (fi.type == TYPE_MESSAGE or fi.type == TYPE_GROUP)) {
+    if (repeated and (fi.type == FieldDescriptorProto.Type.message or fi.type == FieldDescriptorProto.Type.group)) {
         if (fi.type_name) |tn| {
             if (findMapEntry(msg_bytes, tn)) |entry| {
                 const kv = mapKeyValue(entry);
@@ -369,16 +382,16 @@ fn buildPlainKind(comptime msg_bytes: []const u8, comptime fi: FieldInfo, compti
         } };
     }
 
-    if (fi.type == TYPE_MESSAGE or fi.type == TYPE_GROUP) {
+    if (fi.type == FieldDescriptorProto.Type.message or fi.type == FieldDescriptorProto.Type.group) {
         return .{ .message_field = .{ .presence = computePresence(fi, is_proto3) } };
     }
-    if (fi.type == TYPE_ENUM) {
+    if (fi.type == FieldDescriptorProto.Type.@"enum") {
         return .{ .enum_field = .{
             .presence = computePresence(fi, is_proto3),
             .default_value = enumDefault(fi),
         } };
     }
-    const sc = scalarFromType(fi.type) orelse @compileError("read_message_metadata: invalid scalar type");
+    const sc = scalarFromType(fi.type) orelse @compileError("readMessageMetadata: invalid scalar type");
     return .{ .scalar = .{
         .scalar = sc,
         .presence = computePresence(fi, is_proto3),
@@ -389,15 +402,15 @@ fn buildPlainKind(comptime msg_bytes: []const u8, comptime fi: FieldInfo, compti
 /// Kind for a oneof variant. Oneof variants are always singular and codegen omits
 /// presence (and scalar defaults) for them.
 fn buildOneofKind(comptime fi: FieldInfo) FieldMetadataKind {
-    if (fi.type == TYPE_MESSAGE or fi.type == TYPE_GROUP) return .{ .message_field = .{} };
-    if (fi.type == TYPE_ENUM) return .{ .enum_field = .{ .default_value = enumDefault(fi) } };
-    const sc = scalarFromType(fi.type) orelse @compileError("read_message_metadata: invalid oneof scalar type");
+    if (fi.type == FieldDescriptorProto.Type.message or fi.type == FieldDescriptorProto.Type.group) return .{ .message_field = .{} };
+    if (fi.type == FieldDescriptorProto.Type.@"enum") return .{ .enum_field = .{ .default_value = enumDefault(fi) } };
+    const sc = scalarFromType(fi.type) orelse @compileError("readMessageMetadata: invalid oneof scalar type");
     return .{ .scalar = .{ .scalar = sc } };
 }
 
 fn parseMessage(comptime msg_bytes: []const u8, comptime is_proto3: bool, comptime fqn: []const u8) MessageMetadata {
-    const field_protos = collectBytes(msg_bytes, MSG_FIELD);
-    const oneof_protos = collectBytes(msg_bytes, MSG_ONEOF_DECL);
+    const field_protos = collectBytes(msg_bytes, DescriptorProto.field);
+    const oneof_protos = collectBytes(msg_bytes, DescriptorProto.oneof_decl);
 
     // Pre-parse every field once.
     var infos: []const FieldInfo = &.{};

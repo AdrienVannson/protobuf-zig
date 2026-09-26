@@ -221,7 +221,7 @@ pub fn setField(
         const UnionType = comptime std.meta.Child(@TypeOf(field_ptr.*));
         field_ptr.* = @unionInit(UnionType, variant_name, value);
     } else {
-        clearField(msg_ptr, field_meta, allocator);
+        clearField(msg_ptr, allocator, field_meta);
         @field(msg_ptr.*, field_name) = value;
     }
 }
@@ -268,8 +268,8 @@ fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
 /// Frees any heap memory owned by the field and resets it to its unset / default state.
 pub fn clearField(
     msg_ptr: anytype,
-    comptime field_meta: FieldMetadata,
     allocator: std.mem.Allocator,
+    comptime field_meta: FieldMetadata,
 ) void {
     const MsgType = std.meta.Child(@TypeOf(msg_ptr));
     const field = comptime std.meta.fields(MsgType)[field_meta.field_index];

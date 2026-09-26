@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const INDENT_UNIT = "    ";
+const indent_unit = "    ";
 
 /// In-memory builder for a single generated `.zig` file.
 ///
@@ -9,14 +9,14 @@ const INDENT_UNIT = "    ";
 /// content on each new line, so successive `write` / `writeLine` calls
 /// produce correctly indented output without manual prefixing.
 pub const GeneratedFile = struct {
-    alloc: std.mem.Allocator,
+    allocator: std.mem.Allocator,
     buffer: std.ArrayList(u8),
     indent_level: usize,
     at_line_start: bool,
 
-    pub fn init(alloc: std.mem.Allocator) GeneratedFile {
+    pub fn init(allocator: std.mem.Allocator) GeneratedFile {
         return .{
-            .alloc = alloc,
+            .allocator = allocator,
             .buffer = .empty,
             .indent_level = 0,
             .at_line_start = true,
@@ -49,14 +49,14 @@ pub const GeneratedFile = struct {
     /// at the start of a new line.
     pub fn writeLine(self: *GeneratedFile, value: anytype) !void {
         try self.write(value);
-        try self.buffer.append(self.alloc, '\n');
+        try self.buffer.append(self.allocator, '\n');
         self.at_line_start = true;
     }
 
     /// Append a bare newline. No indentation is emitted, regardless of the
     /// current `indent_level`.
     pub fn emptyLine(self: *GeneratedFile) !void {
-        try self.buffer.append(self.alloc, '\n');
+        try self.buffer.append(self.allocator, '\n');
         self.at_line_start = true;
     }
 
@@ -70,17 +70,17 @@ pub const GeneratedFile = struct {
 
     /// Transfers ownership of the underlying bytes to the caller.
     pub fn toOwnedSlice(self: *GeneratedFile) ![]u8 {
-        return self.buffer.toOwnedSlice(self.alloc);
+        return self.buffer.toOwnedSlice(self.allocator);
     }
 
     fn writeOne(self: *GeneratedFile, value: anytype) !void {
         const T = @TypeOf(value);
         switch (@typeInfo(T)) {
             .int, .comptime_int => {
-                try self.buffer.print(self.alloc, "{d}", .{value});
+                try self.buffer.print(self.allocator, "{d}", .{value});
             },
             .pointer => {
-                try self.buffer.appendSlice(self.alloc, value);
+                try self.buffer.appendSlice(self.allocator, value);
             },
             else => @compileError(
                 "GeneratedFile.write: unsupported type " ++ @typeName(T),
@@ -92,7 +92,7 @@ pub const GeneratedFile = struct {
         if (!self.at_line_start) return;
         self.at_line_start = false;
         for (0..self.indent_level) |_| {
-            try self.buffer.appendSlice(self.alloc, INDENT_UNIT);
+            try self.buffer.appendSlice(self.allocator, indent_unit);
         }
     }
 };

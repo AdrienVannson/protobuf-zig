@@ -15,7 +15,7 @@ const Any = struct {
     }
 
     pub fn unpack(self: @This(), comptime T: type, allocator: std.mem.Allocator) !T {
-        return _codegen.any.unpack(self, T, allocator);
+        return _codegen.any.unpack(T, allocator, self);
     }
     // <!-- /include -->
 };

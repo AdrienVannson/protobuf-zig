@@ -21,7 +21,7 @@ pub const OwnedDescFile = struct {
 };
 
 const Ctx = struct {
-    alloc: std.mem.Allocator,
+    allocator: std.mem.Allocator,
     /// FQN → mutable arena node (const cast OK; we own the arena).
     msg_index: std.StringHashMap(*protobuf.DescMessage),
     enum_index: std.StringHashMap(*protobuf.DescEnum),
@@ -36,13 +36,13 @@ const Ctx = struct {
 /// *const DescFile. Convert imported files first (topological order).
 /// Dep values are referenced by pointer and must outlive the returned owner.
 pub fn descFileFromProto(
+    backing_allocator: std.mem.Allocator,
     proto: *const descriptor.FileDescriptorProto,
     deps: *const std.StringHashMap(*const protobuf.DescFile),
-    allocator: std.mem.Allocator,
 ) error{ OutOfMemory, MissingDependency, UnresolvedTypeName, InvalidDescriptor }!OwnedDescFile {
-    var arena = std.heap.ArenaAllocator.init(allocator);
+    var arena = std.heap.ArenaAllocator.init(backing_allocator);
     errdefer arena.deinit();
-    const alloc = arena.allocator();
+    const allocator = arena.allocator();
 
     const edition: SupportedEdition = blk: {
         if (proto.edition) |ed| break :blk switch (ed) {
@@ -56,10 +56,10 @@ pub fn descFileFromProto(
     };
 
     var ctx: Ctx = .{
-        .alloc = alloc,
-        .msg_index = std.StringHashMap(*protobuf.DescMessage).init(alloc),
-        .enum_index = std.StringHashMap(*protobuf.DescEnum).init(alloc),
-        .map_entries = std.AutoHashMap(*protobuf.DescMessage, void).init(alloc),
+        .allocator = allocator,
+        .msg_index = std.StringHashMap(*protobuf.DescMessage).init(allocator),
+        .enum_index = std.StringHashMap(*protobuf.DescEnum).init(allocator),
+        .map_entries = std.AutoHashMap(*protobuf.DescMessage, void).init(allocator),
         .is_proto3 = edition == .edition_proto3,
     };
 
@@ -71,10 +71,10 @@ pub fn descFileFromProto(
     }
 
     // DescFile node — stable arena address used as back-pointer by all child nodes.
-    const file_node: *protobuf.DescFile = try alloc.create(protobuf.DescFile);
+    const file_node: *protobuf.DescFile = try allocator.create(protobuf.DescFile);
 
     // Dependency pointer slice.
-    const dep_slice = try alloc.alloc(*const protobuf.DescFile, proto.dependency.items.len);
+    const dep_slice = try allocator.alloc(*const protobuf.DescFile, proto.dependency.items.len);
     for (proto.dependency.items, dep_slice) |dep_name, *out|
         out.* = deps.get(dep_name) orelse return error.MissingDependency;
 
@@ -87,7 +87,7 @@ pub fn descFileFromProto(
 
     file_node.* = .{
         .edition = edition,
-        .name = try alloc.dupe(u8, proto.name orelse return error.InvalidDescriptor),
+        .name = try allocator.dupe(u8, proto.name orelse return error.InvalidDescriptor),
         .dependencies = dep_slice,
         .enums = top_enums,
         .messages = top_messages,
@@ -106,9 +106,9 @@ pub fn descFileFromProto(
 // Pass 1 — allocate nodes and register in FQN indices
 // =============================================================================
 
-fn buildFqn(alloc: std.mem.Allocator, scope: ?[]const u8, name: []const u8) ![]u8 {
-    if (scope) |s| if (s.len > 0) return std.fmt.allocPrint(alloc, "{s}.{s}", .{ s, name });
-    return alloc.dupe(u8, name);
+fn buildFqn(allocator: std.mem.Allocator, scope: ?[]const u8, name: []const u8) ![]u8 {
+    if (scope) |s| if (s.len > 0) return std.fmt.allocPrint(allocator, "{s}.{s}", .{ s, name });
+    return allocator.dupe(u8, name);
 }
 
 fn isMapEntryProto(mp: *const descriptor.DescriptorProto) bool {
@@ -130,13 +130,13 @@ fn p1Enums(
     parent: ?*protobuf.DescMessage,
     scope: ?[]const u8,
 ) ![]protobuf.DescEnum {
-    const out = try ctx.alloc.alloc(protobuf.DescEnum, protos.len);
+    const out = try ctx.allocator.alloc(protobuf.DescEnum, protos.len);
     for (protos, out) |ep, *de| {
         const name = ep.name orelse return error.InvalidDescriptor;
-        const full_name = try buildFqn(ctx.alloc, scope, name);
+        const full_name = try buildFqn(ctx.allocator, scope, name);
         de.* = .{
             .fully_qualified_proto_name = full_name,
-            .local_name = try ctx.alloc.dupe(u8, name),
+            .local_name = try ctx.allocator.dupe(u8, name),
             .file = file,
             .parent = parent,
             .closed = !ctx.is_proto3,
@@ -150,12 +150,12 @@ fn p1Enums(
 }
 
 fn p1EnumValues(ctx: *Ctx, protos: []*descriptor.EnumValueDescriptorProto) ![]protobuf.DescEnumValue {
-    const out = try ctx.alloc.alloc(protobuf.DescEnumValue, protos.len);
+    const out = try ctx.allocator.alloc(protobuf.DescEnumValue, protos.len);
     for (protos, out) |vp, *dv| {
         const name = vp.name orelse return error.InvalidDescriptor;
         dv.* = .{
-            .proto_name = try ctx.alloc.dupe(u8, name),
-            .local_name = try ctx.alloc.dupe(u8, name),
+            .proto_name = try ctx.allocator.dupe(u8, name),
+            .local_name = try ctx.allocator.dupe(u8, name),
             .number = vp.number orelse return error.InvalidDescriptor,
             .deprecated = if (vp.options) |o| o.deprecated orelse false else false,
         };
@@ -179,8 +179,8 @@ fn p1Messages(
     };
 
     // Separate stable allocations so map entries don't appear in nested_messages.
-    const real_msgs = try ctx.alloc.alloc(protobuf.DescMessage, real_count);
-    const map_msgs = try ctx.alloc.alloc(protobuf.DescMessage, map_count);
+    const real_msgs = try ctx.allocator.alloc(protobuf.DescMessage, real_count);
+    const map_msgs = try ctx.allocator.alloc(protobuf.DescMessage, map_count);
 
     var ri: usize = 0;
     var mi: usize = 0;
@@ -190,7 +190,7 @@ fn p1Messages(
         const dm: *protobuf.DescMessage = if (is_map) &map_msgs[mi] else &real_msgs[ri];
 
         const name = mp.name orelse return error.InvalidDescriptor;
-        const msg_fqn = try buildFqn(ctx.alloc, scope, name);
+        const msg_fqn = try buildFqn(ctx.allocator, scope, name);
 
         // Recurse before writing dm.* so nested can safely reference dm as parent.
         const nested_enums = try p1Enums(ctx, mp.enum_type.items, file, dm, msg_fqn);
@@ -204,7 +204,7 @@ fn p1Messages(
         }
 
         // Count members (each real oneof counts once; proto3_optional fields count once).
-        const seen_oi = try ctx.alloc.alloc(bool, mp.oneof_decl.items.len);
+        const seen_oi = try ctx.allocator.alloc(bool, mp.oneof_decl.items.len);
         @memset(seen_oi, false);
         var members_count: usize = 0;
         for (mp.field.items) |fp| {
@@ -223,13 +223,13 @@ fn p1Messages(
 
         dm.* = .{
             .fully_qualified_proto_name = msg_fqn,
-            .local_name = try ctx.alloc.dupe(u8, name),
+            .local_name = try ctx.allocator.dupe(u8, name),
             .file = file,
             .parent = parent,
-            .fields = try ctx.alloc.alloc(protobuf.DescField, mp.field.items.len),
+            .fields = try ctx.allocator.alloc(protobuf.DescField, mp.field.items.len),
             .field = .{},
-            .oneofs = try ctx.alloc.alloc(protobuf.DescOneof, real_oneof_count),
-            .members = try ctx.alloc.alloc(protobuf.DescMessageMember, members_count),
+            .oneofs = try ctx.allocator.alloc(protobuf.DescOneof, real_oneof_count),
+            .members = try ctx.allocator.alloc(protobuf.DescMessageMember, members_count),
             .nested_enums = nested_enums,
             .nested_messages = nested_messages,
             .nested_extensions = nested_extensions,
@@ -251,18 +251,18 @@ fn p1Extensions(
     file: *protobuf.DescFile,
     parent: ?*protobuf.DescMessage,
 ) ![]protobuf.DescExtension {
-    const out = try ctx.alloc.alloc(protobuf.DescExtension, protos.len);
+    const out = try ctx.allocator.alloc(protobuf.DescExtension, protos.len);
     for (protos, out) |fp, *dx| {
         const name = fp.name orelse return error.InvalidDescriptor;
         // extendee and kind filled in pass 2 (extensions are uncommon; stub for now).
         dx.* = .{
-            .name = try ctx.alloc.dupe(u8, name),
-            .fully_qualified_proto_name = try ctx.alloc.dupe(u8, name),
+            .name = try ctx.allocator.dupe(u8, name),
+            .fully_qualified_proto_name = try ctx.allocator.dupe(u8, name),
             .file = file,
             .parent = parent,
             .extendee = undefined,
             .number = fp.number orelse return error.InvalidDescriptor,
-            .json_name = if (fp.json_name) |jn| try ctx.alloc.dupe(u8, jn) else try ctx.alloc.dupe(u8, name),
+            .json_name = if (fp.json_name) |jn| try ctx.allocator.dupe(u8, jn) else try ctx.allocator.dupe(u8, name),
             .deprecated = if (fp.options) |o| o.deprecated orelse false else false,
             .presence = .explicit,
             .kind = .{ .scalar = .{ .scalar = .bool, .default_value = null } },
@@ -277,7 +277,7 @@ fn p1Extensions(
 
 fn p2Enums(ctx: *Ctx, enums: []protobuf.DescEnum) !void {
     for (enums) |*de| {
-        try de.value.ensureTotalCapacity(ctx.alloc, @intCast(de.values.len));
+        try de.value.ensureTotalCapacity(ctx.allocator, @intCast(de.values.len));
         for (de.values, 0..) |v, i| {
             const r = de.value.getOrPutAssumeCapacity(v.number);
             if (!r.found_existing) r.value_ptr.* = i;
@@ -294,7 +294,7 @@ fn p2Messages(
 ) !void {
     for (protos) |mp| {
         const name = mp.name orelse return error.InvalidDescriptor;
-        const msg_fqn = try buildFqn(ctx.alloc, scope, name);
+        const msg_fqn = try buildFqn(ctx.allocator, scope, name);
         const dm = ctx.msg_index.get(msg_fqn) orelse return error.InvalidDescriptor;
 
         // Recurse first.
@@ -306,10 +306,10 @@ fn p2Messages(
 }
 
 fn p2OneMessage(ctx: *Ctx, mp: *const descriptor.DescriptorProto, dm: *protobuf.DescMessage) !void {
-    const alloc = ctx.alloc;
+    const allocator = ctx.allocator;
 
     // Build oneof_map: proto oneof_index → *DescOneof (null for synthetic oneofs).
-    const oneof_map = try alloc.alloc(?*protobuf.DescOneof, mp.oneof_decl.items.len);
+    const oneof_map = try allocator.alloc(?*protobuf.DescOneof, mp.oneof_decl.items.len);
     var real_oi: usize = 0;
     for (mp.oneof_decl.items, 0..) |op, oi| {
         if (isOneofSynthetic(mp, @intCast(oi))) {
@@ -317,8 +317,8 @@ fn p2OneMessage(ctx: *Ctx, mp: *const descriptor.DescriptorProto, dm: *protobuf.
             continue;
         }
         const do: *protobuf.DescOneof = &@constCast(dm.oneofs)[real_oi];
-        do.proto_name = try alloc.dupe(u8, op.name orelse return error.InvalidDescriptor);
-        do.local_name = try alloc.dupe(u8, op.name orelse return error.InvalidDescriptor);
+        do.proto_name = try allocator.dupe(u8, op.name orelse return error.InvalidDescriptor);
+        do.local_name = try allocator.dupe(u8, op.name orelse return error.InvalidDescriptor);
         do.parent = dm;
         do.fields = &.{};
         oneof_map[oi] = do;
@@ -326,7 +326,7 @@ fn p2OneMessage(ctx: *Ctx, mp: *const descriptor.DescriptorProto, dm: *protobuf.
     }
 
     // Size and allocate each oneof's fields slice.
-    const oi_field_counts = try alloc.alloc(usize, mp.oneof_decl.items.len);
+    const oi_field_counts = try allocator.alloc(usize, mp.oneof_decl.items.len);
     @memset(oi_field_counts, 0);
     for (mp.field.items) |fp| {
         if (fp.oneof_index) |oi| {
@@ -336,13 +336,13 @@ fn p2OneMessage(ctx: *Ctx, mp: *const descriptor.DescriptorProto, dm: *protobuf.
     }
     for (0..mp.oneof_decl.items.len) |oi| {
         const do = oneof_map[oi] orelse continue;
-        do.fields = try alloc.alloc(*const protobuf.DescField, oi_field_counts[oi]);
+        do.fields = try allocator.alloc(*const protobuf.DescField, oi_field_counts[oi]);
     }
-    const oi_cursors = try alloc.alloc(usize, mp.oneof_decl.items.len);
+    const oi_cursors = try allocator.alloc(usize, mp.oneof_decl.items.len);
     @memset(oi_cursors, 0);
 
     // field name → index map.
-    try dm.field.ensureTotalCapacity(alloc, @intCast(mp.field.items.len));
+    try dm.field.ensureTotalCapacity(allocator, @intCast(mp.field.items.len));
 
     // Fill each DescField.
     for (mp.field.items, 0..) |fp, fi| {
@@ -356,11 +356,11 @@ fn p2OneMessage(ctx: *Ctx, mp: *const descriptor.DescriptorProto, dm: *protobuf.
         };
 
         df.* = .{
-            .name = try alloc.dupe(u8, field_name),
-            .local_name = try escapeZigKeyword(alloc, field_name),
+            .name = try allocator.dupe(u8, field_name),
+            .local_name = try escapeZigKeyword(allocator, field_name),
             .parent = dm,
             .number = fp.number orelse return error.InvalidDescriptor,
-            .json_name = try alloc.dupe(u8, fp.json_name orelse return error.InvalidDescriptor),
+            .json_name = try allocator.dupe(u8, fp.json_name orelse return error.InvalidDescriptor),
             .deprecated = if (fp.options) |o| o.deprecated orelse false else false,
             .presence = computePresence(fp, ctx.is_proto3),
             .kind = try buildFieldKind(ctx, fp, oneof_ptr),
@@ -378,7 +378,7 @@ fn p2OneMessage(ctx: *Ctx, mp: *const descriptor.DescriptorProto, dm: *protobuf.
     }
 
     // Build members slice in field-declaration order.
-    const seen_oi = try alloc.alloc(bool, mp.oneof_decl.items.len);
+    const seen_oi = try allocator.alloc(bool, mp.oneof_decl.items.len);
     @memset(seen_oi, false);
     var mc: usize = 0;
     for (mp.field.items, 0..) |fp, fi| {
@@ -455,7 +455,7 @@ fn buildFieldKind(
             return .{ .scalar = .{
                 .oneof = oneof_ptr,
                 .scalar = sc,
-                .default_value = try parseDefaultValue(ctx.alloc, sc, fp.default_value),
+                .default_value = try parseDefaultValue(ctx.allocator, sc, fp.default_value),
             } };
         },
     }
@@ -532,7 +532,7 @@ fn computePacked(fp: *const descriptor.FieldDescriptorProto, t: FieldType, is_pr
     };
 }
 
-fn parseDefaultValue(alloc: std.mem.Allocator, sc: protobuf.ScalarType, raw: ?[]const u8) !?protobuf.DefaultValue {
+fn parseDefaultValue(allocator: std.mem.Allocator, sc: protobuf.ScalarType, raw: ?[]const u8) !?protobuf.DefaultValue {
     const s = raw orelse return null;
     if (s.len == 0) return null;
     return switch (sc) {
@@ -543,15 +543,15 @@ fn parseDefaultValue(alloc: std.mem.Allocator, sc: protobuf.ScalarType, raw: ?[]
         .uint64, .fixed64 => .{ .uint64 = std.fmt.parseInt(u64, s, 10) catch return null },
         .float => .{ .float = std.fmt.parseFloat(f32, s) catch return null },
         .double => .{ .double = std.fmt.parseFloat(f64, s) catch return null },
-        .string => .{ .string = try alloc.dupe(u8, s) },
-        .bytes => .{ .bytes = try alloc.dupe(u8, s) },
+        .string => .{ .string = try allocator.dupe(u8, s) },
+        .bytes => .{ .bytes = try allocator.dupe(u8, s) },
     };
 }
 
-fn escapeZigKeyword(alloc: std.mem.Allocator, name: []const u8) ![]u8 {
+fn escapeZigKeyword(allocator: std.mem.Allocator, name: []const u8) ![]u8 {
     if (std.zig.Token.keywords.has(name))
-        return std.fmt.allocPrint(alloc, "@\"{s}\"", .{name});
-    return alloc.dupe(u8, name);
+        return std.fmt.allocPrint(allocator, "@\"{s}\"", .{name});
+    return allocator.dupe(u8, name);
 }
 
 // =============================================================================
@@ -581,17 +581,17 @@ fn seedEnumMsg(m: *const protobuf.DescMessage, idx: *std.StringHashMap(*protobuf
 
 const testing = std.testing;
 
-fn noDeps(alloc: std.mem.Allocator) std.StringHashMap(*const protobuf.DescFile) {
-    return std.StringHashMap(*const protobuf.DescFile).init(alloc);
+fn noDeps(allocator: std.mem.Allocator) std.StringHashMap(*const protobuf.DescFile) {
+    return std.StringHashMap(*const protobuf.DescFile).init(allocator);
 }
 
 test "trivial proto3 file — no leaks" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
     const proto: descriptor.FileDescriptorProto = .{ .name = "empty.proto", .syntax = "proto3" };
-    var deps = noDeps(alloc);
+    var deps = noDeps(allocator);
     defer deps.deinit();
 
-    var owned = try descFileFromProto(&proto, &deps, alloc);
+    var owned = try descFileFromProto(allocator, &proto, &deps);
     defer owned.deinit();
 
     try testing.expectEqualStrings("empty.proto", owned.file.name);
@@ -603,20 +603,20 @@ test "trivial proto3 file — no leaks" {
 }
 
 test "proto2 syntax yields edition_proto2" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
     const proto: descriptor.FileDescriptorProto = .{ .name = "p2.proto", .syntax = "proto2" };
-    var deps = noDeps(alloc);
+    var deps = noDeps(allocator);
     defer deps.deinit();
-    var owned = try descFileFromProto(&proto, &deps, alloc);
+    var owned = try descFileFromProto(allocator, &proto, &deps);
     defer owned.deinit();
     try testing.expectEqual(SupportedEdition.edition_proto2, owned.file.edition);
 }
 
 test "top-level enum with value map" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
 
     // Use an arena for input proto construction so string literals are not freed.
-    var input_arena = std.heap.ArenaAllocator.init(alloc);
+    var input_arena = std.heap.ArenaAllocator.init(allocator);
     defer input_arena.deinit();
     const pa = input_arena.allocator();
 
@@ -633,9 +633,9 @@ test "top-level enum with value map" {
     var proto: descriptor.FileDescriptorProto = .{ .name = "e.proto", .syntax = "proto3" };
     try proto.enum_type.append(pa, ep);
 
-    var deps = noDeps(alloc);
+    var deps = noDeps(allocator);
     defer deps.deinit();
-    var owned = try descFileFromProto(&proto, &deps, alloc);
+    var owned = try descFileFromProto(allocator, &proto, &deps);
     defer owned.deinit();
 
     const e = &owned.file.enums[0];
@@ -647,9 +647,9 @@ test "top-level enum with value map" {
 }
 
 test "enum in package gets qualified name" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
 
-    var input_arena = std.heap.ArenaAllocator.init(alloc);
+    var input_arena = std.heap.ArenaAllocator.init(allocator);
     defer input_arena.deinit();
     const pa = input_arena.allocator();
 
@@ -667,33 +667,33 @@ test "enum in package gets qualified name" {
     };
     try proto.enum_type.append(pa, ep);
 
-    var deps = noDeps(alloc);
+    var deps = noDeps(allocator);
     defer deps.deinit();
-    var owned = try descFileFromProto(&proto, &deps, alloc);
+    var owned = try descFileFromProto(allocator, &proto, &deps);
     defer owned.deinit();
 
     try testing.expectEqualStrings("mypkg.E", owned.file.enums[0].fully_qualified_proto_name);
 }
 
 test "missing dependency returns MissingDependency" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
 
-    var input_arena = std.heap.ArenaAllocator.init(alloc);
+    var input_arena = std.heap.ArenaAllocator.init(allocator);
     defer input_arena.deinit();
     const pa = input_arena.allocator();
 
     var proto: descriptor.FileDescriptorProto = .{ .name = "a.proto" };
     try proto.dependency.append(pa, "b.proto");
 
-    var deps = noDeps(alloc);
+    var deps = noDeps(allocator);
     defer deps.deinit();
-    try testing.expectError(error.MissingDependency, descFileFromProto(&proto, &deps, alloc));
+    try testing.expectError(error.MissingDependency, descFileFromProto(allocator, &proto, &deps));
 }
 
 test "message with scalar field — back-pointers and field map" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
 
-    var input_arena = std.heap.ArenaAllocator.init(alloc);
+    var input_arena = std.heap.ArenaAllocator.init(allocator);
     defer input_arena.deinit();
     const pa = input_arena.allocator();
 
@@ -713,9 +713,9 @@ test "message with scalar field — back-pointers and field map" {
     var proto: descriptor.FileDescriptorProto = .{ .name = "msg.proto", .syntax = "proto3" };
     try proto.message_type.append(pa, msg);
 
-    var deps = noDeps(alloc);
+    var deps = noDeps(allocator);
     defer deps.deinit();
-    var owned = try descFileFromProto(&proto, &deps, alloc);
+    var owned = try descFileFromProto(allocator, &proto, &deps);
     defer owned.deinit();
 
     const dm = &owned.file.messages[0];
@@ -738,9 +738,9 @@ test "message with scalar field — back-pointers and field map" {
 }
 
 test "oneof group — oneofs slice, field kinds, members" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
 
-    var input_arena = std.heap.ArenaAllocator.init(alloc);
+    var input_arena = std.heap.ArenaAllocator.init(allocator);
     defer input_arena.deinit();
     const pa = input_arena.allocator();
 
@@ -776,9 +776,9 @@ test "oneof group — oneofs slice, field kinds, members" {
     var proto: descriptor.FileDescriptorProto = .{ .name = "oo.proto", .syntax = "proto3" };
     try proto.message_type.append(pa, msg);
 
-    var deps = noDeps(alloc);
+    var deps = noDeps(allocator);
     defer deps.deinit();
-    var owned = try descFileFromProto(&proto, &deps, alloc);
+    var owned = try descFileFromProto(allocator, &proto, &deps);
     defer owned.deinit();
 
     const dm = &owned.file.messages[0];
@@ -798,10 +798,10 @@ test "oneof group — oneofs slice, field kinds, members" {
 }
 
 test "cross-file message reference via deps" {
-    const alloc = testing.allocator;
+    const allocator = testing.allocator;
 
     // Build b.proto with message B.
-    var b_input_arena = std.heap.ArenaAllocator.init(alloc);
+    var b_input_arena = std.heap.ArenaAllocator.init(allocator);
     defer b_input_arena.deinit();
     const bpa = b_input_arena.allocator();
 
@@ -813,13 +813,13 @@ test "cross-file message reference via deps" {
     var b_proto: descriptor.FileDescriptorProto = .{ .name = "b.proto", .syntax = "proto3" };
     try b_proto.message_type.append(bpa, b_msg);
 
-    var b_deps = noDeps(alloc);
+    var b_deps = noDeps(allocator);
     defer b_deps.deinit();
-    var b_owned = try descFileFromProto(&b_proto, &b_deps, alloc);
+    var b_owned = try descFileFromProto(allocator, &b_proto, &b_deps);
     defer b_owned.deinit();
 
     // Build a.proto referencing B.
-    var a_input_arena = std.heap.ArenaAllocator.init(alloc);
+    var a_input_arena = std.heap.ArenaAllocator.init(allocator);
     defer a_input_arena.deinit();
     const apa = a_input_arena.allocator();
 
@@ -832,11 +832,11 @@ test "cross-file message reference via deps" {
     try a_proto.message_type.append(apa, a_msg);
     try a_proto.dependency.append(apa, "b.proto");
 
-    var a_deps = std.StringHashMap(*const protobuf.DescFile).init(alloc);
+    var a_deps = std.StringHashMap(*const protobuf.DescFile).init(allocator);
     defer a_deps.deinit();
     try a_deps.put("b.proto", b_owned.file);
 
-    var a_owned = try descFileFromProto(&a_proto, &a_deps, alloc);
+    var a_owned = try descFileFromProto(allocator, &a_proto, &a_deps);
     defer a_owned.deinit();
 
     const a_dm = &a_owned.file.messages[0];

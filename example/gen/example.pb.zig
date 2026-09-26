@@ -9,7 +9,7 @@ pub const Person = struct {
     name: []const u8 = "",
     age: i32 = 0,
     email: []const u8 = "",
-    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayListUnmanaged(_protobuf.UnknownField)) = .empty,
+    _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayList(_protobuf.UnknownField)) = .empty,
 
     pub fn getName(self: @This()) []const u8 {
         return self.name;
@@ -24,18 +24,18 @@ pub const Person = struct {
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
-        _codegen.deinit_message(self, allocator);
+        _codegen.deinitMessage(self, allocator);
     }
 
-    pub const _metadata = _codegen.read_message_metadata(DESCRIPTOR_BYTES, .{0});
+    pub const _metadata = _codegen.readMessageMetadata(_descriptor_bytes, .{0});
 
     pub fn _desc() !*const _protobuf.DescMessage {
         return _codegen.messageDescAt(try _fileDesc(), &[_]usize{0});
     }
 };
 
-pub const DESCRIPTOR_BYTES: []const u8 = "\x0a\x0d\x65\x78\x61\x6d\x70\x6c\x65\x2e\x70\x72\x6f\x74\x6f\x12\x07\x65\x78\x61\x6d\x70\x6c\x65\x22\x44\x0a\x06\x50\x65\x72\x73\x6f\x6e\x12\x12\x0a\x04\x6e\x61\x6d\x65\x18\x01\x20\x01\x28\x09\x52\x04\x6e\x61\x6d\x65\x12\x10\x0a\x03\x61\x67\x65\x18\x02\x20\x01\x28\x05\x52\x03\x61\x67\x65\x12\x14\x0a\x05\x65\x6d\x61\x69\x6c\x18\x03\x20\x01\x28\x09\x52\x05\x65\x6d\x61\x69\x6c\x62\x06\x70\x72\x6f\x74\x6f\x33";
+pub const _descriptor_bytes: []const u8 = "\x0a\x0d\x65\x78\x61\x6d\x70\x6c\x65\x2e\x70\x72\x6f\x74\x6f\x12\x07\x65\x78\x61\x6d\x70\x6c\x65\x22\x44\x0a\x06\x50\x65\x72\x73\x6f\x6e\x12\x12\x0a\x04\x6e\x61\x6d\x65\x18\x01\x20\x01\x28\x09\x52\x04\x6e\x61\x6d\x65\x12\x10\x0a\x03\x61\x67\x65\x18\x02\x20\x01\x28\x05\x52\x03\x61\x67\x65\x12\x14\x0a\x05\x65\x6d\x61\x69\x6c\x18\x03\x20\x01\x28\x09\x52\x05\x65\x6d\x61\x69\x6c\x62\x06\x70\x72\x6f\x74\x6f\x33";
 
 pub fn _fileDesc() !*const _protobuf.DescFile {
-    return _codegen.fileDesc(@This(), DESCRIPTOR_BYTES, &[_]_codegen.FileDescFn{});
+    return _codegen.fileDesc(@This(), _descriptor_bytes, &[_]_codegen.FileDescFn{});
 }

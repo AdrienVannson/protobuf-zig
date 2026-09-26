@@ -49,16 +49,16 @@ pub const MessageOps = struct {
     destroy: *const fn (*anyopaque, std.mem.Allocator) void,
 
     /// Decode wire bytes into the message.
-    fromBinary: *const fn (*anyopaque, []const u8, std.mem.Allocator) anyerror!void,
+    fromBinary: *const fn (*anyopaque, std.mem.Allocator, []const u8) anyerror!void,
 
     /// Encode the message to wire bytes (caller owns the returned slice).
-    toBinary: *const fn (*anyopaque, std.mem.Allocator) anyerror![]u8,
+    toBinary: *const fn (std.mem.Allocator, *anyopaque) anyerror![]u8,
 
     /// Decode ProtoJSON into the message.
-    fromJson: *const fn (*anyopaque, []const u8, std.mem.Allocator, *const Registry) anyerror!void,
+    fromJson: *const fn (*anyopaque, std.mem.Allocator, []const u8, *const Registry) anyerror!void,
 
     /// Encode the message to ProtoJSON (caller owns the returned slice).
-    toJson: *const fn (*anyopaque, std.mem.Allocator, *const Registry) anyerror![]u8,
+    toJson: *const fn (std.mem.Allocator, *anyopaque, *const Registry) anyerror![]u8,
 
     /// Build (at comptime) the vtable for message type `T` and return a pointer
     /// to its process-lifetime static instance.
@@ -78,17 +78,17 @@ pub const MessageOps = struct {
             fn deinit(ptr: *anyopaque, allocator: std.mem.Allocator) void {
                 cast(ptr).deinit(allocator);
             }
-            fn fromBinary(ptr: *anyopaque, bytes: []const u8, allocator: std.mem.Allocator) anyerror!void {
-                try protobuf.from_binary(cast(ptr), bytes, allocator);
+            fn fromBinary(ptr: *anyopaque, allocator: std.mem.Allocator, bytes: []const u8) anyerror!void {
+                try protobuf.fromBinary(cast(ptr), allocator, bytes);
             }
-            fn toBinary(ptr: *anyopaque, allocator: std.mem.Allocator) anyerror![]u8 {
-                return protobuf.to_binary(allocator, cast(ptr).*);
+            fn toBinary(allocator: std.mem.Allocator, ptr: *anyopaque) anyerror![]u8 {
+                return protobuf.toBinary(allocator, cast(ptr).*);
             }
-            fn fromJson(ptr: *anyopaque, json: []const u8, allocator: std.mem.Allocator, registry: *const Registry) anyerror!void {
-                try protobuf.from_json(cast(ptr), json, allocator, registry);
+            fn fromJson(ptr: *anyopaque, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) anyerror!void {
+                try protobuf.fromJson(cast(ptr), allocator, json, registry);
             }
-            fn toJson(ptr: *anyopaque, allocator: std.mem.Allocator, registry: *const Registry) anyerror![]u8 {
-                return protobuf.to_json(allocator, cast(ptr).*, registry);
+            fn toJson(allocator: std.mem.Allocator, ptr: *anyopaque, registry: *const Registry) anyerror![]u8 {
+                return protobuf.toJson(allocator, cast(ptr).*, registry);
             }
 
             const ops = MessageOps{
@@ -191,7 +191,7 @@ test "MessageOps round-trips through binary" {
     try registry.registerFile(allocator, example);
 
     const original = example.Foo{ .name = "hello", .id = 42, .@"struct" = 7 };
-    const bytes = try protobuf.to_binary(allocator, original);
+    const bytes = try protobuf.toBinary(allocator, original);
     defer allocator.free(bytes);
 
     const mt = registry._getMessageOps("example.Foo").?;
@@ -199,10 +199,10 @@ test "MessageOps round-trips through binary" {
 
     const ptr = try mt.create(allocator);
     defer mt.destroy(ptr, allocator);
-    try mt.fromBinary(ptr, bytes, allocator);
+    try mt.fromBinary(ptr, allocator, bytes);
     defer mt.deinit(ptr, allocator);
 
-    const reencoded = try mt.toBinary(ptr, allocator);
+    const reencoded = try mt.toBinary(allocator, ptr);
     defer allocator.free(reencoded);
     try std.testing.expectEqualSlices(u8, bytes, reencoded);
 }

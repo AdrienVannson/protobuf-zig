@@ -160,7 +160,7 @@ fn writeMessage(bw: *BinaryWriter, msg: anytype) WriteMessageError!void {
 
 /// Serializes a message to its binary Protocol Buffer representation,
 /// returning the encoded bytes as a caller-owned slice (freed with allocator).
-pub fn to_binary(allocator: std.mem.Allocator, msg: anytype) ![]u8 {
+pub fn toBinary(allocator: std.mem.Allocator, msg: anytype) ![]u8 {
     var bw = BinaryWriter.init(allocator);
     defer bw.deinit();
     try writeMessage(&bw, msg);
