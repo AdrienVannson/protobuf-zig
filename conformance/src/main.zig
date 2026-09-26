@@ -31,8 +31,7 @@ pub fn main(init: std.process.Init) !void {
 
     var alloc = init.arena.allocator();
 
-    // Registry used to look up the requested message type and to resolve
-    // `google.protobuf.Any` payloads during JSON (de)serialization.
+    // Registry used to look up the requested message type and for JSON (de)serialization.
     var registry: protobuf.Registry = .empty;
     inline for (registered_files) |file| try registry.registerFile(alloc, file);
 
