@@ -163,6 +163,20 @@ fn parseDigits(comptime T: type, s: []const u8) !T {
     return std.fmt.parseInt(T, s, 10) catch error.InvalidJson;
 }
 
+/// Parses the timezone designator at the end of an RFC3339 timestamp ("Z" or
+/// "+HH:MM"/"-HH:MM") and returns its offset from UTC in seconds.
+fn parseTimezoneOffset(s: []const u8) !i64 {
+    if (s.len == 1 and s[0] == 'Z') return 0;
+    if (s.len != 6 or (s[0] != '+' and s[0] != '-') or s[3] != ':') return error.InvalidJson;
+
+    const hour = try parseDigits(i64, s[1..3]);
+    const minute = try parseDigits(i64, s[4..6]);
+    if (hour > 23 or minute > 59) return error.InvalidJson;
+
+    const magnitude = hour * 3600 + minute * 60;
+    return if (s[0] == '-') -magnitude else magnitude;
+}
+
 /// Parses an RFC3339 timestamp string, e.g. "1972-01-01T10:00:20.021Z" or
 /// "1972-01-01T10:00:20-05:00".
 pub fn parseTimestamp(s: []const u8) !struct { seconds: i64, nanos: i32 } {
@@ -192,18 +206,7 @@ pub fn parseTimestamp(s: []const u8) !struct { seconds: i64, nanos: i32 } {
         rest = rest[frac_end..];
     }
 
-    var offset_seconds: i64 = 0;
-    if (rest.len == 1 and rest[0] == 'Z') {
-        offset_seconds = 0;
-    } else if (rest.len == 6 and (rest[0] == '+' or rest[0] == '-') and rest[3] == ':') {
-        const offset_hour = try parseDigits(i64, rest[1..3]);
-        const offset_minute = try parseDigits(i64, rest[4..6]);
-        if (offset_hour > 23 or offset_minute > 59) return error.InvalidJson;
-        const magnitude = offset_hour * 3600 + offset_minute * 60;
-        offset_seconds = if (rest[0] == '-') -magnitude else magnitude;
-    } else {
-        return error.InvalidJson;
-    }
+    const offset_seconds = try parseTimezoneOffset(rest);
 
     const seconds = daysFromCivil(year, month, day) * 86400 + hour * 3600 + minute * 60 + second - offset_seconds;
     try validateTimestamp(seconds, @intCast(nanos));
