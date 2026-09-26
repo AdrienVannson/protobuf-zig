@@ -112,12 +112,16 @@ fn writeFieldCallback(ctx: *const JsonContext, comptime field_meta: FieldMetadat
     try writeFieldValue(ctx, field_meta, value);
 }
 
-fn writeWktValue(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed }!void {
+fn writeWktValue(ctx: *const JsonContext, msg: anytype) error{ OutOfMemory, WriteFailed, InvalidNumberValue }!void {
     if (msg.kind) |kind| {
         switch (kind) {
             .null_value => try ctx.json_writter.write(null),
             .bool_value => |v| try writeScalar(ctx, .bool, v),
-            .number_value => |v| try writeScalar(ctx, .double, v),
+            .number_value => |v| {
+                // JSON has no representation for NaN/Infinity in a Value.
+                if (std.math.isNan(v) or std.math.isInf(v)) return error.InvalidNumberValue;
+                try writeScalar(ctx, .double, v);
+            },
             .string_value => |v| try writeScalar(ctx, .string, v),
             .struct_value => |v| try writeWktStruct(ctx, v.*),
             .list_value => |v| try writeWktListValue(ctx, v.*),
