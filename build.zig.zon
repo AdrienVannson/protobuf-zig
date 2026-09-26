@@ -4,5 +4,11 @@
     .version = "0.0.0",
     .minimum_zig_version = "0.16.0",
     .dependencies = .{},
-    .paths = .{"."},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "README.md",
+        "protobuf",
+        "protoc-gen-zig",
+    },
 }
