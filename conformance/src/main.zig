@@ -1,6 +1,7 @@
 const std = @import("std");
 const conformance_pb = @import("gen_conformance");
 const gen_proto3 = @import("gen_proto3");
+const gen_proto2 = @import("gen_proto2");
 const protobuf = @import("protobuf");
 
 const ConformanceRequest = conformance_pb.ConformanceRequest;
@@ -19,6 +20,7 @@ pub fn main(init: std.process.Init) !void {
     // (de)serialization. Arena-owned, lives for the whole process.
     var registry: protobuf.Registry = .empty;
     try registry.registerFile(alloc, gen_proto3);
+    try registry.registerFile(alloc, gen_proto2);
     try registry.registerFile(alloc, protobuf.wkt.any);
     try registry.registerFile(alloc, protobuf.wkt.wrappers);
     try registry.registerFile(alloc, protobuf.wkt.struct_);
@@ -61,53 +63,59 @@ pub fn main(init: std.process.Init) !void {
 }
 
 fn handleRequest(request: *ConformanceRequest, alloc: std.mem.Allocator, registry: *const protobuf.Registry) !ConformanceResponse {
-    // Dispatch proto3 binary/JSON roundtrip.
-    if (std.mem.eql(u8, request.getMessageType(), "protobuf_test_messages.proto3.TestAllTypesProto3")) {
-        const output_format = request.getRequestedOutputFormat();
-        if (output_format != .PROTOBUF and output_format != .JSON) {
-            return .{ .result = .{ .skipped = try alloc.dupe(u8, "TEXT_FORMAT and JSPB output not supported") } };
-        }
+    const message_type = request.getMessageType();
+    if (std.mem.eql(u8, message_type, "protobuf_test_messages.proto3.TestAllTypesProto3")) {
+        return roundtrip(gen_proto3.TestAllTypesProto3, request, alloc, registry);
+    }
+    if (std.mem.eql(u8, message_type, "protobuf_test_messages.proto2.TestAllTypesProto2")) {
+        return roundtrip(gen_proto2.TestAllTypesProto2, request, alloc, registry);
+    }
+    return .{ .result = .{ .skipped = try alloc.dupe(u8, "message type not supported") } };
+}
 
-        var test_gpa = std.heap.DebugAllocator(.{}){};
-        const test_alloc = test_gpa.allocator();
-
-        var msg: gen_proto3.TestAllTypesProto3 = .{};
-
-        // Parse
-        const maybe_parse_err: ?ConformanceResponse = blk: {
-            if (request.payload) |p| switch (p) {
-                .protobuf_payload => |bytes| protobuf.from_binary(&msg, bytes, test_alloc) catch |err|
-                    break :blk .{ .result = .{ .parse_error = try alloc.dupe(u8, @errorName(err)) } },
-                .json_payload => |json_str| protobuf.from_json(&msg, json_str, test_alloc, registry) catch |err|
-                    break :blk .{ .result = .{ .parse_error = try alloc.dupe(u8, @errorName(err)) } },
-                else => break :blk .{ .result = .{ .skipped = try alloc.dupe(u8, "JSPB and TEXT_FORMAT payloads not supported") } },
-            } else break :blk .{ .result = .{ .skipped = try alloc.dupe(u8, "no payload") } };
-            break :blk null;
-        };
-
-        // Serialize
-        var response: ConformanceResponse = if (maybe_parse_err) |r| r else switch (output_format) {
-            .PROTOBUF => serialize: {
-                const encoded = protobuf.to_binary(alloc, msg) catch |err|
-                    break :serialize .{ .result = .{ .serialize_error = try alloc.dupe(u8, @errorName(err)) } };
-                break :serialize .{ .result = .{ .protobuf_payload = encoded } };
-            },
-            .JSON => serialize: {
-                const json_out = protobuf.to_json(alloc, msg, registry) catch |err|
-                    break :serialize .{ .result = .{ .serialize_error = try alloc.dupe(u8, @errorName(err)) } };
-                break :serialize .{ .result = .{ .json_payload = json_out } };
-            },
-            else => unreachable,
-        };
-
-        msg.deinit(test_alloc);
-        if (test_gpa.deinit() == .leak) {
-            response.deinit(alloc);
-            return .{ .result = .{ .runtime_error = try alloc.dupe(u8, "memory leak detected") } };
-        }
-        return response;
+/// Parses the request payload into a `T` and serializes it back in the requested format.
+fn roundtrip(comptime T: type, request: *ConformanceRequest, alloc: std.mem.Allocator, registry: *const protobuf.Registry) !ConformanceResponse {
+    const output_format = request.getRequestedOutputFormat();
+    if (output_format != .PROTOBUF and output_format != .JSON) {
+        return .{ .result = .{ .skipped = try alloc.dupe(u8, "TEXT_FORMAT and JSPB output not supported") } };
     }
 
-    // proto2 test messages use group fields, unsupported by zig-protobuf's generator.
-    return .{ .result = .{ .skipped = try alloc.dupe(u8, "payload decode not yet supported") } };
+    var test_gpa = std.heap.DebugAllocator(.{}){};
+    const test_alloc = test_gpa.allocator();
+
+    var msg: T = .{};
+
+    // Parse
+    const maybe_parse_err: ?ConformanceResponse = blk: {
+        if (request.payload) |p| switch (p) {
+            .protobuf_payload => |bytes| protobuf.from_binary(&msg, bytes, test_alloc) catch |err|
+                break :blk .{ .result = .{ .parse_error = try alloc.dupe(u8, @errorName(err)) } },
+            .json_payload => |json_str| protobuf.from_json(&msg, json_str, test_alloc, registry) catch |err|
+                break :blk .{ .result = .{ .parse_error = try alloc.dupe(u8, @errorName(err)) } },
+            else => break :blk .{ .result = .{ .skipped = try alloc.dupe(u8, "JSPB and TEXT_FORMAT payloads not supported") } },
+        } else break :blk .{ .result = .{ .skipped = try alloc.dupe(u8, "no payload") } };
+        break :blk null;
+    };
+
+    // Serialize
+    var response: ConformanceResponse = if (maybe_parse_err) |r| r else switch (output_format) {
+        .PROTOBUF => serialize: {
+            const encoded = protobuf.to_binary(alloc, msg) catch |err|
+                break :serialize .{ .result = .{ .serialize_error = try alloc.dupe(u8, @errorName(err)) } };
+            break :serialize .{ .result = .{ .protobuf_payload = encoded } };
+        },
+        .JSON => serialize: {
+            const json_out = protobuf.to_json(alloc, msg, registry) catch |err|
+                break :serialize .{ .result = .{ .serialize_error = try alloc.dupe(u8, @errorName(err)) } };
+            break :serialize .{ .result = .{ .json_payload = json_out } };
+        },
+        else => unreachable,
+    };
+
+    msg.deinit(test_alloc);
+    if (test_gpa.deinit() == .leak) {
+        response.deinit(alloc);
+        return .{ .result = .{ .runtime_error = try alloc.dupe(u8, "memory leak detected") } };
+    }
+    return response;
 }
