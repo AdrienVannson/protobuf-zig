@@ -76,3 +76,8 @@ pub fn main(init: std.process.Init) !void {
     defer alloc.free(encoded);
     try std.Io.File.stdout().writeStreamingAll(io, encoded);
 }
+
+test {
+    _ = codegen;
+    _ = @import("generated_file.zig");
+}

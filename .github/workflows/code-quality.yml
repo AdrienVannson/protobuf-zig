@@ -24,5 +24,6 @@ jobs:
 
       - name: Check formatting
         run: |
+          zig fmt --check build.zig
           zig fmt --check protobuf/
           zig fmt --check protoc-gen-zig/

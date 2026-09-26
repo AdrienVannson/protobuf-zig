@@ -6,21 +6,19 @@ protobuf_version := "36.2"
 all: setup setup-conformance build generate generate-example run-example test conformance code-quality generate-wkt generate-conformance generate-plugin sync-readme
 
 build:
-    cd protobuf && zig build
-    cd protoc-gen-zig && zig build
+    zig build
 
 code-quality:
+    zig fmt --check build.zig
     zig fmt --check protobuf/
     zig fmt --check protoc-gen-zig/
     zig fmt --check conformance/
 
 test:
-    cd protobuf && zig build test
-    cd protoc-gen-zig && zig build test
+    zig build test
 
 clean:
-    rm -rf protobuf/.zig-cache protobuf/zig-out
-    rm -rf protoc-gen-zig/.zig-cache protoc-gen-zig/zig-out
+    rm -rf .zig-cache zig-out
     rm -rf .cache
 
 # Run protoc-gen-zig on the test proto file
@@ -28,7 +26,7 @@ generate: build
     rm -rf protobuf/src/testgen
     mkdir -p protobuf/src/testgen
     just protoc \
-        --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
+        --plugin=protoc-gen-zig=./zig-out/bin/protoc-gen-zig \
         --zig_out=./protobuf/src/testgen \
         --proto_path=./protoc-gen-zig/test_protos \
         $(find ./protoc-gen-zig/test_protos -iname "*.proto")
@@ -41,7 +39,7 @@ generate-wkt: setup build
     mkdir -p protobuf/src/wkt
     include_dir="$(PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh paths | grep '^PROTOC_INCLUDE=' | cut -d= -f2-)"
     just protoc \
-        --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
+        --plugin=protoc-gen-zig=./zig-out/bin/protoc-gen-zig \
         --zig_out=./protobuf/src/wkt \
         --proto_path="$include_dir" \
         "$include_dir"/google/protobuf/*.proto
@@ -56,7 +54,7 @@ generate-conformance: setup setup-conformance build
     mkdir -p conformance/src/gen
     conformance_include="$(PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh paths | grep '^CONFORMANCE_INCLUDE=' | cut -d= -f2-)"
     just protoc \
-        --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
+        --plugin=protoc-gen-zig=./zig-out/bin/protoc-gen-zig \
         --zig_out=./conformance/src/gen \
         --proto_path="$conformance_include" \
         conformance/conformance.proto \
@@ -70,7 +68,7 @@ generate-plugin: setup build
     mkdir -p protoc-gen-zig/src/gen
     include_dir="$(PROTOBUF_VERSION={{protobuf_version}} tools/upstream-protobuf.sh paths | grep '^PROTOC_INCLUDE=' | cut -d= -f2-)"
     just protoc \
-        --plugin=protoc-gen-zig=./protoc-gen-zig/zig-out/bin/protoc-gen-zig \
+        --plugin=protoc-gen-zig=./zig-out/bin/protoc-gen-zig \
         --zig_out=./protoc-gen-zig/src/gen \
         --proto_path="$include_dir" \
         google/protobuf/compiler/plugin.proto
@@ -105,11 +103,11 @@ conformance-runner *args:
 
 # Build documentation
 docs:
-    cd protobuf && zig build docs
+    zig build docs
 
 # Build documentation and serve it locally on port 8080
 docs-serve: docs
-    python3 -m http.server --directory protobuf/zig-out/docs 8080
+    python3 -m http.server --directory zig-out/docs 8080
 
 # Run protobuf conformance tests (not part of 'test')
 conformance:
