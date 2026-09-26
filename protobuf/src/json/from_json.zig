@@ -94,9 +94,22 @@ fn bytesFromJson(val: std.json.Value, allocator: std.mem.Allocator) ![]const u8 
         .string => |s| s,
         else => return error.InvalidJson,
     };
-    const decoded_len = std.base64.standard.Decoder.calcSizeForSlice(s) catch return error.InvalidJson;
+    // ProtoJSON accepts both the standard and URL-safe alphabets, with or without padding.
+    const unpadded = std.mem.trimEnd(u8, s, "=");
+    const decoder = if (std.mem.indexOfAny(u8, unpadded, "-_") != null)
+        std.base64.url_safe_no_pad.Decoder
+    else
+        std.base64.standard_no_pad.Decoder;
+    const decoded_len = decoder.calcSizeForSlice(unpadded) catch return error.InvalidJson;
     const buf = try allocator.alloc(u8, decoded_len);
-    std.base64.standard.Decoder.decode(buf, s) catch return error.InvalidJson;
+    errdefer allocator.free(buf);
+    decoder.decode(buf, unpadded) catch |err| switch (err) {
+        // The length was validated above, so this only reports non-zero trailing bits,
+        // which should be accepted (conformance tests).
+        // This depends on internal details of the base64 decoder.
+        error.InvalidPadding => {},
+        else => return error.InvalidJson,
+    };
     return buf;
 }
 

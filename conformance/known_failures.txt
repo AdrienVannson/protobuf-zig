@@ -1,8 +1,6 @@
 # OneofFieldDuplicate and FieldNameDuplicateDifferentCasing* expect duplicate fields to be
 # rejected, but the ProtoJSON spec allows last-in-wins, which we implement. The tests are
 # fixed upstream in https://github.com/protocolbuffers/protobuf/pull/28903 (released in v37).
-Recommended.Proto3.JsonInput.BytesFieldBase64Url.JsonOutput # Failed to parse input or produce output.
-Recommended.Proto3.JsonInput.BytesFieldBase64Url.ProtobufOutput # Failed to parse input or produce output.
 Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing1 # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.FieldNameDuplicateDifferentCasing2 # Should have failed to parse, but didn't.
 Recommended.Proto3.JsonInput.IgnoreUnknownEnumStringValueInMapPart.ProtobufOutput # Failed to parse input or produce output.
