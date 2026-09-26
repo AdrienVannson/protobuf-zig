@@ -45,12 +45,13 @@ std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
 ```
 <!-- /include -->
 
-### Using `Any`
+## Well-known types
 
-`Any.pack` wraps a message in a `google.protobuf.Any`, along with a type URL
-(`type.googleapis.com/<full message name>`). `is` checks which message type an
-`Any` holds, and `unpack` decodes it back (returning `error.AnyTypeMismatch`
-if the type does not match):
+### `google.protobuf.Any`
+
+`Any.pack` wraps a message in a `google.protobuf.Any`. `Any.is` checks which message
+type an `Any` holds, and `Any.unpack` decodes it back (returning `error.AnyTypeMismatch`
+if the type does not match).
 
 <!-- include: example/examples/any.zig -->
 ```zig
