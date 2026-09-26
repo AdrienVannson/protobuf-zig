@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # Regenerates the embedded code blocks in README.md from the real files in
-# example/
+# example/, and the version badges from build.zig.zon and the justfile
 
+import argparse
 import pathlib
 import re
 import sys
@@ -9,6 +10,7 @@ import textwrap
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 README = ROOT / "README.md"
+BUILD_ZIG_ZON = ROOT / "build.zig.zon"
 
 LANG_BY_SUFFIX = {".proto": "proto", ".zig": "zig"}
 
@@ -45,9 +47,39 @@ def sync_include(match: "re.Match[str]") -> str:
     return f"<!-- include: {rel_path} -->\n{fenced_block(path)}\n<!-- /include -->"
 
 
+# Shields.io uses `-` as a separator, so versions stop at the first `-`
+VERSION = r"[^-/)\s]+"
+
+
+def zig_version() -> str:
+    regex = re.compile(r'\.minimum_zig_version\s*=\s*"(?P<version>[^"]+)"')
+    match = regex.search(BUILD_ZIG_ZON.read_text())
+    if not match:
+        sys.exit("sync_readme: minimum_zig_version not found in build.zig.zon")
+    return match.group("version")
+
+
+def sync_badges(text: str, zig: str, protobuf: str) -> str:
+    replacements = [
+        (rf"(img\.shields\.io/badge/zig-){VERSION}(-)", zig),
+        (rf"(img\.shields\.io/badge/protobuf-v){VERSION}(-)", protobuf),
+        (rf"(protocolbuffers/protobuf/releases/tag/v){VERSION}(\))", protobuf),
+    ]
+    for pattern, version in replacements:
+        text, count = re.subn(pattern, lambda m: f"{m.group(1)}{version}{m.group(2)}", text)
+        if count == 0:
+            sys.exit(f"sync_readme: badge pattern not found in README.md: {pattern}")
+    return text
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--protobuf-version", required=True)
+    args = parser.parse_args()
+
     text = README.read_text()
     text = INCLUDE_RE.sub(sync_include, text)
+    text = sync_badges(text, zig_version(), args.protobuf_version)
     README.write_text(text)
 
 
