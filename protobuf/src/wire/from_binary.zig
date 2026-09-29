@@ -97,38 +97,36 @@ fn readMapEntry(
 
     const KeyType = @FieldType(MapType.KV, "key");
     var opt_key: ?KeyType = null;
-    errdefer if (opt_key) |k| {
-        if (comptime map_meta.key == .string or map_meta.key == .bytes) allocator.free(k);
-    };
+    errdefer field_access.deinitElement(opt_key, allocator);
 
     const ValueType = @FieldType(MapType.KV, "value");
     var opt_value: ?ValueType = null;
-    errdefer if (opt_value) |v| {
-        switch (comptime map_meta.value) {
-            .scalar => |sc| if (comptime sc == .string or sc == .bytes) allocator.free(v),
-            .message => {
-                v.deinit(allocator);
-                allocator.destroy(v);
-            },
-            .enum_type => {},
-        }
-    };
+    errdefer field_access.deinitElement(opt_value, allocator);
 
     try reader.fork();
     while (reader.remainingInScope() > 0) {
         const field_tag = try reader.tag();
         switch (field_tag.number) {
-            1 => opt_key = try readScalar(reader, map_meta.key),
+            1 => {
+                const k = try readScalar(reader, map_meta.key);
+                field_access.deinitElement(opt_key, allocator);
+                opt_key = k;
+            },
             2 => switch (comptime map_meta.value) {
-                .scalar => |sc| opt_value = try readScalar(reader, sc),
+                .scalar => |sc| {
+                    const v = try readScalar(reader, sc);
+                    field_access.deinitElement(opt_value, allocator);
+                    opt_value = v;
+                },
                 .enum_type => opt_value = @enumFromInt(try reader.int32()),
                 .message => {
-                    const Child = std.meta.Child(ValueType);
-                    const p = try allocator.create(Child);
-                    p.* = .{};
-                    errdefer allocator.destroy(p); // TODO also deinit, same problem elsewhere
-                    try readMessageField(reader, allocator, p);
-                    opt_value = p;
+                    // A repeated value field is merged into the previous one.
+                    if (opt_value == null) {
+                        const p = try allocator.create(std.meta.Child(ValueType));
+                        p.* = .{};
+                        opt_value = p;
+                    }
+                    try readMessageField(reader, allocator, opt_value.?);
                 },
             },
             else => _ = try reader.skip(field_tag),
@@ -136,28 +134,33 @@ fn readMapEntry(
     }
     try reader.join();
 
-    const key = opt_key orelse switch (comptime map_meta.key) {
+    if (opt_key == null) opt_key = switch (comptime map_meta.key) {
         .string, .bytes => try allocator.alloc(u8, 0),
         .bool => false,
         else => 0,
     };
 
-    const value = opt_value orelse switch (comptime map_meta.value) {
+    if (opt_value == null) opt_value = switch (comptime map_meta.value) {
         .scalar => |sc| switch (comptime sc) {
             .string, .bytes => try allocator.alloc(u8, 0),
             .bool => false,
             else => 0,
         },
         .message => blk: {
-            const Child = std.meta.Child(ValueType);
-            const p = try allocator.create(Child);
+            const p = try allocator.create(std.meta.Child(ValueType));
             p.* = .{};
             break :blk p;
         },
         .enum_type => @as(ValueType, @enumFromInt(0)),
     };
 
-    try map_ptr.*.put(allocator, key, value);
+    const gop = try map_ptr.*.getOrPut(allocator, opt_key.?);
+    if (gop.found_existing) {
+        // The map keeps its existing key; free the duplicate and the replaced value.
+        field_access.deinitElement(opt_key.?, allocator);
+        field_access.deinitElement(gop.value_ptr.*, allocator);
+    }
+    gop.value_ptr.* = opt_value.?;
 }
 
 fn readMessageField(reader: *BinaryReader, allocator: std.mem.Allocator, child_ptr: anytype) ReadMessageError!void {

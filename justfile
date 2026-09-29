@@ -109,13 +109,7 @@ docs:
 docs-serve: docs
     python3 -m http.server --directory zig-out/docs 8080
 
-# Run protobuf conformance tests (not part of 'test')
+# Run protobuf conformance tests in debug mode, with per-request leak detection (not part of 'test')
 conformance:
-    cd conformance && zig build -Doptimize=ReleaseFast
-    just conformance-runner --enforce_recommended --maximum_edition 2023 --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance
-
-# Run conformance tests in debug mode with per-request GPA leak detection
-# TODO: fix the leaks and make this the default
-conformance-debug:
     cd conformance && zig build
     just conformance-runner --enforce_recommended --maximum_edition 2023 --failure_list conformance/known_failures.txt ./conformance/zig-out/bin/conformance

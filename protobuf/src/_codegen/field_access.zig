@@ -227,7 +227,7 @@ pub fn setField(
 }
 
 /// Frees any heap memory owned by a single field value.
-fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
+pub fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
     const T = @TypeOf(value);
     switch (@typeInfo(T)) {
         .optional => if (value) |v| deinitElement(v, allocator),
