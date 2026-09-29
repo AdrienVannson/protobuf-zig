@@ -3,6 +3,7 @@ const binary_reader = @import("binary_reader.zig");
 const tag = @import("tag.zig");
 const metadata = @import("../_codegen/metadata.zig");
 const field_access = @import("../_codegen/field_access.zig");
+const deinit = @import("../_codegen/deinit.zig");
 
 const BinaryReader = binary_reader.BinaryReader;
 const WireType = tag.WireType;
@@ -97,11 +98,11 @@ fn readMapEntry(
 
     const KeyType = @FieldType(MapType.KV, "key");
     var opt_key: ?KeyType = null;
-    errdefer field_access.deinitElement(opt_key, allocator);
+    errdefer deinit.deinitElement(opt_key, allocator);
 
     const ValueType = @FieldType(MapType.KV, "value");
     var opt_value: ?ValueType = null;
-    errdefer field_access.deinitElement(opt_value, allocator);
+    errdefer deinit.deinitElement(opt_value, allocator);
 
     try reader.fork();
     while (reader.remainingInScope() > 0) {
@@ -109,13 +110,13 @@ fn readMapEntry(
         switch (field_tag.number) {
             1 => {
                 const k = try readScalar(reader, map_meta.key);
-                field_access.deinitElement(opt_key, allocator);
+                deinit.deinitElement(opt_key, allocator);
                 opt_key = k;
             },
             2 => switch (comptime map_meta.value) {
                 .scalar => |sc| {
                     const v = try readScalar(reader, sc);
-                    field_access.deinitElement(opt_value, allocator);
+                    deinit.deinitElement(opt_value, allocator);
                     opt_value = v;
                 },
                 .enum_type => opt_value = @enumFromInt(try reader.int32()),
@@ -157,8 +158,8 @@ fn readMapEntry(
     const gop = try map_ptr.*.getOrPut(allocator, opt_key.?);
     if (gop.found_existing) {
         // The map keeps its existing key; free the duplicate and the replaced value.
-        field_access.deinitElement(opt_key.?, allocator);
-        field_access.deinitElement(gop.value_ptr.*, allocator);
+        deinit.deinitElement(opt_key.?, allocator);
+        deinit.deinitElement(gop.value_ptr.*, allocator);
     }
     gop.value_ptr.* = opt_value.?;
 }

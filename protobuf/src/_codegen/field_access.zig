@@ -1,5 +1,6 @@
 const std = @import("std");
 const metadata = @import("metadata.zig");
+const deinitElement = @import("deinit.zig").deinitElement;
 
 const FieldMetadata = metadata.FieldMetadata;
 const FieldMetadataKind = metadata.FieldMetadataKind;
@@ -223,45 +224,6 @@ pub fn setField(
     } else {
         clearField(msg_ptr, allocator, field_meta);
         @field(msg_ptr.*, field_name) = value;
-    }
-}
-
-/// Frees any heap memory owned by a single field value.
-pub fn deinitElement(value: anytype, allocator: std.mem.Allocator) void {
-    const T = @TypeOf(value);
-    switch (@typeInfo(T)) {
-        .optional => if (value) |v| deinitElement(v, allocator),
-        .pointer => |ptr| switch (ptr.size) {
-            .slice => { // string / bytes
-                if (ptr.child != u8) @compileError("unexpected slice field type");
-                allocator.free(value);
-            },
-            .one => { // message pointer
-                if (@typeInfo(ptr.child) != .@"struct") @compileError("unexpected pointer field type");
-                value.deinit(allocator);
-                allocator.destroy(value);
-            },
-            else => @compileError("unexpected pointer field type"),
-        },
-        .@"struct" => {
-            if (comptime @hasField(T, "items")) {
-                // std.ArrayList
-                for (value.items) |item| deinitElement(item, allocator);
-                var list = value;
-                list.deinit(allocator);
-            } else {
-                // Hash map (AutoHashMapUnmanaged / StringHashMapUnmanaged)
-                var it = value.iterator();
-                while (it.next()) |entry| {
-                    deinitElement(entry.key_ptr.*, allocator);
-                    deinitElement(entry.value_ptr.*, allocator);
-                }
-                var m = value;
-                m.deinit(allocator);
-            }
-        },
-        .int, .float, .bool, .@"enum" => {}, // scalars / enums own no heap memory
-        else => @compileError("unexpected field type: " ++ @typeName(T)),
     }
 }
 
