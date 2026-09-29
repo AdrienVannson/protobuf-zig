@@ -39,7 +39,7 @@ pub const wkt = @import("wkt.zig");
 /// Code-generation helpers called by generated `.pb.zig` files.
 /// Not intended for direct use by end users.
 pub const _codegen = struct {
-    pub const deinitMessage = @import("_codegen/message_deinit.zig").deinitMessage;
+    pub const deinitMessage = @import("_codegen/deinit.zig").deinitMessage;
     pub const any = @import("_codegen/wkt/any.zig");
     pub const metadata = @import("_codegen/metadata.zig");
     pub const field_access = @import("_codegen/field_access.zig");
@@ -65,7 +65,7 @@ test {
     _ = @import("json/to_json.zig");
     _ = @import("json/from_json.zig");
     _ = @import("json/wkt_time.zig");
-    _ = @import("_codegen/message_deinit.zig");
+    _ = @import("_codegen/deinit.zig");
     _ = @import("_codegen/wkt/any.zig");
     _ = @import("_codegen/desc_file_from_proto.zig");
     _ = @import("_codegen/file_desc.zig");
