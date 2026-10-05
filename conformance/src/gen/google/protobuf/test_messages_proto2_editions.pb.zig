@@ -369,11 +369,11 @@ pub const TestAllTypesProto2 = struct {
     }
 
     pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto2.NestedEnum {
-        return self.optional_nested_enum orelse @enumFromInt(0);
+        return self.optional_nested_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalForeignEnum(self: @This()) ForeignEnumProto2 {
-        return self.optional_foreign_enum orelse @enumFromInt(0);
+        return self.optional_foreign_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalStringPiece(self: @This()) []const u8 {
@@ -956,11 +956,11 @@ pub const TestAllRequiredTypesProto2 = struct {
     }
 
     pub fn getRequiredNestedEnum(self: @This()) TestAllRequiredTypesProto2.NestedEnum {
-        return self.required_nested_enum orelse @enumFromInt(0);
+        return self.required_nested_enum orelse @fromBackingInt(0);
     }
 
     pub fn getRequiredForeignEnum(self: @This()) ForeignEnumProto2 {
-        return self.required_foreign_enum orelse @enumFromInt(0);
+        return self.required_foreign_enum orelse @fromBackingInt(0);
     }
 
     pub fn getRequiredStringPiece(self: @This()) []const u8 {

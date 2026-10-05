@@ -13,7 +13,7 @@ pub const Type = struct {
     oneofs: std.ArrayList([]const u8) = .empty,
     options: std.ArrayList(*Option) = .empty,
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
-    syntax: Syntax = @enumFromInt(0),
+    syntax: Syntax = @fromBackingInt(0),
     edition: []const u8 = "",
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayList(_protobuf.UnknownField)) = .empty,
 
@@ -41,8 +41,8 @@ pub const Type = struct {
 };
 
 pub const Field = struct {
-    kind: Field.Kind = @enumFromInt(0),
-    cardinality: Field.Cardinality = @enumFromInt(0),
+    kind: Field.Kind = @fromBackingInt(0),
+    cardinality: Field.Cardinality = @fromBackingInt(0),
     number: i32 = 0,
     name: []const u8 = "",
     type_url: []const u8 = "",
@@ -136,7 +136,7 @@ pub const Enum = struct {
     enumvalue: std.ArrayList(*EnumValue) = .empty,
     options: std.ArrayList(*Option) = .empty,
     source_context: ?*_google_protobuf_source_context.SourceContext = null,
-    syntax: Syntax = @enumFromInt(0),
+    syntax: Syntax = @fromBackingInt(0),
     edition: []const u8 = "",
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayList(_protobuf.UnknownField)) = .empty,
 

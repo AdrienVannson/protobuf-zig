@@ -107,7 +107,7 @@ pub fn descFileFromProto(
 // =============================================================================
 
 fn buildFqn(allocator: std.mem.Allocator, scope: ?[]const u8, name: []const u8) ![]u8 {
-    if (scope) |s| if (s.len > 0) return std.fmt.allocPrint(allocator, "{s}.{s}", .{ s, name });
+    if (scope) |s| if (s.len > 0) return allocator.print("{s}.{s}", .{ s, name });
     return allocator.dupe(u8, name);
 }
 
@@ -550,7 +550,7 @@ fn parseDefaultValue(allocator: std.mem.Allocator, sc: protobuf.ScalarType, raw:
 
 fn escapeZigKeyword(allocator: std.mem.Allocator, name: []const u8) ![]u8 {
     if (std.zig.Token.keywords.has(name))
-        return std.fmt.allocPrint(allocator, "@\"{s}\"", .{name});
+        return allocator.print("@\"{s}\"", .{name});
     return allocator.dupe(u8, name);
 }
 

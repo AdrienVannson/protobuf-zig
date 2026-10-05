@@ -126,7 +126,7 @@ pub const BinaryWriter = struct {
 
     /// Write a field tag (field number + wire type).
     pub fn tag(self: *BinaryWriter, number: u32, wire_type: WireType) !void {
-        try self.varint((@as(u64, number) << 3) | @intFromEnum(wire_type));
+        try self.varint((@as(u64, number) << 3) | @backingInt(wire_type));
     }
 
     pub fn int32(self: *BinaryWriter, value: i32) !void {

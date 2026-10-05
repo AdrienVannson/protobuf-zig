@@ -29,9 +29,9 @@ pub const TestAllTypesProto3 = struct {
     optional_bytes: []const u8 = "",
     optional_nested_message: ?*TestAllTypesProto3.NestedMessage = null,
     optional_foreign_message: ?*ForeignMessage = null,
-    optional_nested_enum: TestAllTypesProto3.NestedEnum = @enumFromInt(0),
-    optional_foreign_enum: ForeignEnum = @enumFromInt(0),
-    optional_aliased_enum: TestAllTypesProto3.AliasedEnum = @enumFromInt(0),
+    optional_nested_enum: TestAllTypesProto3.NestedEnum = @fromBackingInt(0),
+    optional_foreign_enum: ForeignEnum = @fromBackingInt(0),
+    optional_aliased_enum: TestAllTypesProto3.AliasedEnum = @fromBackingInt(0),
     optional_string_piece: []const u8 = "",
     optional_cord: []const u8 = "",
     recursive_message: ?*TestAllTypesProto3 = null,
@@ -127,7 +127,7 @@ pub const TestAllTypesProto3 = struct {
     optional_struct: ?*_google_protobuf_struct.Struct = null,
     optional_any: ?*_google_protobuf_any.Any = null,
     optional_value: ?*_google_protobuf_struct.Value = null,
-    optional_null_value: _google_protobuf_struct.NullValue = @enumFromInt(0),
+    optional_null_value: _google_protobuf_struct.NullValue = @fromBackingInt(0),
     repeated_duration: std.ArrayList(*_google_protobuf_duration.Duration) = .empty,
     repeated_timestamp: std.ArrayList(*_google_protobuf_timestamp.Timestamp) = .empty,
     repeated_fieldmask: std.ArrayList(*_google_protobuf_field_mask.FieldMask) = .empty,
@@ -201,9 +201,9 @@ pub const TestAllTypesProto3 = struct {
         ALIAS_BAZ = 2,
         _,
 
-        pub const MOO: @This() = @enumFromInt(2);
-        pub const moo: @This() = @enumFromInt(2);
-        pub const bAz: @This() = @enumFromInt(2);
+        pub const MOO: @This() = @fromBackingInt(2);
+        pub const moo: @This() = @fromBackingInt(2);
+        pub const bAz: @This() = @fromBackingInt(2);
     };
 
     pub fn getOptionalInt32(self: @This()) i32 {

@@ -64,9 +64,9 @@ pub fn generateFile(
 }
 
 fn formatZigSource(allocator: std.mem.Allocator, source: []const u8) ![]u8 {
-    const source_z = try allocator.dupeZ(u8, source);
+    const source_z = try allocator.dupeSentinel(u8, source, 0);
     defer allocator.free(source_z);
-    var tree = try std.zig.Ast.parse(allocator, source_z, .zig);
+    var tree = try std.zig.Ast.parse(allocator, source_z, .{});
     defer tree.deinit(allocator);
     if (tree.errors.len != 0) return error.GeneratedSourceHasParseErrors;
     return tree.renderAlloc(allocator);
@@ -183,7 +183,7 @@ fn generateEnum(
             if (e.value.get(v.number).? == i) continue;
             const safe_value_name = try escapeZigKeyword(f.allocator, v.local_name);
             defer f.allocator.free(safe_value_name);
-            try f.writeLine(.{ "pub const ", safe_value_name, ": @This() = @enumFromInt(", v.number, ");" });
+            try f.writeLine(.{ "pub const ", safe_value_name, ": @This() = @fromBackingInt(", v.number, ");" });
         }
     }
 
@@ -287,7 +287,7 @@ fn generateField(
             defer f.allocator.free(type_name);
             if (field.presence == .implicit) {
                 const default = field.kind.enum_field.default_value orelse 0;
-                try f.writeLine(.{ field.local_name, ": ", type_name, " = @enumFromInt(", default, ")," });
+                try f.writeLine(.{ field.local_name, ": ", type_name, " = @fromBackingInt(", default, ")," });
             } else {
                 try f.writeLine(.{ field.local_name, ": ?", type_name, " = null," });
             }
@@ -477,7 +477,7 @@ fn messageZigTypeName(
     if (msg.file != cur_file) {
         defer allocator.free(local_path);
         const alias = imports.get(msg.file) orelse unreachable;
-        return std.fmt.allocPrint(allocator, "{s}.{s}", .{ alias, local_path });
+        return allocator.print("{s}.{s}", .{ alias, local_path });
     }
     return local_path;
 }
@@ -498,11 +498,11 @@ fn enumZigTypeName(
         defer allocator.free(safe_name);
         const parent_path = try messageZigTypeName(allocator, parent_msg, cur_file, imports);
         defer allocator.free(parent_path);
-        return std.fmt.allocPrint(allocator, "{s}.{s}", .{ parent_path, safe_name });
+        return allocator.print("{s}.{s}", .{ parent_path, safe_name });
     } else if (e.file != cur_file) {
         defer allocator.free(safe_name);
         const alias = imports.get(e.file) orelse unreachable;
-        return std.fmt.allocPrint(allocator, "{s}.{s}", .{ alias, safe_name });
+        return allocator.print("{s}.{s}", .{ alias, safe_name });
     }
     return safe_name;
 }
@@ -527,7 +527,7 @@ fn generateEnumFieldGetter(
     if (field.presence == .implicit) {
         try f.writeLine(.{ "return self.", field.local_name, ";" });
     } else {
-        try f.writeLine(.{ "return self.", field.local_name, " orelse @enumFromInt(", default, ");" });
+        try f.writeLine(.{ "return self.", field.local_name, " orelse @fromBackingInt(", default, ");" });
     }
     f.unindent();
     try f.writeLine("}");
@@ -557,7 +557,7 @@ fn scalarDefaultLiteral(t: protobuf.ScalarType) []const u8 {
 
 pub fn escapeZigKeyword(allocator: std.mem.Allocator, name: []const u8) ![]u8 {
     if (std.zig.Token.keywords.has(name)) {
-        return std.fmt.allocPrint(allocator, "@\"{s}\"", .{name});
+        return allocator.print("@\"{s}\"", .{name});
     }
     return allocator.dupe(u8, name);
 }

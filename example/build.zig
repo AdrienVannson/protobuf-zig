@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) !void {
 
     const run_step = b.step("run", "Build and run all examples");
 
-    var examples_dir = try b.build_root.handle.openDir(io, "examples", .{ .iterate = true });
+    var examples_dir = try b.root.openDir(io, "examples", .{ .iterate = true });
     defer examples_dir.close(io);
 
     var it = examples_dir.iterate();

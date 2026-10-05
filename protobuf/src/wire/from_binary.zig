@@ -78,11 +78,11 @@ fn readListField(
                 // Packed repeated enum.
                 try reader.fork();
                 while (reader.remainingInScope() > 0) {
-                    try field_ptr.*.append(allocator, @as(Elem, @enumFromInt(try reader.int32())));
+                    try field_ptr.*.append(allocator, @as(Elem, @fromBackingInt(try reader.int32())));
                 }
                 try reader.join();
             } else {
-                try field_ptr.*.append(allocator, @as(Elem, @enumFromInt(try reader.int32())));
+                try field_ptr.*.append(allocator, @as(Elem, @fromBackingInt(try reader.int32())));
             }
         },
     }
@@ -119,7 +119,7 @@ fn readMapEntry(
                     deinit.deinitElement(opt_value, allocator);
                     opt_value = v;
                 },
-                .enum_type => opt_value = @enumFromInt(try reader.int32()),
+                .enum_type => opt_value = @fromBackingInt(try reader.int32()),
                 .message => {
                     // A repeated value field is merged into the previous one.
                     if (opt_value == null) {
@@ -152,7 +152,7 @@ fn readMapEntry(
             p.* = .{};
             break :blk p;
         },
-        .enum_type => @as(ValueType, @enumFromInt(0)),
+        .enum_type => @as(ValueType, @fromBackingInt(0)),
     };
 
     const gop = try map_ptr.*.getOrPut(allocator, opt_key.?);
@@ -173,7 +173,6 @@ fn readMessageField(reader: *BinaryReader, allocator: std.mem.Allocator, child_p
 /// Decodes all fields of msg from the current scope of reader.
 fn readMessage(reader: *BinaryReader, allocator: std.mem.Allocator, msg: anytype) ReadMessageError!void {
     const T = std.meta.Child(@TypeOf(msg));
-    const struct_fields = std.meta.fields(T);
 
     while (reader.remainingInScope() > 0) {
         const field_tag = try reader.tag();
@@ -185,14 +184,14 @@ fn readMessage(reader: *BinaryReader, allocator: std.mem.Allocator, msg: anytype
         inline for (T._metadata.fields) |field_meta| {
             if (field_meta.number == number) {
                 handled = true;
-                const field_name = comptime struct_fields[field_meta.field_index].name;
+                const field_name = comptime @typeInfo(T).@"struct".field_names[field_meta.field_index];
 
                 switch (field_meta.kind) {
                     .scalar => |sc| {
                         field_access.setField(msg, field_meta, try readScalar(reader, sc.scalar), allocator);
                     },
                     .enum_field => {
-                        field_access.setField(msg, field_meta, @enumFromInt(try reader.int32()), allocator);
+                        field_access.setField(msg, field_meta, @fromBackingInt(try reader.int32()), allocator);
                     },
                     .message_field => {
                         const field = field_access.getField(msg.*, field_meta);

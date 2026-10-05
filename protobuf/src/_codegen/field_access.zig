@@ -7,6 +7,11 @@ const FieldMetadataKind = metadata.FieldMetadataKind;
 const ScalarType = metadata.ScalarType;
 const DefaultValue = metadata.DefaultValue;
 
+/// Returns the name of the struct field of MsgType at index field_index.
+fn fieldName(comptime MsgType: type, comptime field_index: usize) [:0]const u8 {
+    return @typeInfo(MsgType).@"struct".field_names[field_index];
+}
+
 fn getScalarDefault(
     comptime scalar: ScalarType,
     comptime default_value: ?DefaultValue,
@@ -59,17 +64,11 @@ fn isScalarDefault(
 
 /// Computes the payload type for a field, assuming the field is set.
 fn SetFieldPayloadType(comptime MsgType: type, comptime field_meta: FieldMetadata) type {
-    const struct_fields = std.meta.fields(MsgType);
-    const StructFieldType = struct_fields[field_meta.field_index].type;
+    const StructFieldType = @typeInfo(MsgType).@"struct".field_types[field_meta.field_index];
 
     if (comptime field_meta.oneof_variant) |variant_name| {
         const UnionType = std.meta.Child(StructFieldType); // strip ? from ?union(enum){...}
-        inline for (std.meta.fields(UnionType)) |uf| {
-            if (comptime std.mem.eql(u8, uf.name, variant_name)) {
-                return uf.type;
-            }
-        }
-        @compileError("oneof variant not found in union: " ++ variant_name);
+        return @FieldType(UnionType, variant_name);
     }
 
     const info = comptime @typeInfo(StructFieldType);
@@ -92,8 +91,7 @@ pub fn getField(
     msg: anytype,
     comptime field_meta: FieldMetadata,
 ) FieldPayloadType(@TypeOf(msg), field_meta) {
-    const struct_fields = std.meta.fields(@TypeOf(msg));
-    const field_name = comptime struct_fields[field_meta.field_index].name;
+    const field_name = comptime fieldName(@TypeOf(msg), field_meta.field_index);
 
     const field = @field(msg, field_name);
 
@@ -119,7 +117,7 @@ pub fn getField(
         if (field == null) {
             return comptime switch (field_meta.kind) {
                 .scalar => |sc| getScalarDefault(sc.scalar, sc.default_value),
-                .enum_field => @as(FieldPayloadType(@TypeOf(msg), field_meta), @enumFromInt(field_meta.kind.enum_field.default_value)),
+                .enum_field => @as(FieldPayloadType(@TypeOf(msg), field_meta), @fromBackingInt(field_meta.kind.enum_field.default_value)),
                 .message_field => null,
                 .list, .map => @compileError("list/map fields are never null"),
             };
@@ -134,8 +132,7 @@ pub fn getSetField(
     msg: anytype,
     comptime field_meta: FieldMetadata,
 ) !SetFieldPayloadType(@TypeOf(msg), field_meta) {
-    const struct_fields = std.meta.fields(@TypeOf(msg));
-    const field_name = comptime struct_fields[field_meta.field_index].name;
+    const field_name = comptime fieldName(@TypeOf(msg), field_meta.field_index);
 
     const field = @field(msg, field_name);
 
@@ -164,14 +161,13 @@ pub fn getFieldPtr(
 ) *SetFieldPayloadType(std.meta.Child(@TypeOf(msg_ptr)), field_meta) {
     comptime if (field_meta.oneof_variant != null) @compileError("getFieldPtr: oneof fields not supported");
     const MsgType = std.meta.Child(@TypeOf(msg_ptr));
-    const field_name = comptime std.meta.fields(MsgType)[field_meta.field_index].name;
+    const field_name = comptime fieldName(MsgType, field_meta.field_index);
     return &@field(msg_ptr.*, field_name);
 }
 
 /// Returns true if the field is set (i.e. would be written to the wire).
 pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
-    const struct_fields = std.meta.fields(@TypeOf(msg));
-    const field_name = comptime struct_fields[field_meta.field_index].name;
+    const field_name = comptime fieldName(@TypeOf(msg), field_meta.field_index);
 
     const field = @field(msg, field_name);
 
@@ -192,7 +188,7 @@ pub fn hasField(msg: anytype, comptime field_meta: FieldMetadata) bool {
             .explicit, .legacy_required => field != null, // TODO check behavior for required fields
         },
         .enum_field => |ef| switch (comptime ef.presence) {
-            .implicit => @intFromEnum(field) != ef.default_value,
+            .implicit => @backingInt(field) != ef.default_value,
             .explicit, .legacy_required => field != null,
         },
         .message_field => field != null,
@@ -211,7 +207,7 @@ pub fn setField(
     allocator: std.mem.Allocator,
 ) void {
     const MsgType = std.meta.Child(@TypeOf(msg_ptr));
-    const field_name = comptime std.meta.fields(MsgType)[field_meta.field_index].name;
+    const field_name = comptime fieldName(MsgType, field_meta.field_index);
     if (comptime field_meta.oneof_variant) |variant_name| {
         const field_ptr = &@field(msg_ptr.*, field_name);
         if (field_ptr.*) |active| {
@@ -234,8 +230,8 @@ pub fn clearField(
     comptime field_meta: FieldMetadata,
 ) void {
     const MsgType = std.meta.Child(@TypeOf(msg_ptr));
-    const field = comptime std.meta.fields(MsgType)[field_meta.field_index];
-    const field_name = comptime field.name;
+    const field_name = comptime fieldName(MsgType, field_meta.field_index);
+    const field_attrs = comptime @typeInfo(MsgType).@"struct".field_attrs[field_meta.field_index];
 
     if (comptime field_meta.oneof_variant) |variant_name| {
         if (@field(msg_ptr.*, field_name)) |active| {
@@ -250,7 +246,7 @@ pub fn clearField(
         }
     } else if (hasField(msg_ptr.*, field_meta)) {
         deinitElement(@field(msg_ptr.*, field_name), allocator);
-        @field(msg_ptr.*, field_name) = comptime field.defaultValue().?;
+        @field(msg_ptr.*, field_name) = comptime field_attrs.defaultValue(@FieldType(MsgType, field_name)).?;
     }
 }
 
