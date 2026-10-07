@@ -66,7 +66,8 @@ pub const BinaryReader = struct {
     /// are confined to the sub-message until join() is called.
     pub fn fork(self: *BinaryReader) !void {
         const len: usize = try decodeVarint(self.data, &self.pos, self.end);
-        if (self.pos + len > self.end) return error.UnexpectedEof;
+        // Written as a subtraction so a huge untrusted `len` cannot overflow.
+        if (len > self.end - self.pos) return error.UnexpectedEof;
         try self.stack.append(self.allocator, self.end);
         self.end = self.pos + len;
     }
@@ -188,7 +189,8 @@ pub const BinaryReader = struct {
     /// allocated with the reader's allocator; free with the same allocator.
     pub fn bytes(self: *BinaryReader) ![]u8 {
         const len: usize = try self.varint();
-        if (self.pos + len > self.end) return error.UnexpectedEof;
+        // Written as a subtraction so a huge untrusted `len` cannot overflow.
+        if (len > self.end - self.pos) return error.UnexpectedEof;
 
         const owned = try self.allocator.dupe(u8, self.data[self.pos .. self.pos + len]);
         self.pos += len;
@@ -209,7 +211,8 @@ pub const BinaryReader = struct {
             .bit64 => _ = try self.fixed64(),
             .length_delimited => {
                 const len = try decodeVarint(self.data, &self.pos, self.end);
-                if (self.pos + len > self.end) return error.UnexpectedEof;
+                // Written as a subtraction so a huge untrusted `len` cannot overflow.
+                if (len > self.end - self.pos) return error.UnexpectedEof;
                 self.pos += @intCast(len);
             },
             .sgroup => {
@@ -448,6 +451,18 @@ test "bytes length exceeds buffer" {
     try testing.expectError(error.UnexpectedEof, r.bytes());
 }
 
+test "bytes length max u64" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.varint(std.math.maxInt(u64)); // length prefix, no payload
+    const buf = try w.toOwnedSlice();
+    defer testing.allocator.free(buf);
+
+    var r = BinaryReader.init(testing.allocator, buf);
+    defer r.deinit();
+    try testing.expectError(error.UnexpectedEof, r.bytes());
+}
+
 // fork / join
 
 test "fork join simple sub-message" {
@@ -485,6 +500,18 @@ test "fork join nested" {
 
 test "fork length exceeds parent scope" {
     var r = BinaryReader.init(testing.allocator, &.{ 0x05, 0x01, 0x02 });
+    defer r.deinit();
+    try testing.expectError(error.UnexpectedEof, r.fork());
+}
+
+test "fork length max u64" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.varint(std.math.maxInt(u64)); // length prefix, no payload
+    const buf = try w.toOwnedSlice();
+    defer testing.allocator.free(buf);
+
+    var r = BinaryReader.init(testing.allocator, buf);
     defer r.deinit();
     try testing.expectError(error.UnexpectedEof, r.fork());
 }
@@ -554,6 +581,20 @@ test "skip bare egroup tag" {
 test "skip group truncated" {
     // sgroup(1) with no egroup — truncated message
     var r = BinaryReader.init(testing.allocator, &.{ 0x0b, 0x10, 0x2a });
+    defer r.deinit();
+    const t = try r.tag();
+    try testing.expectError(error.UnexpectedEof, r.skip(t));
+}
+
+test "skip length-delimited length max u64" {
+    var w = BinaryWriter.init(testing.allocator);
+    defer w.deinit();
+    try w.tag(1, .length_delimited);
+    try w.varint(std.math.maxInt(u64)); // length prefix, no payload
+    const buf = try w.toOwnedSlice();
+    defer testing.allocator.free(buf);
+
+    var r = BinaryReader.init(testing.allocator, buf);
     defer r.deinit();
     const t = try r.tag();
     try testing.expectError(error.UnexpectedEof, r.skip(t));
