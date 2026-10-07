@@ -145,8 +145,8 @@ pub const Registry = struct {
 fn messageOpsOf(comptime Scope: type) []const *const MessageOps {
     comptime {
         var out: []const *const MessageOps = &.{};
-        for (@typeInfo(Scope).@"struct".decls) |decl| {
-            const D = @field(Scope, decl.name);
+        for (@typeInfo(Scope).@"struct".decl_names) |decl_name| {
+            const D = @field(Scope, decl_name);
             if (@TypeOf(D) != type) continue;
             if (@typeInfo(D) != .@"struct") continue;
             if (!@hasDecl(D, "_metadata")) continue;

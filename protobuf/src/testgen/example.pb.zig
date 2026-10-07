@@ -55,7 +55,7 @@ pub const Foo = struct {
 pub const Bar = struct {
     foo: ?*Foo = null,
     tags: std.ArrayList([]const u8) = .empty,
-    color: Color = @enumFromInt(0),
+    color: Color = @fromBackingInt(0),
     colors: std.ArrayList(Color) = .empty,
     _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayList(_protobuf.UnknownField)) = .empty,
 

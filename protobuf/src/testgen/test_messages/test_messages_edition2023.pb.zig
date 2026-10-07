@@ -243,11 +243,11 @@ pub const TestAllTypesEdition2023 = struct {
     }
 
     pub fn getOptionalNestedEnum(self: @This()) TestAllTypesEdition2023.NestedEnum {
-        return self.optional_nested_enum orelse @enumFromInt(0);
+        return self.optional_nested_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalForeignEnum(self: @This()) ForeignEnumEdition2023 {
-        return self.optional_foreign_enum orelse @enumFromInt(0);
+        return self.optional_foreign_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalStringPiece(self: @This()) []const u8 {

@@ -48,11 +48,12 @@ fn writeScalar(ctx: *const JsonContext, comptime scalar: ScalarType, value: anyt
 }
 
 fn writeEnum(ctx: *const JsonContext, value: anytype) !void {
-    const int_val = @intFromEnum(value);
-    inline for (@typeInfo(@TypeOf(value)).@"enum".fields) |f| {
-        if (int_val == f.value) {
+    const int_val = @backingInt(value);
+    const info = @typeInfo(@TypeOf(value)).@"enum";
+    inline for (info.field_names, info.field_values) |name, field_value| {
+        if (int_val == field_value) {
             // TODO: the proto name may be different from the local name
-            try ctx.json_writter.write(f.name);
+            try ctx.json_writter.write(name);
             return;
         }
     }

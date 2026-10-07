@@ -47,7 +47,7 @@ pub const TestAllTypesEditionUnstable = struct {
     }
 
     pub fn getOptionalForeignEnum(self: @This()) ForeignEnumEditionUnstable {
-        return self.optional_foreign_enum orelse @enumFromInt(0);
+        return self.optional_foreign_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalBytes(self: @This()) []const u8 {

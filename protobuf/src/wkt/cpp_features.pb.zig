@@ -33,7 +33,7 @@ pub const CppFeatures = struct {
     }
 
     pub fn getStringType(self: @This()) CppFeatures.StringType {
-        return self.string_type orelse @enumFromInt(0);
+        return self.string_type orelse @fromBackingInt(0);
     }
 
     pub fn getEnumNameUsesStringView(self: @This()) bool {
@@ -41,7 +41,7 @@ pub const CppFeatures = struct {
     }
 
     pub fn getRepeatedType(self: @This()) CppFeatures.RepeatedType {
-        return self.repeated_type orelse @enumFromInt(0);
+        return self.repeated_type orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

@@ -204,9 +204,9 @@ pub const TestAllTypesProto3 = struct {
         ALIAS_BAZ = 2,
         _,
 
-        pub const MOO: @This() = @enumFromInt(2);
-        pub const moo: @This() = @enumFromInt(2);
-        pub const bAz: @This() = @enumFromInt(2);
+        pub const MOO: @This() = @fromBackingInt(2);
+        pub const moo: @This() = @fromBackingInt(2);
+        pub const bAz: @This() = @fromBackingInt(2);
     };
 
     pub fn getOptionalInt32(self: @This()) i32 {
@@ -270,15 +270,15 @@ pub const TestAllTypesProto3 = struct {
     }
 
     pub fn getOptionalNestedEnum(self: @This()) TestAllTypesProto3.NestedEnum {
-        return self.optional_nested_enum orelse @enumFromInt(0);
+        return self.optional_nested_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalForeignEnum(self: @This()) ForeignEnum {
-        return self.optional_foreign_enum orelse @enumFromInt(0);
+        return self.optional_foreign_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalAliasedEnum(self: @This()) TestAllTypesProto3.AliasedEnum {
-        return self.optional_aliased_enum orelse @enumFromInt(0);
+        return self.optional_aliased_enum orelse @fromBackingInt(0);
     }
 
     pub fn getOptionalStringPiece(self: @This()) []const u8 {
@@ -290,7 +290,7 @@ pub const TestAllTypesProto3 = struct {
     }
 
     pub fn getOptionalNullValue(self: @This()) _google_protobuf_struct.NullValue {
-        return self.optional_null_value orelse @enumFromInt(0);
+        return self.optional_null_value orelse @fromBackingInt(0);
     }
 
     pub fn getFieldname1(self: @This()) i32 {

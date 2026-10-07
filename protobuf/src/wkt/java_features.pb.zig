@@ -48,7 +48,7 @@ pub const JavaFeatures = struct {
     }
 
     pub fn getUtf8Validation(self: @This()) JavaFeatures.Utf8Validation {
-        return self.utf8_validation orelse @enumFromInt(0);
+        return self.utf8_validation orelse @fromBackingInt(0);
     }
 
     pub fn getLargeEnum(self: @This()) bool {
@@ -60,7 +60,7 @@ pub const JavaFeatures = struct {
     }
 
     pub fn getNestInFileClass(self: @This()) JavaFeatures.NestInFileClassFeature.NestInFileClass {
-        return self.nest_in_file_class orelse @enumFromInt(0);
+        return self.nest_in_file_class orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

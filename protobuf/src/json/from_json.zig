@@ -116,23 +116,24 @@ fn bytesFromJson(allocator: std.mem.Allocator, val: std.json.Value) ![]const u8 
 fn enumFromJson(comptime EnumType: type, val: std.json.Value) !EnumType {
     switch (val) {
         .string => |s| {
-            inline for (@typeInfo(EnumType).@"enum".fields) |f| {
+            const info = @typeInfo(EnumType).@"enum";
+            inline for (info.field_names, info.field_values) |name, value| {
                 // TODO the proto name may be different from the local name
-                if (std.mem.eql(u8, s, f.name)) return @enumFromInt(f.value);
+                if (std.mem.eql(u8, s, name)) return @fromBackingInt(value);
             }
 
             // Aliases are generated as declarations of the enum type.
-            inline for (@typeInfo(EnumType).@"enum".decls) |d| {
-                const alias = @field(EnumType, d.name);
+            inline for (info.decl_names) |decl_name| {
+                const alias = @field(EnumType, decl_name);
                 // TODO the proto name may be different from the local name
-                if (std.mem.eql(u8, s, d.name)) return alias;
+                if (std.mem.eql(u8, s, decl_name)) return alias;
             }
 
             return error.InvalidJson;
         },
         .number_string => |s| {
             const n = std.fmt.parseInt(std.meta.Tag(EnumType), s, 10) catch return error.InvalidJson;
-            return @enumFromInt(n);
+            return @fromBackingInt(n);
         },
         else => return error.InvalidJson,
     }

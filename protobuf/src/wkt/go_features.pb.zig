@@ -55,15 +55,15 @@ pub const GoFeatures = struct {
     }
 
     pub fn getApiLevel(self: @This()) GoFeatures.APILevel {
-        return self.api_level orelse @enumFromInt(0);
+        return self.api_level orelse @fromBackingInt(0);
     }
 
     pub fn getStripEnumPrefix(self: @This()) GoFeatures.StripEnumPrefix {
-        return self.strip_enum_prefix orelse @enumFromInt(0);
+        return self.strip_enum_prefix orelse @fromBackingInt(0);
     }
 
     pub fn getOptimizeMode(self: @This()) GoFeatures.OptimizeModeFeature.OptimizeMode {
-        return self.optimize_mode orelse @enumFromInt(0);
+        return self.optimize_mode orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

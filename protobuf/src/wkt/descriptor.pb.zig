@@ -50,7 +50,7 @@ pub const FileDescriptorProto = struct {
     }
 
     pub fn getEdition(self: @This()) Edition {
-        return self.edition orelse @enumFromInt(0);
+        return self.edition orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -132,7 +132,7 @@ pub const DescriptorProto = struct {
     }
 
     pub fn getVisibility(self: @This()) SymbolVisibility {
-        return self.visibility orelse @enumFromInt(0);
+        return self.visibility orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -199,7 +199,7 @@ pub const ExtensionRangeOptions = struct {
     };
 
     pub fn getVerification(self: @This()) ExtensionRangeOptions.VerificationState {
-        return self.verification orelse @enumFromInt(0);
+        return self.verification orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -265,11 +265,11 @@ pub const FieldDescriptorProto = struct {
     }
 
     pub fn getLabel(self: @This()) FieldDescriptorProto.Label {
-        return self.label orelse @enumFromInt(0);
+        return self.label orelse @fromBackingInt(0);
     }
 
     pub fn getType(self: @This()) FieldDescriptorProto.Type {
-        return self.type orelse @enumFromInt(0);
+        return self.type orelse @fromBackingInt(0);
     }
 
     pub fn getTypeName(self: @This()) []const u8 {
@@ -365,7 +365,7 @@ pub const EnumDescriptorProto = struct {
     }
 
     pub fn getVisibility(self: @This()) SymbolVisibility {
-        return self.visibility orelse @enumFromInt(0);
+        return self.visibility orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -517,7 +517,7 @@ pub const FileOptions = struct {
     }
 
     pub fn getOptimizeFor(self: @This()) FileOptions.OptimizeMode {
-        return self.optimize_for orelse @enumFromInt(0);
+        return self.optimize_for orelse @fromBackingInt(0);
     }
 
     pub fn getGoPackage(self: @This()) []const u8 {
@@ -647,7 +647,7 @@ pub const FieldOptions = struct {
         _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayList(_protobuf.UnknownField)) = .empty,
 
         pub fn getEdition(self: @This()) Edition {
-            return self.edition orelse @enumFromInt(0);
+            return self.edition orelse @fromBackingInt(0);
         }
 
         pub fn getValue(self: @This()) []const u8 {
@@ -674,11 +674,11 @@ pub const FieldOptions = struct {
         _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayList(_protobuf.UnknownField)) = .empty,
 
         pub fn getEditionIntroduced(self: @This()) Edition {
-            return self.edition_introduced orelse @enumFromInt(0);
+            return self.edition_introduced orelse @fromBackingInt(0);
         }
 
         pub fn getEditionDeprecated(self: @This()) Edition {
-            return self.edition_deprecated orelse @enumFromInt(0);
+            return self.edition_deprecated orelse @fromBackingInt(0);
         }
 
         pub fn getDeprecationWarning(self: @This()) []const u8 {
@@ -686,7 +686,7 @@ pub const FieldOptions = struct {
         }
 
         pub fn getEditionRemoved(self: @This()) Edition {
-            return self.edition_removed orelse @enumFromInt(0);
+            return self.edition_removed orelse @fromBackingInt(0);
         }
 
         pub fn getRemovalError(self: @This()) []const u8 {
@@ -740,7 +740,7 @@ pub const FieldOptions = struct {
     };
 
     pub fn getCtype(self: @This()) FieldOptions.CType {
-        return self.ctype orelse @enumFromInt(0);
+        return self.ctype orelse @fromBackingInt(0);
     }
 
     pub fn getPacked(self: @This()) bool {
@@ -748,7 +748,7 @@ pub const FieldOptions = struct {
     }
 
     pub fn getJstype(self: @This()) FieldOptions.JSType {
-        return self.jstype orelse @enumFromInt(0);
+        return self.jstype orelse @fromBackingInt(0);
     }
 
     pub fn getLazy(self: @This()) bool {
@@ -772,7 +772,7 @@ pub const FieldOptions = struct {
     }
 
     pub fn getRetention(self: @This()) FieldOptions.OptionRetention {
-        return self.retention orelse @enumFromInt(0);
+        return self.retention orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -900,7 +900,7 @@ pub const MethodOptions = struct {
     }
 
     pub fn getIdempotencyLevel(self: @This()) MethodOptions.IdempotencyLevel {
-        return self.idempotency_level orelse @enumFromInt(0);
+        return self.idempotency_level orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1091,39 +1091,39 @@ pub const FeatureSet = struct {
     };
 
     pub fn getFieldPresence(self: @This()) FeatureSet.FieldPresence {
-        return self.field_presence orelse @enumFromInt(0);
+        return self.field_presence orelse @fromBackingInt(0);
     }
 
     pub fn getEnumType(self: @This()) FeatureSet.EnumType {
-        return self.enum_type orelse @enumFromInt(0);
+        return self.enum_type orelse @fromBackingInt(0);
     }
 
     pub fn getRepeatedFieldEncoding(self: @This()) FeatureSet.RepeatedFieldEncoding {
-        return self.repeated_field_encoding orelse @enumFromInt(0);
+        return self.repeated_field_encoding orelse @fromBackingInt(0);
     }
 
     pub fn getUtf8Validation(self: @This()) FeatureSet.Utf8Validation {
-        return self.utf8_validation orelse @enumFromInt(0);
+        return self.utf8_validation orelse @fromBackingInt(0);
     }
 
     pub fn getMessageEncoding(self: @This()) FeatureSet.MessageEncoding {
-        return self.message_encoding orelse @enumFromInt(0);
+        return self.message_encoding orelse @fromBackingInt(0);
     }
 
     pub fn getJsonFormat(self: @This()) FeatureSet.JsonFormat {
-        return self.json_format orelse @enumFromInt(0);
+        return self.json_format orelse @fromBackingInt(0);
     }
 
     pub fn getEnforceNamingStyle(self: @This()) FeatureSet.EnforceNamingStyle {
-        return self.enforce_naming_style orelse @enumFromInt(0);
+        return self.enforce_naming_style orelse @fromBackingInt(0);
     }
 
     pub fn getDefaultSymbolVisibility(self: @This()) FeatureSet.VisibilityFeature.DefaultSymbolVisibility {
-        return self.default_symbol_visibility orelse @enumFromInt(0);
+        return self.default_symbol_visibility orelse @fromBackingInt(0);
     }
 
     pub fn getEnforceProtoLimits(self: @This()) FeatureSet.ProtoLimitsFeature.EnforceProtoLimits {
-        return self.enforce_proto_limits orelse @enumFromInt(0);
+        return self.enforce_proto_limits orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1150,7 +1150,7 @@ pub const FeatureSetDefaults = struct {
         _unknown_fields: std.AutoHashMapUnmanaged(u32, std.ArrayList(_protobuf.UnknownField)) = .empty,
 
         pub fn getEdition(self: @This()) Edition {
-            return self.edition orelse @enumFromInt(0);
+            return self.edition orelse @fromBackingInt(0);
         }
 
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1165,11 +1165,11 @@ pub const FeatureSetDefaults = struct {
     };
 
     pub fn getMinimumEdition(self: @This()) Edition {
-        return self.minimum_edition orelse @enumFromInt(0);
+        return self.minimum_edition orelse @fromBackingInt(0);
     }
 
     pub fn getMaximumEdition(self: @This()) Edition {
-        return self.maximum_edition orelse @enumFromInt(0);
+        return self.maximum_edition orelse @fromBackingInt(0);
     }
 
     pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {
@@ -1257,7 +1257,7 @@ pub const GeneratedCodeInfo = struct {
         }
 
         pub fn getSemantic(self: @This()) GeneratedCodeInfo.Annotation.Semantic {
-            return self.semantic orelse @enumFromInt(0);
+            return self.semantic orelse @fromBackingInt(0);
         }
 
         pub fn deinit(self: *@This(), allocator: std.mem.Allocator) void {

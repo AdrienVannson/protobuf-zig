@@ -79,12 +79,12 @@ fn writeListField(
             if (comptime list_meta.is_packed) {
                 try bw.tag(number, .length_delimited);
                 try bw.fork();
-                for (list.items) |v| try bw.int32(@intFromEnum(v));
+                for (list.items) |v| try bw.int32(@backingInt(v));
                 try bw.join();
             } else {
                 for (list.items) |v| {
                     try bw.tag(number, .varint);
-                    try bw.int32(@intFromEnum(v));
+                    try bw.int32(@backingInt(v));
                 }
             }
         },
@@ -110,7 +110,7 @@ fn writeMapField(
             },
             .enum_type => {
                 try bw.tag(2, .varint);
-                try bw.int32(@intFromEnum(entry.value_ptr.*));
+                try bw.int32(@backingInt(entry.value_ptr.*));
             },
             .message => {
                 try writeMessageField(bw, 2, entry.value_ptr.*.*);
@@ -130,7 +130,7 @@ fn writeFieldCallback(bw: *BinaryWriter, comptime fm: FieldMetadata, value: anyt
         },
         .enum_field => {
             try bw.tag(fm.number, .varint);
-            try bw.int32(@intFromEnum(value));
+            try bw.int32(@backingInt(value));
         },
         .message_field => {
             try writeMessageField(bw, fm.number, value.*);
