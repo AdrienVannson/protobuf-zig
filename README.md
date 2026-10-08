@@ -71,36 +71,17 @@ std.debug.print("decoded: {s}, {d}, {s}\n", .{ person.name, person.age, person.e
 ```
 <!-- /include -->
 
-### `mergeFromBinary`
-
-Merging binary data into an existing message:
-
-<!-- include: example/examples/merge_from_binary.zig -->
-```zig
-// The message owns its strings, which are freed by `deinit` or when overwritten
-var person = example.Person{ .name = try allocator.dupe(u8, "Alice"), .age = 30 };
-defer person.deinit(allocator);
-
-// Person{ .age = 31, .emails = .{"alice@example.com"} }
-const encoded = "\x10\x1f\x1a\x11alice@example.com";
-try protobuf.mergeFromBinary(&person, allocator, encoded);
-
-// merged: Alice, 31, alice@example.com
-std.debug.print("merged: {s}, {d}, {s}\n", .{ person.name, person.age, person.emails.items[0] });
-```
-<!-- /include -->
-
 ### `merge`
 
-Merging a message into another. Like `mergeFromBinary`, this follows protobuf merge
-semantics (the result is the same as decoding the concatenation of both encodings):
-singular fields set in the source overwrite the target, repeated fields are appended,
-map entries are replaced by key, and sub-messages are merged recursively. All data is
-copied, so the target never references memory owned by the source.
+Merging a message into another, following protobuf merge semantics (the result is the
+same as decoding the concatenation of both encodings): singular fields set in the source
+overwrite the target, repeated fields are appended, map entries are replaced by key, and
+sub-messages are merged recursively. All data is copied, so the target never references
+memory owned by the source.
 
 > [!WARNING]
 > The destination message must own all its memory, recursively: merging may free or
-> extend fields using the allocator passed to `merge` / `mergeFromBinary`.
+> extend fields using the allocator passed to `merge`.
 
 <!-- include: example/examples/merge.zig -->
 ```zig
@@ -112,6 +93,31 @@ var emails = [_][]const u8{"alice@example.com"};
 const update = example.Person{ .age = 31, .emails = .fromOwnedSlice(&emails) };
 
 try protobuf.merge(&person, allocator, update);
+
+// merged: Alice, 31, alice@example.com
+std.debug.print("merged: {s}, {d}, {s}\n", .{ person.name, person.age, person.emails.items[0] });
+```
+<!-- /include -->
+
+### `mergeFromBinary`
+
+Merging binary data into an existing message. This follows the same semantics as
+`merge`: the result is the same as decoding the concatenation of the message's encoding
+and the input. All data is copied, so the message never references the input buffer.
+
+> [!WARNING]
+> The destination message must own all its memory, recursively: merging may free or
+> extend fields using the allocator passed to `mergeFromBinary`.
+
+<!-- include: example/examples/merge_from_binary.zig -->
+```zig
+// The message owns its strings, which are freed by `deinit` or when overwritten
+var person = example.Person{ .name = try allocator.dupe(u8, "Alice"), .age = 30 };
+defer person.deinit(allocator);
+
+// Person{ .age = 31, .emails = .{"alice@example.com"} }
+const encoded = "\x10\x1f\x1a\x11alice@example.com";
+try protobuf.mergeFromBinary(&person, allocator, encoded);
 
 // merged: Alice, 31, alice@example.com
 std.debug.print("merged: {s}, {d}, {s}\n", .{ person.name, person.age, person.emails.items[0] });
