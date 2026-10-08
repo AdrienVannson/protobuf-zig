@@ -10,11 +10,11 @@ pub fn main(init: std.process.Init) !void {
     var person = example.Person{ .name = try allocator.dupe(u8, "Alice"), .age = 30 };
     defer person.deinit(allocator);
 
-    // Person{ .age = 31, .email = "alice@example.com" }
+    // Person{ .age = 31, .emails = .{"alice@example.com"} }
     const encoded = "\x10\x1f\x1a\x11alice@example.com";
     try protobuf.mergeFromBinary(&person, allocator, encoded);
 
     // merged: Alice, 31, alice@example.com
-    std.debug.print("merged: {s}, {d}, {s}\n", .{ person.name, person.age, person.email });
+    std.debug.print("merged: {s}, {d}, {s}\n", .{ person.name, person.age, person.emails.items[0] });
     // <!-- /include -->
 }

@@ -6,10 +6,11 @@ pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
 
     // <!-- include -->
+    var emails = [_][]const u8{"alice@example.com"};
     const person = example.Person{
         .name = "Alice",
         .age = 30,
-        .email = "alice@example.com",
+        .emails = .fromOwnedSlice(&emails),
     };
 
     const encoded = try protobuf.toBinary(allocator, person);

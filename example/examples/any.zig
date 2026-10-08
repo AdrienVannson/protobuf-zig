@@ -8,10 +8,11 @@ pub fn main(init: std.process.Init) !void {
     // <!-- include -->
     const Any = protobuf.wkt.any.Any;
 
+    var emails = [_][]const u8{"alice@example.com"};
     const person = example.Person{
         .name = "Alice",
         .age = 30,
-        .email = "alice@example.com",
+        .emails = .fromOwnedSlice(&emails),
     };
 
     // Pack the person into an Any
@@ -23,7 +24,7 @@ pub fn main(init: std.process.Init) !void {
     if (payload.is(example.Person)) {
         var unpacked = try payload.unpack(example.Person, allocator);
         defer unpacked.deinit(allocator);
-        std.debug.print("unpacked: {s}, {d}, {s}\n", .{ unpacked.name, unpacked.age, unpacked.email });
+        std.debug.print("unpacked: {s}, {d}, {s}\n", .{ unpacked.name, unpacked.age, unpacked.emails.items[0] });
     }
     // <!-- /include -->
 }

@@ -5,5 +5,12 @@ package example;
 message Person {
   string name = 1;
   int32 age = 2;
-  string email = 3;
+  repeated string emails = 3;
+  map<string, string> tags = 5;
+  Address address = 6;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
 }
