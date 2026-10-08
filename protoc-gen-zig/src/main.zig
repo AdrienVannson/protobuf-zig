@@ -16,9 +16,8 @@ pub fn main(init: std.process.Init) !void {
     defer allocator.free(input);
 
     // Decode request
-    var request: plugin.CodeGeneratorRequest = .{};
+    var request = try protobuf.fromBinary(plugin.CodeGeneratorRequest, allocator, input);
     defer request.deinit(allocator);
-    try protobuf.fromBinary(&request, allocator, input);
 
     // Build map: file name → FileDescriptorProto
     var file_map = std.StringHashMap(*protobuf.wkt.descriptor.FileDescriptorProto).init(allocator);

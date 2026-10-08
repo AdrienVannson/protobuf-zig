@@ -26,8 +26,10 @@ pub const DescExtension = descriptor.DescExtension;
 
 pub const toBinary = @import("wire/to_binary.zig").toBinary;
 pub const fromBinary = @import("wire/from_binary.zig").fromBinary;
+pub const mergeFromBinary = @import("wire/from_binary.zig").mergeFromBinary;
 pub const toJson = @import("json/to_json.zig").toJson;
 pub const fromJson = @import("json/from_json.zig").fromJson;
+pub const mergeFromJson = @import("json/from_json.zig").mergeFromJson;
 
 pub const UnknownField = @import("unknown_field.zig").UnknownField;
 

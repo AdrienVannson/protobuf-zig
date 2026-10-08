@@ -5,9 +5,8 @@ const FileDescriptorProto = @import("../wkt/descriptor.pb.zig").FileDescriptorPr
 
 test "example.pb.zig _descriptor_bytes decodes file name" {
     const allocator = std.testing.allocator;
-    var msg: FileDescriptorProto = .{};
+    var msg = try fromBinary(FileDescriptorProto, allocator, example._descriptor_bytes);
     defer msg.deinit(allocator);
 
-    try fromBinary(&msg, allocator, example._descriptor_bytes);
     try std.testing.expectEqualStrings("example.proto", msg.name.?);
 }

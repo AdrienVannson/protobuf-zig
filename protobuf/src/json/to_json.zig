@@ -170,7 +170,7 @@ fn writeWktAny(ctx: *const JsonContext, msg: anytype) anyerror!void {
         mt.destroy(ptr, ctx.allocator);
     }
 
-    try mt.fromBinary(ptr, ctx.allocator, msg.value);
+    try mt.mergeFromBinary(ptr, ctx.allocator, msg.value);
 
     const inner_json = try mt.toJson(ctx.allocator, ptr, ctx.registry);
     defer ctx.allocator.free(inner_json);

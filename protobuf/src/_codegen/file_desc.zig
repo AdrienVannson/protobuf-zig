@@ -65,8 +65,7 @@ pub fn fileDesc(
 
 fn buildDescFile(allocator: std.mem.Allocator, descriptor_bytes: []const u8, dep_accessors: []const FileDescFn) !*const DescFile {
     const proto = try allocator.create(descriptor.FileDescriptorProto);
-    proto.* = .{};
-    try protobuf.fromBinary(proto, allocator, descriptor_bytes);
+    proto.* = try protobuf.fromBinary(descriptor.FileDescriptorProto, allocator, descriptor_bytes);
 
     // name -> *const DescFile
     var deps = std.StringHashMap(*const DescFile).init(allocator);

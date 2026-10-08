@@ -48,14 +48,14 @@ pub const MessageOps = struct {
     /// `deinit` first.
     destroy: *const fn (*anyopaque, std.mem.Allocator) void,
 
-    /// Decode wire bytes into the message.
-    fromBinary: *const fn (*anyopaque, std.mem.Allocator, []const u8) anyerror!void,
+    /// Merge decoded wire bytes into the message.
+    mergeFromBinary: *const fn (*anyopaque, std.mem.Allocator, []const u8) anyerror!void,
 
     /// Encode the message to wire bytes (caller owns the returned slice).
     toBinary: *const fn (std.mem.Allocator, *anyopaque) anyerror![]u8,
 
-    /// Decode ProtoJSON into the message.
-    fromJson: *const fn (*anyopaque, std.mem.Allocator, []const u8, *const Registry) anyerror!void,
+    /// Merge decoded ProtoJSON into the message.
+    mergeFromJson: *const fn (*anyopaque, std.mem.Allocator, []const u8, *const Registry) anyerror!void,
 
     /// Encode the message to ProtoJSON (caller owns the returned slice).
     toJson: *const fn (std.mem.Allocator, *anyopaque, *const Registry) anyerror![]u8,
@@ -78,14 +78,14 @@ pub const MessageOps = struct {
             fn deinit(ptr: *anyopaque, allocator: std.mem.Allocator) void {
                 cast(ptr).deinit(allocator);
             }
-            fn fromBinary(ptr: *anyopaque, allocator: std.mem.Allocator, bytes: []const u8) anyerror!void {
-                try protobuf.fromBinary(cast(ptr), allocator, bytes);
+            fn mergeFromBinary(ptr: *anyopaque, allocator: std.mem.Allocator, bytes: []const u8) anyerror!void {
+                try protobuf.mergeFromBinary(cast(ptr), allocator, bytes);
             }
             fn toBinary(allocator: std.mem.Allocator, ptr: *anyopaque) anyerror![]u8 {
                 return protobuf.toBinary(allocator, cast(ptr).*);
             }
-            fn fromJson(ptr: *anyopaque, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) anyerror!void {
-                try protobuf.fromJson(cast(ptr), allocator, json, registry);
+            fn mergeFromJson(ptr: *anyopaque, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) anyerror!void {
+                try protobuf.mergeFromJson(cast(ptr), allocator, json, registry);
             }
             fn toJson(allocator: std.mem.Allocator, ptr: *anyopaque, registry: *const Registry) anyerror![]u8 {
                 return protobuf.toJson(allocator, cast(ptr).*, registry);
@@ -97,9 +97,9 @@ pub const MessageOps = struct {
                 .create = create,
                 .destroy = destroy,
                 .deinit = deinit,
-                .fromBinary = fromBinary,
+                .mergeFromBinary = mergeFromBinary,
                 .toBinary = toBinary,
-                .fromJson = fromJson,
+                .mergeFromJson = mergeFromJson,
                 .toJson = toJson,
             };
         };
@@ -199,7 +199,7 @@ test "MessageOps round-trips through binary" {
 
     const ptr = try mt.create(allocator);
     defer mt.destroy(ptr, allocator);
-    try mt.fromBinary(ptr, allocator, bytes);
+    try mt.mergeFromBinary(ptr, allocator, bytes);
     defer mt.deinit(ptr, allocator);
 
     const reencoded = try mt.toBinary(allocator, ptr);

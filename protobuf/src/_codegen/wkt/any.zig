@@ -29,10 +29,7 @@ pub fn is(any: anytype, comptime T: type) bool {
 /// `error.AnyTypeMismatch` if `any` does not hold a `T`.
 pub fn unpack(comptime T: type, allocator: std.mem.Allocator, any: anytype) !T {
     if (!is(any, T)) return error.AnyTypeMismatch;
-    var msg: T = .{};
-    errdefer msg.deinit(allocator);
-    try protobuf.fromBinary(&msg, allocator, any.value);
-    return msg;
+    return protobuf.fromBinary(T, allocator, any.value);
 }
 
 test "Any pack / is / unpack" {
