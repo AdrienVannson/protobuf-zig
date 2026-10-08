@@ -223,10 +223,24 @@ fn readMessage(reader: *BinaryReader, allocator: std.mem.Allocator, msg: anytype
     }
 }
 
-/// Deserializes a message from its binary Protocol Buffer representation.
+/// Deserializes a new message of type T from its binary Protocol Buffer
+/// representation. The caller owns the result and must `deinit` it. On error,
+/// nothing is leaked.
+pub fn fromBinary(comptime T: type, allocator: std.mem.Allocator, data: []const u8) !T {
+    var msg: T = .{};
+    errdefer msg.deinit(allocator);
+    try mergeFromBinary(&msg, allocator, data);
+    return msg;
+}
+
+/// Decodes a binary Protocol Buffer representation and merges it into msg,
+/// following protobuf merge semantics: singular fields are overwritten, repeated
+/// fields are appended, map entries are replaced by key, and set sub-messages
+/// are merged recursively.
 ///
-/// msg must be a pointer to the message struct (e.g. &my_msg).
-pub fn fromBinary(msg: anytype, allocator: std.mem.Allocator, data: []const u8) !void {
+/// msg must be a pointer to the message struct (e.g. &my_msg). On error, msg
+/// may be partially merged; the caller must still `deinit` it.
+pub fn mergeFromBinary(msg: anytype, allocator: std.mem.Allocator, data: []const u8) !void {
     var reader = BinaryReader.init(allocator, data);
     defer reader.deinit();
     try readMessage(&reader, allocator, msg);

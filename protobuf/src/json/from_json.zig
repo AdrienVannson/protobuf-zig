@@ -316,7 +316,7 @@ fn readWktAny(msg: anytype, allocator: std.mem.Allocator, val: std.json.Value, r
 
     // TODO: see if we can avoid going back to string values
     defer allocator.free(inner_json);
-    try mt.fromJson(ptr, allocator, inner_json, registry);
+    try mt.mergeFromJson(ptr, allocator, inner_json, registry);
 
     msg.type_url = try allocator.dupe(u8, type_url);
     msg.value = try mt.toBinary(allocator, ptr);
@@ -603,7 +603,20 @@ fn readMessage(
     }
 }
 
-pub fn fromJson(msg: anytype, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) !void {
+/// Deserializes a new message of type T from its ProtoJSON representation. The
+/// caller owns the result and must `deinit` it. On error, nothing is leaked.
+pub fn fromJson(comptime T: type, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) !T {
+    var msg: T = .{};
+    errdefer msg.deinit(allocator);
+    try mergeFromJson(&msg, allocator, json, registry);
+    return msg;
+}
+
+/// Decodes a ProtoJSON representation and merges it into msg.
+///
+/// msg must be a pointer to the message struct (e.g. &my_msg). On error, msg
+/// may be partially merged; the caller must still `deinit` it.
+pub fn mergeFromJson(msg: anytype, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) !void {
     const parsed = try std.json.parseFromSlice(std.json.Value, allocator, json, .{
         .parse_numbers = false,
     });

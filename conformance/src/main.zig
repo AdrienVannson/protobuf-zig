@@ -47,9 +47,8 @@ pub fn main(init: std.process.Init) !void {
         try stdin_reader.interface.readSliceAll(request_bytes);
 
         // Decode ConformanceRequest.
-        var request: ConformanceRequest = .{};
+        var request = try protobuf.fromBinary(ConformanceRequest, allocator, request_bytes);
         defer request.deinit(allocator);
-        try protobuf.fromBinary(&request, allocator, request_bytes);
 
         // Build response.
         var response = try handleRequest(allocator, &request, &registry);
@@ -89,9 +88,9 @@ fn roundtrip(allocator: std.mem.Allocator, ops: *const protobuf.MessageOps, requ
     // Parse
     const maybe_parse_err: ?ConformanceResponse = blk: {
         if (request.payload) |p| switch (p) {
-            .protobuf_payload => |bytes| ops.fromBinary(msg, test_allocator, bytes) catch |err|
+            .protobuf_payload => |bytes| ops.mergeFromBinary(msg, test_allocator, bytes) catch |err|
                 break :blk .{ .result = .{ .parse_error = try allocator.dupe(u8, @errorName(err)) } },
-            .json_payload => |json_str| ops.fromJson(msg, test_allocator, json_str, registry) catch |err|
+            .json_payload => |json_str| ops.mergeFromJson(msg, test_allocator, json_str, registry) catch |err|
                 break :blk .{ .result = .{ .parse_error = try allocator.dupe(u8, @errorName(err)) } },
             else => break :blk .{ .result = .{ .skipped = try allocator.dupe(u8, "JSPB and TEXT_FORMAT payloads not supported") } },
         } else break :blk .{ .result = .{ .skipped = try allocator.dupe(u8, "no payload") } };
