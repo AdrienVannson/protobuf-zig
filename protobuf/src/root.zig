@@ -27,6 +27,7 @@ pub const DescExtension = descriptor.DescExtension;
 pub const toBinary = @import("wire/to_binary.zig").toBinary;
 pub const fromBinary = @import("wire/from_binary.zig").fromBinary;
 pub const mergeFromBinary = @import("wire/from_binary.zig").mergeFromBinary;
+pub const merge = @import("merge.zig").merge;
 pub const toJson = @import("json/to_json.zig").toJson;
 pub const fromJson = @import("json/from_json.zig").fromJson;
 pub const mergeFromJson = @import("json/from_json.zig").mergeFromJson;
@@ -64,6 +65,7 @@ test {
     _ = @import("_codegen/field_access.zig");
     _ = @import("wire/to_binary.zig");
     _ = @import("wire/from_binary.zig");
+    _ = @import("merge.zig");
     _ = @import("json/to_json.zig");
     _ = @import("json/from_json.zig");
     _ = @import("json/wkt_time.zig");

@@ -12,6 +12,6 @@ pub fn main(init: std.process.Init) !void {
     defer person.deinit(allocator);
 
     // decoded: Alice, 30, alice@example.com
-    std.debug.print("decoded: {s}, {d}, {s}\n", .{ person.name, person.age, person.email });
+    std.debug.print("decoded: {s}, {d}, {s}\n", .{ person.name, person.age, person.emails.items[0] });
     // <!-- /include -->
 }
