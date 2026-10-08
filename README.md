@@ -65,8 +65,7 @@ std.debug.print("decoded: {s}, {d}, {s}\n", .{ person.name, person.age, person.e
 
 ### `mergeFromBinary`
 
-Merging binary data into an existing message (singular fields are overwritten,
-repeated fields are appended):
+Merging binary data into an existing message:
 
 <!-- include: example/examples/merge_from_binary.zig -->
 ```zig
