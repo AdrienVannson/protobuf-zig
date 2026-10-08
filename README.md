@@ -29,6 +29,8 @@ message Person {
 ```
 <!-- /include -->
 
+### `toBinary`
+
 Encoding a message to the binary wire format:
 
 <!-- include: example/examples/to_binary.zig -->
@@ -45,6 +47,8 @@ std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
 ```
 <!-- /include -->
 
+### `fromBinary`
+
 Decoding a message (the caller owns the result and must `deinit` it):
 
 <!-- include: example/examples/from_binary.zig -->
@@ -58,6 +62,8 @@ defer person.deinit(allocator);
 std.debug.print("decoded: {s}, {d}, {s}\n", .{ person.name, person.age, person.email });
 ```
 <!-- /include -->
+
+### `mergeFromBinary`
 
 Merging binary data into an existing message (singular fields are overwritten,
 repeated fields are appended):
