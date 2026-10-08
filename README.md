@@ -104,35 +104,17 @@ copied, so the target never references memory owned by the source.
 
 <!-- include: example/examples/merge.zig -->
 ```zig
-// merge frees the fields it overwrites, so the target must own its memory
-const address = try allocator.create(example.Address);
-address.* = .{
-    .street = try allocator.dupe(u8, "1 Main St"),
-    .city = try allocator.dupe(u8, "Paris"),
-};
-var person = example.Person{
-    .name = try allocator.dupe(u8, "Alice"),
-    .age = 30,
-    .address = address,
-};
+// The target owns its strings, which merge frees when overwritten
+var person = example.Person{ .name = try allocator.dupe(u8, "Alice"), .age = 30 };
 defer person.deinit(allocator);
-try person.emails.append(allocator, try allocator.dupe(u8, "alice@example.com"));
-try person.tags.put(allocator, try allocator.dupe(u8, "team"), try allocator.dupe(u8, "core"));
-try person.tags.put(allocator, try allocator.dupe(u8, "role"), try allocator.dupe(u8, "dev"));
 
-var update_emails = [_][]const u8{"alice@work.example.com"};
-var update_tags: std.StringHashMapUnmanaged([]const u8) = .empty;
-defer update_tags.deinit(allocator);
-try update_tags.put(allocator, "role", "lead");
-var update_address = example.Address{ .city = "Lyon" };
-const update = example.Person{
-    .age = 31, // singular fields are overwritten
-    .emails = .fromOwnedSlice(&update_emails), // repeated fields are appended
-    .tags = update_tags, // map entries are replaced by key
-    .address = &update_address, // sub-messages are merged recursively
-};
+var emails = [_][]const u8{"alice@example.com"};
+const update = example.Person{ .age = 31, .emails = .fromOwnedSlice(&emails) };
+
 try protobuf.merge(&person, allocator, update);
-printPerson(person);
+
+// merged: Alice, 31, alice@example.com
+std.debug.print("merged: {s}, {d}, {s}\n", .{ person.name, person.age, person.emails.items[0] });
 ```
 <!-- /include -->
 
