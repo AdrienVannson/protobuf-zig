@@ -224,8 +224,7 @@ fn readMessage(reader: *BinaryReader, allocator: std.mem.Allocator, msg: anytype
 }
 
 /// Deserializes a new message of type T from its binary Protocol Buffer
-/// representation. The caller owns the result and must `deinit` it. On error,
-/// nothing is leaked.
+/// representation. The caller owns the result and must `deinit` it.
 pub fn fromBinary(comptime T: type, allocator: std.mem.Allocator, data: []const u8) !T {
     var msg: T = .{};
     errdefer msg.deinit(allocator);

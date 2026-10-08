@@ -604,7 +604,7 @@ fn readMessage(
 }
 
 /// Deserializes a new message of type T from its ProtoJSON representation. The
-/// caller owns the result and must `deinit` it. On error, nothing is leaked.
+/// caller owns the result and must `deinit` it.
 pub fn fromJson(comptime T: type, allocator: std.mem.Allocator, json: []const u8, registry: *const Registry) !T {
     var msg: T = .{};
     errdefer msg.deinit(allocator);
