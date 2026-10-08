@@ -31,7 +31,7 @@ message Person {
 
 Encoding a message to the binary wire format:
 
-<!-- include: example/examples/basic.zig -->
+<!-- include: example/examples/to_binary.zig -->
 ```zig
 const person = example.Person{
     .name = "Alice",
@@ -42,6 +42,38 @@ const person = example.Person{
 const encoded = try protobuf.toBinary(allocator, person);
 defer allocator.free(encoded);
 std.debug.print("encoded ({d} bytes): {x}\n", .{ encoded.len, encoded });
+```
+<!-- /include -->
+
+Decoding a message (the caller owns the result and must `deinit` it):
+
+<!-- include: example/examples/from_binary.zig -->
+```zig
+const encoded = "\x0a\x05Alice\x10\x1e\x1a\x11alice@example.com";
+
+var person = try protobuf.fromBinary(example.Person, allocator, encoded);
+defer person.deinit(allocator);
+
+// decoded: Alice, 30, alice@example.com
+std.debug.print("decoded: {s}, {d}, {s}\n", .{ person.name, person.age, person.email });
+```
+<!-- /include -->
+
+Merging binary data into an existing message (singular fields are overwritten,
+repeated fields are appended):
+
+<!-- include: example/examples/merge_from_binary.zig -->
+```zig
+// The message owns its strings, which are freed by `deinit` or when overwritten
+var person = example.Person{ .name = try allocator.dupe(u8, "Alice"), .age = 30 };
+defer person.deinit(allocator);
+
+// Person{ .age = 31, .email = "alice@example.com" }
+const encoded = "\x10\x1f\x1a\x11alice@example.com";
+try protobuf.mergeFromBinary(&person, allocator, encoded);
+
+// merged: Alice, 31, alice@example.com
+std.debug.print("merged: {s}, {d}, {s}\n", .{ person.name, person.age, person.email });
 ```
 <!-- /include -->
 
